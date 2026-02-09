@@ -40,29 +40,47 @@ export interface SlotTemplate {
 export interface Venue {
     id: string;
     name: string;
-    address: string;
+    slug?: string;
+    address?: string; // Legacy field
+    addressLine?: string; // New field from seed
     mapsUrl?: string;
     defaultCapacity: number;
-    contactName: string;
-    phone: string;
+    contactName?: string;
+    phone?: string;
     notes?: string;
-    defaultSlotTemplate?: SlotTemplate[];
+    defaultSlotTemplate?: string[]; // Simplified from SlotTemplate
+    isActive?: boolean;
 }
 
 export interface Work {
     id: string;
     title: string;
-    description: string;
-    duration: number; // en minutos
+    slug?: string;
+    description?: string;
+    duration?: number; // en minutos
+    tags?: string[];
+    audienceTags?: string[];
+    isActive?: boolean;
 }
 
 export interface Season {
     id: string;
     name: string; // ej: "Temporada 2024"
-    startDate: string; // ISO Date
-    endDate: string; // ISO Date
-    isActive: boolean;
+    slug?: string;
+    startDate?: string; // ISO Date
+    endDate?: string; // ISO Date
+    isActive?: boolean;
     worksIds?: string[];
+}
+
+export interface SeasonWork {
+    id: string;
+    seasonId: string;
+    workId: string;
+    seasonSlug: string;
+    workSlug: string;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface EventDay {

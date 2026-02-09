@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Venue, SlotTemplate } from "@/types";
+import { Venue } from "@/types";
 import { addVenue, updateVenue } from "@/lib/actions";
 import { useRouter } from "next/navigation";
-import { Plus, Trash, MapPin, Users, Phone, User, FileText } from "lucide-react";
+import { MapPin, Users, Phone, User, FileText } from "lucide-react";
 
 interface VenueFormProps {
     initialData?: Venue;
@@ -15,7 +15,8 @@ export function VenueForm({ initialData }: VenueFormProps) {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState<Omit<Venue, "id">>({
         name: initialData?.name || "",
-        address: initialData?.address || "",
+        address: initialData?.address || initialData?.addressLine || "",
+        addressLine: initialData?.addressLine || initialData?.address || "",
         mapsUrl: initialData?.mapsUrl || "",
         defaultCapacity: initialData?.defaultCapacity || 0,
         contactName: initialData?.contactName || "",
@@ -42,25 +43,7 @@ export function VenueForm({ initialData }: VenueFormProps) {
         }
     };
 
-    const addSlot = () => {
-        const newSlot: SlotTemplate = { startTime: "09:00", endTime: "11:00", label: "" };
-        setFormData({
-            ...formData,
-            defaultSlotTemplate: [...(formData.defaultSlotTemplate || []), newSlot],
-        });
-    };
-
-    const removeSlot = (index: number) => {
-        const newTemplates = [...(formData.defaultSlotTemplate || [])];
-        newTemplates.splice(index, 1);
-        setFormData({ ...formData, defaultSlotTemplate: newTemplates });
-    };
-
-    const updateSlot = (index: number, field: keyof SlotTemplate, value: string) => {
-        const newTemplates = [...(formData.defaultSlotTemplate || [])];
-        newTemplates[index] = { ...newTemplates[index], [field]: value };
-        setFormData({ ...formData, defaultSlotTemplate: newTemplates });
-    };
+    // Slot functions temporarily removed - needs refactor
 
     return (
         <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl">
@@ -100,8 +83,12 @@ export function VenueForm({ initialData }: VenueFormProps) {
                         <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                         <input
                             required
-                            value={formData.address}
-                            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                            value={formData.address || formData.addressLine || ""}
+                            onChange={(e) => setFormData({
+                                ...formData,
+                                address: e.target.value,
+                                addressLine: e.target.value
+                            })}
                             className="w-full rounded-md border bg-background px-9 py-2 text-sm focus:ring-2 focus:ring-primary"
                             placeholder="Calle 123, Ciudad"
                         />
@@ -155,62 +142,15 @@ export function VenueForm({ initialData }: VenueFormProps) {
                 </div>
             </div>
 
+            {/* Slot template temporarily disabled - needs refactor */}
+            {/*
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold">Template de Horarios (Slots)</h3>
-                    <button
-                        type="button"
-                        onClick={addSlot}
-                        className="flex items-center gap-2 text-sm text-primary hover:underline"
-                    >
-                        <Plus className="h-4 w-4" /> Agregar Horario
-                    </button>
                 </div>
-
-                <div className="space-y-3">
-                    {formData.defaultSlotTemplate?.map((slot, index) => (
-                        <div key={index} className="flex items-end gap-3 rounded-lg border p-4 bg-muted/30">
-                            <div className="space-y-1">
-                                <label className="text-[10px] uppercase text-muted-foreground">Inicio</label>
-                                <input
-                                    type="time"
-                                    value={slot.startTime}
-                                    onChange={(e) => updateSlot(index, "startTime", e.target.value)}
-                                    className="rounded border px-2 py-1 text-sm bg-background"
-                                />
-                            </div>
-                            <div className="space-y-1">
-                                <label className="text-[10px] uppercase text-muted-foreground">Fin</label>
-                                <input
-                                    type="time"
-                                    value={slot.endTime}
-                                    onChange={(e) => updateSlot(index, "endTime", e.target.value)}
-                                    className="rounded border px-2 py-1 text-sm bg-background"
-                                />
-                            </div>
-                            <div className="flex-1 space-y-1">
-                                <label className="text-[10px] uppercase text-muted-foreground">Etiqueta (opcional)</label>
-                                <input
-                                    placeholder="Ej: Turno Mañana"
-                                    value={slot.label}
-                                    onChange={(e) => updateSlot(index, "label", e.target.value)}
-                                    className="w-full rounded border px-2 py-1 text-sm bg-background"
-                                />
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => removeSlot(index)}
-                                className="p-2 text-destructive hover:bg-destructive/10 rounded-md"
-                            >
-                                <Trash className="h-4 w-4" />
-                            </button>
-                        </div>
-                    ))}
-                    {(!formData.defaultSlotTemplate || formData.defaultSlotTemplate.length === 0) && (
-                        <p className="text-sm text-muted-foreground italic">No hay horarios definidos para este teatro.</p>
-                    )}
-                </div>
+                <p className="text-sm text-muted-foreground italic">Funcionalidad de slots en desarrollo.</p>
             </div>
+            */}
 
             <div className="flex justify-end gap-4 pt-4 border-t">
                 <button

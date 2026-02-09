@@ -38,14 +38,27 @@ export function WorkList({ works }: WorkListProps) {
                     </div>
 
                     <div className="space-y-3 text-sm">
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                            <Clock className="h-4 w-4 shrink-0" />
-                            <span>Duración: {work.duration} minutos</span>
-                        </div>
-                        <div className="flex gap-2 text-muted-foreground">
-                            <FileText className="h-4 w-4 shrink-0 mt-0.5" />
-                            <p className="line-clamp-3">{work.description}</p>
-                        </div>
+                        {work.duration && (
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                                <Clock className="h-4 w-4 shrink-0" />
+                                <span>Duración: {work.duration} minutos</span>
+                            </div>
+                        )}
+                        {work.description && (
+                            <div className="flex gap-2 text-muted-foreground">
+                                <FileText className="h-4 w-4 shrink-0 mt-0.5" />
+                                <p className="line-clamp-3">{work.description}</p>
+                            </div>
+                        )}
+                        {work.audienceTags && work.audienceTags.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                                {work.audienceTags.map((tag) => (
+                                    <span key={tag} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
+                                        {tag}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             ))}

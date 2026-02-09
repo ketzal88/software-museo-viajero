@@ -54,7 +54,7 @@ export function VenueList({ venues }: VenueListProps) {
 
                         <div className="flex items-start gap-2 text-muted-foreground text-sm mb-4">
                             <MapPin className="h-4 w-4 shrink-0 mt-0.5" />
-                            <span className="truncate">{venue.address}</span>
+                            <span className="truncate">{venue.addressLine || venue.address || 'Sin dirección'}</span>
                         </div>
 
                         {venue.notes && (
