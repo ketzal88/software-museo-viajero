@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Venues List - Museo Viajero</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#111418] dark:text-white transition-colors">
+<div class="flex h-screen overflow-hidden">
+<!-- Side Navigation Bar -->
+<aside class="w-64 flex-shrink-0 bg-white dark:bg-[#1a2632] border-r border-[#e2e8f0] dark:border-gray-800 flex flex-col">
+<div class="p-6 flex items-center gap-3">
+<div class="bg-primary size-10 rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-2xl">museum</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-base font-bold leading-tight">Museo Viajero</h1>
+<p class="text-[#617589] dark:text-gray-400 text-xs">Management System</p>
+</div>
+</div>
+<nav class="flex-1 px-4 flex flex-col gap-1 mt-4">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary font-semibold" href="#">
+<span class="material-symbols-outlined">theater_comedy</span>
+<span class="text-sm">Venues</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#617589] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">calendar_month</span>
+<span class="text-sm font-medium">Bookings</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#617589] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">badge</span>
+<span class="text-sm font-medium">Staff</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#617589] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">analytics</span>
+<span class="text-sm font-medium">Reports</span>
+</a>
+</nav>
+<div class="p-4 border-t border-[#e2e8f0] dark:border-gray-800 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#617589] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+<div class="flex items-center gap-3 px-3 py-4 mt-2">
+<div class="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">person</span>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-bold truncate">Operator Juan</span>
+<span class="text-[10px] text-[#617589]">Log out</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+<!-- Top Header -->
+<header class="h-16 bg-white dark:bg-[#1a2632] border-b border-[#e2e8f0] dark:border-gray-800 flex items-center justify-between px-8 z-10">
+<div class="flex items-center gap-4 flex-1 max-w-xl">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#617589] text-[20px]">search</span>
+<input class="w-full pl-10 pr-4 py-2 rounded-lg bg-[#f0f2f4] dark:bg-gray-800 border-none focus:ring-2 focus:ring-primary/50 text-sm placeholder-[#617589] dark:text-white" placeholder="Search venues by name or address..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 text-[#617589] hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span>Add New Venue</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Content Section -->
+<div class="flex-1 overflow-y-auto p-8">
+<div class="max-w-7xl mx-auto">
+<!-- Title and Filters -->
+<div class="flex items-center justify-between mb-8">
+<div>
+<h2 class="text-2xl font-bold">Theaters &amp; Venues</h2>
+<p class="text-[#617589] dark:text-gray-400 text-sm">Managing 24 active locations for Museo Viajero.</p>
+</div>
+<div class="flex gap-2">
+<button class="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-[#e2e8f0] dark:border-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                                Filter
+                            </button>
+<button class="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-[#e2e8f0] dark:border-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+<span class="material-symbols-outlined text-[18px]">sort</span>
+                                Capacity
+                            </button>
+</div>
+</div>
+<!-- Venue Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+<!-- Venue Card 1 -->
+<div class="bg-white dark:bg-[#1a2632] border border-[#e2e8f0] dark:border-gray-800 rounded-xl overflow-hidden shadow-sm flex flex-col">
+<div class="h-40 bg-gray-200 dark:bg-gray-700 relative">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="The facade of Teatro Gran Rex building" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDKUB4y5OoD2nXxN9c4Kq0sJoasoPtQJ0ocgJfWf824RA3qEXfUXoBIc894BR4gfiWcvrUDQ9Li1-MrKugHgoHRhdGh01-UeBc1jUOQSlQpDtSKxxOFRWnojCAs1_nQpJVZaY8dp3xNli6JTU0vG6XXfNutvDJ30-H5VsM7nYhLuevxsXRyIV7Aih2SmtGXjoQdleuDijVt4XS1n8Ms4SyTuazxMqmxh5uyc1Svn1InP7OXf6zwv8m8ORlIoycHZ2fAMoZVfZtmM-Q');"></div>
+<div class="absolute top-3 right-3">
+<span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Active</span>
+</div>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-bold text-lg leading-tight">Teatro Gran Rex</h3>
+<span class="flex items-center gap-1 text-primary text-xs font-semibold bg-primary/10 px-2 py-0.5 rounded">
+<span class="material-symbols-outlined text-[14px]">groups</span>
+                                        3,200
+                                    </span>
+</div>
+<div class="flex items-start gap-2 text-[#617589] dark:text-gray-400 text-sm mb-4">
+<span class="material-symbols-outlined text-[18px] shrink-0 mt-0.5">location_on</span>
+<span>Av. Corrientes 857, CABA</span>
+</div>
+<div class="bg-background-light dark:bg-gray-800/50 p-3 rounded-lg text-xs italic text-[#617589] dark:text-gray-400 flex-1">
+                                    "Loading dock on side street; preferred sound tech available. Stage width allows full set deployment."
+                                </div>
+<div class="mt-5 pt-4 border-t border-[#e2e8f0] dark:border-gray-700 flex justify-between items-center">
+<button class="flex items-center gap-1.5 text-primary text-sm font-semibold hover:underline">
+<span class="material-symbols-outlined text-[18px]">map</span>
+                                        View on Maps
+                                    </button>
+<button class="size-8 flex items-center justify-center rounded-lg border border-[#e2e8f0] dark:border-gray-700 text-[#617589] hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Venue Card 2 -->
+<div class="bg-white dark:bg-[#1a2632] border border-[#e2e8f0] dark:border-gray-800 rounded-xl overflow-hidden shadow-sm flex flex-col">
+<div class="h-40 bg-gray-200 dark:bg-gray-700 relative">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Classic architecture of Teatro Colon theater" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuATuU8mbihUZhR9aZv0I8sdP1o_3tOov07LQMPQq_bnAHVuyBqrTG2Nj3kncIFaNeBpHDb5yfwEQUrQ-31X5DxXAZllqGxLPulDu6ifL-GbUAWXLOCkHRJOaR3K6oUEQTMecIG6qsytt4s9NJGlzR2ixKEEKnZiyRJUt4dG5-2PrGYHcc3BiXmcFnALCjss7mtadCVzZigA_BnOffEPZDujC24AXAFpcPttqVWQhVfAnr7vFLWh09_4LGMbcYCmmO_oEcGX0jTlMIg');"></div>
+<div class="absolute top-3 right-3">
+<span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Active</span>
+</div>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-bold text-lg leading-tight">Teatro Colón</h3>
+<span class="flex items-center gap-1 text-primary text-xs font-semibold bg-primary/10 px-2 py-0.5 rounded">
+<span class="material-symbols-outlined text-[14px]">groups</span>
+                                        2,478
+                                    </span>
+</div>
+<div class="flex items-start gap-2 text-[#617589] dark:text-gray-400 text-sm mb-4">
+<span class="material-symbols-outlined text-[18px] shrink-0 mt-0.5">location_on</span>
+<span>Cerrito 628, CABA</span>
+</div>
+<div class="bg-background-light dark:bg-gray-800/50 p-3 rounded-lg text-xs italic text-[#617589] dark:text-gray-400 flex-1">
+                                    "Historic site, strict rules regarding set materials and installation times. Excellent natural acoustics."
+                                </div>
+<div class="mt-5 pt-4 border-t border-[#e2e8f0] dark:border-gray-700 flex justify-between items-center">
+<button class="flex items-center gap-1.5 text-primary text-sm font-semibold hover:underline">
+<span class="material-symbols-outlined text-[18px]">map</span>
+                                        View on Maps
+                                    </button>
+<button class="size-8 flex items-center justify-center rounded-lg border border-[#e2e8f0] dark:border-gray-700 text-[#617589] hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Venue Card 3 -->
+<div class="bg-white dark:bg-[#1a2632] border border-[#e2e8f0] dark:border-gray-800 rounded-xl overflow-hidden shadow-sm flex flex-col">
+<div class="h-40 bg-gray-200 dark:bg-gray-700 relative">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Entrance of the modern Luna Park arena" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA4kfow4LMVUgxGN1rI4T2vTNt2FlNJ_exhTFGfh0bXzLIIvZR7kNDX9EEdxBYr0w0ifMNDTKf6cL15LN7YNQpnqL0cJsp95Wj3esvCQvZrZSI6wjkwHtFVt2hOQjcH1lIr_96o6ORzJIjBoffH-32S7TQa7LwFOSXMrpF6fP32ghJ5b-y32nTaVH-dGpT8n0S_PiAKqj4pk0Ibx01ODk9m27kS8IBq4Ck0YmL3IIfcLXk-voHgP1eopWOkvCz3O0kpmvfG-VLjPHw');"></div>
+<div class="absolute top-3 right-3">
+<span class="bg-yellow-100 text-yellow-700 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Maintenance</span>
+</div>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-bold text-lg leading-tight">Luna Park</h3>
+<span class="flex items-center gap-1 text-primary text-xs font-semibold bg-primary/10 px-2 py-0.5 rounded">
+<span class="material-symbols-outlined text-[14px]">groups</span>
+                                        8,000
+                                    </span>
+</div>
+<div class="flex items-start gap-2 text-[#617589] dark:text-gray-400 text-sm mb-4">
+<span class="material-symbols-outlined text-[18px] shrink-0 mt-0.5">location_on</span>
+<span>Av. Madero 470, CABA</span>
+</div>
+<div class="bg-background-light dark:bg-gray-800/50 p-3 rounded-lg text-xs italic text-[#617589] dark:text-gray-400 flex-1">
+                                    "Multi-purpose arena. Best for large scale musical events. Limited availability in winter months."
+                                </div>
+<div class="mt-5 pt-4 border-t border-[#e2e8f0] dark:border-gray-700 flex justify-between items-center">
+<button class="flex items-center gap-1.5 text-primary text-sm font-semibold hover:underline">
+<span class="material-symbols-outlined text-[18px]">map</span>
+                                        View on Maps
+                                    </button>
+<button class="size-8 flex items-center justify-center rounded-lg border border-[#e2e8f0] dark:border-gray-700 text-[#617589] hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Venue Card 4 -->
+<div class="bg-white dark:bg-[#1a2632] border border-[#e2e8f0] dark:border-gray-800 rounded-xl overflow-hidden shadow-sm flex flex-col">
+<div class="h-40 bg-gray-200 dark:bg-gray-700 relative">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Blue whale concert hall at CCK" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCqvOVAbzG4tV6CVxj6XrG9owtraogJwba_lmnBPDXdMDDkHvUs6waTPZR25j9UcLa1v9PrpHw0fXT6PgU1w_5Kdz8xvScEs1YLqQsurwN0SVFft_kpRI9Vr-el7luJLZck6Cu9xJo1GCoMMDLf_JGKZNX1dQZeudAltLhl1PTztNdmC8BLPXVlrbWhifqWTtvKy3zLT64ud1kuaWHpLVDMmrWo5j3iQWMtrlMb4FqLbXIstl6Bra3x6Nb2jsdKaAq8j06Z6cTle3w');"></div>
+<div class="absolute top-3 right-3">
+<span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Active</span>
+</div>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-bold text-lg leading-tight">Centro Cultural Kirchner</h3>
+<span class="flex items-center gap-1 text-primary text-xs font-semibold bg-primary/10 px-2 py-0.5 rounded">
+<span class="material-symbols-outlined text-[14px]">groups</span>
+                                        1,700
+                                    </span>
+</div>
+<div class="flex items-start gap-2 text-[#617589] dark:text-gray-400 text-sm mb-4">
+<span class="material-symbols-outlined text-[18px] shrink-0 mt-0.5">location_on</span>
+<span>Sarmiento 151, CABA</span>
+</div>
+<div class="bg-background-light dark:bg-gray-800/50 p-3 rounded-lg text-xs italic text-[#617589] dark:text-gray-400 flex-1">
+                                    "Modern infrastructure, state-of-the-art lighting desk. High tech support required for full utilization."
+                                </div>
+<div class="mt-5 pt-4 border-t border-[#e2e8f0] dark:border-gray-700 flex justify-between items-center">
+<button class="flex items-center gap-1.5 text-primary text-sm font-semibold hover:underline">
+<span class="material-symbols-outlined text-[18px]">map</span>
+                                        View on Maps
+                                    </button>
+<button class="size-8 flex items-center justify-center rounded-lg border border-[#e2e8f0] dark:border-gray-700 text-[#617589] hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Venue Card 5 -->
+<div class="bg-white dark:bg-[#1a2632] border border-[#e2e8f0] dark:border-gray-800 rounded-xl overflow-hidden shadow-sm flex flex-col">
+<div class="h-40 bg-gray-200 dark:bg-gray-700 relative">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Broadway theater entrance in Buenos Aires" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDChRBXGXqfZtUSeK1eAiYbsOFc4owRb-8dDPN2rXKsKUxKfpUfouvHvw5FMenPUoETGDpxNK0fanv-4d4_raV7H_Org1uD2aGeUvSj4Dpl0qHrCgkmmRFbrOnR3IlLL9J3qEgqcG7i38zV8E2upndDV5ZamVE-KSwMcO_RT3zHfMYFbf_zKNAx8bKcUzwZ2MrMm1kMfqjYU6GsuqFTU6HTGYydR_xU9xukFRll3ReNkEGt2lQUcHtssRjtsRTYrIJ2sc0asNjg9y8');"></div>
+<div class="absolute top-3 right-3">
+<span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Active</span>
+</div>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-bold text-lg leading-tight">Teatro Broadway</h3>
+<span class="flex items-center gap-1 text-primary text-xs font-semibold bg-primary/10 px-2 py-0.5 rounded">
+<span class="material-symbols-outlined text-[14px]">groups</span>
+                                        1,500
+                                    </span>
+</div>
+<div class="flex items-start gap-2 text-[#617589] dark:text-gray-400 text-sm mb-4">
+<span class="material-symbols-outlined text-[18px] shrink-0 mt-0.5">location_on</span>
+<span>Av. Corrientes 1155, CABA</span>
+</div>
+<div class="bg-background-light dark:bg-gray-800/50 p-3 rounded-lg text-xs italic text-[#617589] dark:text-gray-400 flex-1">
+                                    "Centrally located, high foot traffic area. Narrow dressing rooms, limit crew size for backstage efficiency."
+                                </div>
+<div class="mt-5 pt-4 border-t border-[#e2e8f0] dark:border-gray-700 flex justify-between items-center">
+<button class="flex items-center gap-1.5 text-primary text-sm font-semibold hover:underline">
+<span class="material-symbols-outlined text-[18px]">map</span>
+                                        View on Maps
+                                    </button>
+<button class="size-8 flex items-center justify-center rounded-lg border border-[#e2e8f0] dark:border-gray-700 text-[#617589] hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Venue Card 6 (Add Placeholder) -->
+<div class="border-2 border-dashed border-[#e2e8f0] dark:border-gray-800 rounded-xl flex flex-col items-center justify-center p-8 bg-white/50 dark:bg-gray-800/20 group hover:border-primary/50 transition-colors cursor-pointer">
+<div class="size-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-3 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[32px]">add</span>
+</div>
+<span class="font-bold text-sm">Add New Venue</span>
+<span class="text-xs text-[#617589] text-center mt-1 px-4">Create a new theater profile for scheduling.</span>
+</div>
+</div>
+<!-- Pagination / Load More -->
+<div class="mt-12 flex justify-center">
+<button class="px-6 py-2 bg-white dark:bg-gray-800 border border-[#e2e8f0] dark:border-gray-700 rounded-lg text-sm font-semibold hover:shadow-md transition-all">
+                            Load 12 More Venues
+                        </button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

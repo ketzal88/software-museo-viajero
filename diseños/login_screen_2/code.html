@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sistema de Diseño Profesional V2 - Museo Viajero</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style type="text/tailwindcss">
+        :root {
+            --primary: #1D72E8;
+            --secondary: #2D3436;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --bg-main: #FBFBFE;
+            --sidebar-bg: #FFFFFF;
+            --card-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: "var(--primary)",
+                            charcoal: "var(--secondary)",
+                            green: "var(--success)",
+                            orange: "var(--warning)",
+                            red: "var(--danger)",
+                        }
+                    },
+                    borderRadius: {
+                        'button': '12px',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+                    }
+                },
+            },
+        }
+        .custom-shadow { box-shadow: var(--card-shadow); }
+        .sidebar-link-active { background-color: rgba(29, 114, 232, 0.08); color: var(--primary); border-right: 3px solid var(--primary); }html { scroll-behavior: smooth; }.input-focus:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(29, 114, 232, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-[var(--bg-main)] font-sans text-brand-charcoal antialiased flex min-h-screen">
+<aside class="w-72 bg-white border-r border-gray-100 flex-shrink-0 sticky top-0 h-screen hidden lg:flex flex-col">
+<div class="p-8">
+<div class="flex items-center gap-3 mb-10">
+<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-blue text-white">
+<span class="material-symbols-outlined">design_services</span>
+</div>
+<div>
+<h1 class="font-bold text-lg leading-tight">Museo Viajero</h1>
+<p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Diseño V2.0</p>
+</div>
+</div>
+<nav class="space-y-1">
+<p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-4 px-4">Documentación</p>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg transition-all group" href="#colores">
+<span class="material-symbols-outlined text-gray-400 group-hover:text-brand-blue">palette</span>
+<span class="font-medium">Paleta de Colores</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg transition-all group" href="#tipografia">
+<span class="material-symbols-outlined text-gray-400 group-hover:text-brand-blue">text_fields</span>
+<span class="font-medium">Tipografía</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg transition-all group" href="#botones">
+<span class="material-symbols-outlined text-gray-400 group-hover:text-brand-blue">smart_button</span>
+<span class="font-medium">Componentes: Botones</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg transition-all group" href="#badges">
+<span class="material-symbols-outlined text-gray-400 group-hover:text-brand-blue">label</span>
+<span class="font-medium">Badges y Estados</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg transition-all group" href="#entradas">
+<span class="material-symbols-outlined text-gray-400 group-hover:text-brand-blue">edit_square</span>
+<span class="font-medium">Campos de Entrada</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg transition-all group" href="#tarjetas">
+<span class="material-symbols-outlined text-gray-400 group-hover:text-brand-blue">grid_view</span>
+<span class="font-medium">Tarjetas de Reserva</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto p-8 border-t border-gray-50">
+<div class="flex items-center gap-3 text-gray-400 hover:text-brand-charcoal cursor-pointer transition-colors">
+<span class="material-symbols-outlined">info</span>
+<span class="text-sm font-medium">Guía de Uso</span>
+</div>
+</div>
+</aside>
+<main class="flex-1 max-w-6xl mx-auto p-8 lg:p-16">
+<header class="mb-16">
+<div class="inline-flex items-center px-3 py-1 bg-brand-blue/10 text-brand-blue rounded-full text-xs font-bold mb-4">
+                SISTEMA DE DISEÑO PROFESIONAL
+            </div>
+<h2 class="text-5xl font-black tracking-tight text-brand-charcoal mb-6">Guía de Estilos <span class="text-brand-blue">V2</span></h2>
+<p class="text-xl text-gray-500 max-w-2xl leading-relaxed">
+                Estándares visuales y de componentes para el sistema de gestión de reservas del Museo Viajero. Diseñado para ofrecer una experiencia operativa eficiente y profesional.
+            </p>
+</header>
+<section class="mb-20" id="colores">
+<div class="flex items-center gap-4 mb-8">
+<h3 class="text-2xl font-bold">Paleta de Colores</h3>
+<div class="h-px bg-gray-100 flex-1"></div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+<div class="space-y-3">
+<div class="aspect-square rounded-2xl bg-brand-blue custom-shadow flex items-end p-4">
+<span class="text-white font-mono text-xs font-medium">#1D72E8</span>
+</div>
+<p class="font-bold text-sm">Primario (Acción)</p>
+</div>
+<div class="space-y-3">
+<div class="aspect-square rounded-2xl bg-brand-charcoal custom-shadow flex items-end p-4">
+<span class="text-white font-mono text-xs font-medium">#2D3436</span>
+</div>
+<p class="font-bold text-sm">Texto &amp; UI Oscura</p>
+</div>
+<div class="space-y-3">
+<div class="aspect-square rounded-2xl bg-brand-green custom-shadow flex items-end p-4">
+<span class="text-white font-mono text-xs font-medium">#10B981</span>
+</div>
+<p class="font-bold text-sm">Éxito (Confirmado)</p>
+</div>
+<div class="space-y-3">
+<div class="aspect-square rounded-2xl bg-brand-orange custom-shadow flex items-end p-4">
+<span class="text-white font-mono text-xs font-medium">#F59E0B</span>
+</div>
+<p class="font-bold text-sm">Alerta (Pendiente)</p>
+</div>
+<div class="space-y-3">
+<div class="aspect-square rounded-2xl bg-brand-red custom-shadow flex items-end p-4">
+<span class="text-white font-mono text-xs font-medium">#EF4444</span>
+</div>
+<p class="font-bold text-sm">Peligro (Error/Fin)</p>
+</div>
+</div>
+</section>
+<section class="mb-20" id="tipografia">
+<div class="flex items-center gap-4 mb-8">
+<h3 class="text-2xl font-bold">Tipografía</h3>
+<div class="h-px bg-gray-100 flex-1"></div>
+</div>
+<div class="bg-white p-10 rounded-2xl border border-gray-100 custom-shadow space-y-12">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+<div class="col-span-1">
+<span class="text-sm font-bold text-gray-400 uppercase tracking-widest">Encabezados</span>
+</div>
+<div class="col-span-3 space-y-4">
+<h1 class="text-4xl font-extrabold tracking-tight">H1 - Título de sección principal</h1>
+<h2 class="text-3xl font-bold tracking-tight">H2 - Título de módulo o tarjeta</h2>
+<h3 class="text-xl font-semibold">H3 - Subtítulos informativos</h3>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8 border-t border-gray-50 pt-10">
+<div class="col-span-1">
+<span class="text-sm font-bold text-gray-400 uppercase tracking-widest">Cuerpo de Texto</span>
+</div>
+<div class="col-span-3 space-y-4">
+<p class="text-lg text-gray-600 leading-relaxed">
+                            Cuerpo grande: El Museo Viajero es un proyecto educativo-teatral dedicado a divulgar la historia argentina a través del humor y el rigor histórico.
+                        </p>
+<p class="text-base text-gray-500 leading-relaxed">
+                            Cuerpo estándar: Las reservas deben ser confirmadas con un mínimo de 72 horas de antelación para asegurar la disponibilidad de los operadores y el material de la obra seleccionada.
+                        </p>
+<p class="text-sm text-gray-400 font-medium">
+                            Texto pequeño: © 2024 Museo Viajero - Reservados todos los derechos.
+                        </p>
+</div>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-12">
+<section class="mb-20" id="botones">
+<div class="flex items-center gap-4 mb-8">
+<h3 class="text-2xl font-bold">Botones</h3>
+<div class="h-px bg-gray-100 flex-1"></div>
+</div>
+<div class="bg-white p-10 rounded-2xl border border-gray-100 custom-shadow flex flex-wrap gap-6 items-center">
+<button class="bg-brand-blue text-white font-bold py-3 px-8 rounded-button hover:bg-blue-700 transition-all custom-shadow border-b-2 border-blue-800">
+                        Principal Sólido
+                    </button>
+<button class="bg-white text-brand-blue border border-brand-blue font-bold py-3 px-8 rounded-button hover:bg-brand-blue/5 transition-all">
+                        Outlined
+                    </button>
+<button class="bg-brand-charcoal text-white font-bold py-3 px-8 rounded-button hover:opacity-90 transition-all">
+                        Acción Secundaria
+                    </button>
+</div>
+</section>
+<section class="mb-20" id="badges">
+<div class="flex items-center gap-4 mb-8">
+<h3 class="text-2xl font-bold">Badges tipo Pill</h3>
+<div class="h-px bg-gray-100 flex-1"></div>
+</div>
+<div class="bg-white p-10 rounded-2xl border border-gray-100 custom-shadow flex flex-wrap gap-4">
+<span class="px-5 py-2 bg-brand-green/10 text-brand-green text-xs font-black uppercase tracking-widest rounded-full border border-brand-green/20 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-brand-green"></span>
+                        Confirmado
+                    </span>
+<span class="px-5 py-2 bg-brand-orange/10 text-brand-orange text-xs font-black uppercase tracking-widest rounded-full border border-brand-orange/20 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-brand-orange"></span>
+                        En Espera
+                    </span>
+<span class="px-5 py-2 bg-brand-red/10 text-brand-red text-xs font-black uppercase tracking-widest rounded-full border border-brand-red/20 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-brand-red"></span>
+                        Vencido
+                    </span>
+<span class="px-5 py-2 bg-gray-100 text-gray-500 text-xs font-black uppercase tracking-widest rounded-full border border-gray-200 flex items-center gap-2">
+                        Cancelado
+                    </span>
+</div>
+</section>
+</div>
+<section class="mb-20" id="entradas">
+<div class="flex items-center gap-4 mb-8">
+<h3 class="text-2xl font-bold">Campos de Entrada</h3>
+<div class="h-px bg-gray-100 flex-1"></div>
+</div>
+<div class="bg-white p-10 rounded-2xl border border-gray-100 custom-shadow">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+<div class="space-y-2">
+<label class="text-sm font-bold text-brand-charcoal px-1">Nombre del Colegio / Institución</label>
+<input class="w-full bg-gray-50/50 border-gray-200 rounded-xl px-4 py-3.5 input-focus transition-all text-brand-charcoal placeholder:text-gray-400" placeholder="Ej: San Francisco de Asís" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-bold text-brand-charcoal px-1">Fecha Programada</label>
+<div class="relative">
+<input class="w-full bg-gray-50/50 border-gray-200 rounded-xl px-4 py-3.5 input-focus transition-all text-brand-charcoal" type="date"/>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="mb-20" id="tarjetas">
+<div class="flex items-center gap-4 mb-8">
+<h3 class="text-2xl font-bold">Estructura de Tarjetas (Data Cards)</h3>
+<div class="h-px bg-gray-100 flex-1"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="bg-white rounded-2xl border border-gray-100 custom-shadow overflow-hidden group">
+<div class="p-6 border-b border-gray-50 flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-blue-50 text-brand-blue flex items-center justify-center">
+<span class="material-symbols-outlined">theater_comedy</span>
+</div>
+<div>
+<h4 class="font-bold text-brand-charcoal">Reserva #2045</h4>
+<p class="text-xs text-gray-400 font-medium">Actualizado hace 2h</p>
+</div>
+</div>
+<span class="px-3 py-1 bg-brand-green/10 text-brand-green text-[10px] font-black uppercase rounded-full border border-brand-green/10">Confirmada</span>
+</div>
+<div class="p-6 space-y-5">
+<div class="space-y-1">
+<p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Obra Seleccionada</p>
+<p class="font-semibold text-lg">Los Fabulosos 20 (Gira Sur)</p>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-gray-400 text-lg">school</span>
+<span class="text-sm text-gray-600 font-medium">Col. San Juan</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-gray-400 text-lg">calendar_today</span>
+<span class="text-sm text-gray-600 font-medium">12 Oct 2024</span>
+</div>
+</div>
+</div>
+<div class="p-4 bg-gray-50/50 flex justify-end gap-3">
+<button class="text-sm font-bold text-gray-400 hover:text-brand-charcoal transition-colors">Ver Detalles</button>
+<button class="bg-brand-blue text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">Editar</button>
+</div>
+</div>
+<div class="bg-white rounded-2xl border border-gray-100 custom-shadow overflow-hidden group">
+<div class="p-6 border-b border-gray-50 flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-orange-50 text-brand-orange flex items-center justify-center">
+<span class="material-symbols-outlined">school</span>
+</div>
+<div>
+<h4 class="font-bold text-brand-charcoal">Ficha Escolar</h4>
+<p class="text-xs text-gray-400 font-medium">ID: ESC-8821</p>
+</div>
+</div>
+<span class="px-3 py-1 bg-brand-orange/10 text-brand-orange text-[10px] font-black uppercase rounded-full border border-brand-orange/10">Acción Pendiente</span>
+</div>
+<div class="p-6 space-y-5">
+<div class="space-y-1">
+<p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Institución</p>
+<p class="font-semibold text-lg">Instituto Santa María de los Buenos Aires</p>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-gray-400 text-lg">location_on</span>
+<span class="text-sm text-gray-600 font-medium">CABA, Balvanera</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-gray-400 text-lg">group</span>
+<span class="text-sm text-gray-600 font-medium">Primaria (A/B)</span>
+</div>
+</div>
+</div>
+<div class="p-4 bg-gray-50/50 flex justify-end gap-3">
+<button class="text-sm font-bold text-brand-blue hover:underline px-2">Contactar Director</button>
+</div>
+</div>
+</div>
+</section>
+<footer class="mt-32 pt-10 border-t border-gray-100 text-center">
+<p class="text-gray-400 text-xs font-bold uppercase tracking-[0.2em] mb-4">
+                © 2024 Museo Viajero • Manual de Identidad Visual para Operadores
+            </p>
+<div class="flex justify-center gap-6">
+<a class="text-gray-300 hover:text-brand-blue transition-colors text-xs font-medium underline underline-offset-4" href="#">Términos de Uso</a>
+<a class="text-gray-300 hover:text-brand-blue transition-colors text-xs font-medium underline underline-offset-4" href="#">Privacidad</a>
+<a class="text-gray-300 hover:text-brand-blue transition-colors text-xs font-medium underline underline-offset-4" href="#">Soporte Técnico</a>
+</div>
+</footer>
+</main>
+
+</body></html>

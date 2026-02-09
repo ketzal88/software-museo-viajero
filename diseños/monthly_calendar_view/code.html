@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Monthly Calendar View - Museo Viajero</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+        .calendar-cell {
+            min-height: 120px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="w-64 flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0">
+<div class="p-6 flex items-center gap-3">
+<div class="size-10 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined">museum</span>
+</div>
+<div>
+<h1 class="text-sm font-bold leading-tight">Museo Viajero</h1>
+<p class="text-xs text-slate-500 dark:text-slate-400">Management System</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px] fill-1">calendar_month</span>
+<span class="text-sm font-medium">Calendar</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]">description</span>
+<span class="text-sm font-medium">Reports</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]">group</span>
+<span class="text-sm font-medium">Operators</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="p-4 mt-auto">
+<div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 flex items-center gap-3">
+<img alt="Profile" class="size-10 rounded-full" data-alt="Profile photo of the museum operator" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzrIaBREHsDwTfP0ANQiBU-qwMpcnACtlmFaP9YbH_onIkwtflvlhTA1gIWM9frn-kUJzZQbuDaR-IsV9hyIiYbFLe8z0FB_KOEc4gtFY4req19FxapK6qZRrRdIGtTrTeAD8JyURDnLLctknPckav5aX_fPrSw8oIXzFS7ZOl506YGiAAhBK3uNbaf6Roqc8jyJ2CwjEO_CYHOcMzep_KEvDSZsJoTVdZUJLsaFFTKaQHiuw-msRHcy4aRBj5Er9I9Y6g914nZCk"/>
+<div class="overflow-hidden">
+<p class="text-sm font-semibold truncate">Juan Pérez</p>
+<p class="text-xs text-slate-500 dark:text-slate-400 truncate">Admin Operator</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col overflow-hidden relative">
+<!-- Header & Filters -->
+<header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 shrink-0">
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center gap-6">
+<h2 class="text-2xl font-bold tracking-tight">Octubre 2023</h2>
+<div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
+<button class="p-1 hover:bg-white dark:hover:bg-slate-700 rounded transition-all">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="px-3 py-1 text-xs font-semibold hover:bg-white dark:hover:bg-slate-700 rounded transition-all">Today</button>
+<button class="p-1 hover:bg-white dark:hover:bg-slate-700 rounded transition-all">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="relative">
+<input class="pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-transparent focus:border-primary focus:ring-0 rounded-lg text-sm w-64" placeholder="Search events..." type="text"/>
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-sm">search</span>
+</div>
+<button class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</div>
+<!-- Filter Controls -->
+<div class="flex flex-wrap items-center gap-3">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Filters:</span>
+<div class="relative inline-block text-left">
+<button class="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium">
+                                Season: 2023
+                                <span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+<div class="relative inline-block text-left">
+<button class="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium">
+                                Type: All
+                                <span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+<div class="relative inline-block text-left">
+<button class="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium">
+                                Venue: Central Museum
+                                <span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+</div>
+<div class="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
+<button class="text-primary text-sm font-semibold hover:underline">Clear all filters</button>
+</div>
+</header>
+<!-- Calendar Container -->
+<div class="flex-1 overflow-auto p-4 bg-slate-50 dark:bg-background-dark">
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+<!-- Day Headers -->
+<div class="calendar-grid border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+<div class="py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-widest border-r border-slate-200 dark:border-slate-800 last:border-0">Mon</div>
+<div class="py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-widest border-r border-slate-200 dark:border-slate-800 last:border-0">Tue</div>
+<div class="py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-widest border-r border-slate-200 dark:border-slate-800 last:border-0">Wed</div>
+<div class="py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-widest border-r border-slate-200 dark:border-slate-800 last:border-0">Thu</div>
+<div class="py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-widest border-r border-slate-200 dark:border-slate-800 last:border-0">Fri</div>
+<div class="py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-widest border-r border-slate-200 dark:border-slate-800 last:border-0">Sat</div>
+<div class="py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-widest border-r border-slate-200 dark:border-slate-800 last:border-0">Sun</div>
+</div>
+<!-- Calendar Body -->
+<div class="calendar-grid">
+<!-- Row 1: Partial Start Week -->
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-950/20"></div>
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-950/20"></div>
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-950/20"></div>
+<!-- Day 1 -->
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 relative group hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">1</span>
+</div>
+<!-- Day 2 -->
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 relative group hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">2</span>
+<div class="mt-2 space-y-1">
+<div class="px-2 py-1 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-[11px] font-bold border-l-2 border-blue-500 truncate">
+<span class="material-symbols-outlined text-[12px] align-middle mr-1">theater_comedy</span>
+                                    Teatro: San Martín - Hamlet
+                                </div>
+</div>
+</div>
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">3</span>
+</div>
+<div class="calendar-cell p-2 border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">4</span>
+</div>
+<!-- Row 2 -->
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 relative bg-primary/5">
+<span class="text-sm font-bold text-primary">5</span>
+<div class="mt-2 space-y-1">
+<div class="px-2 py-1 rounded bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold border-l-2 border-indigo-500 truncate">
+<span class="material-symbols-outlined text-[12px] align-middle mr-1">directions_bus</span>
+                                    Viajera: Escuela Normal
+                                </div>
+<div class="px-2 py-1 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-[11px] font-bold border-l-2 border-blue-500 truncate">
+<span class="material-symbols-outlined text-[12px] align-middle mr-1">theater_comedy</span>
+                                    Teatro: Cervantes - Fausto
+                                </div>
+</div>
+</div>
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">6</span>
+<div class="mt-2 space-y-1">
+<div class="px-2 py-1 rounded bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold border-l-2 border-indigo-500 truncate">
+<span class="material-symbols-outlined text-[12px] align-middle mr-1">directions_bus</span>
+                                    Viajera: St. George Coll.
+                                </div>
+</div>
+</div>
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">7</span>
+</div>
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">8</span>
+</div>
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">9</span>
+</div>
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">10</span>
+</div>
+<div class="calendar-cell p-2 border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">11</span>
+</div>
+<!-- Row 3 -->
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">12</span>
+</div>
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">13</span>
+<div class="mt-2 space-y-1">
+<div class="px-2 py-1 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-[11px] font-bold border-l-2 border-blue-500 truncate">
+<span class="material-symbols-outlined text-[12px] align-middle mr-1">theater_comedy</span>
+                                    Teatro: Metropolitan
+                                </div>
+</div>
+</div>
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">14</span>
+</div>
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">15</span>
+</div>
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">16</span>
+</div>
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">17</span>
+<div class="mt-2 space-y-1">
+<div class="px-2 py-1 rounded bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold border-l-2 border-indigo-500 truncate">
+<span class="material-symbols-outlined text-[12px] align-middle mr-1">directions_bus</span>
+                                    Viajera: Esc. Sarmiento
+                                </div>
+</div>
+</div>
+<div class="calendar-cell p-2 border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">18</span>
+</div>
+<!-- Row 4 -->
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">19</span>
+</div>
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">20</span>
+</div>
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">21</span>
+</div>
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">22</span>
+</div>
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">23</span>
+</div>
+<div class="calendar-cell p-2 border-r border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">24</span>
+</div>
+<div class="calendar-cell p-2 border-b border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">25</span>
+</div>
+<!-- Row 5 -->
+<div class="calendar-cell p-2 border-r border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">26</span>
+</div>
+<div class="calendar-cell p-2 border-r border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">27</span>
+</div>
+<div class="calendar-cell p-2 border-r border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">28</span>
+</div>
+<div class="calendar-cell p-2 border-r border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">29</span>
+</div>
+<div class="calendar-cell p-2 border-r border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">30</span>
+</div>
+<div class="calendar-cell p-2 border-r border-slate-200 dark:border-slate-800 relative hover:bg-slate-50 dark:hover:bg-slate-800/50">
+<span class="text-sm font-semibold text-slate-400">31</span>
+</div>
+<div class="calendar-cell p-2 bg-slate-50/30 dark:bg-slate-950/20"></div>
+</div>
+</div>
+</div>
+<!-- Floating Action Button (FAB) -->
+<button class="absolute bottom-8 right-8 bg-primary hover:bg-blue-600 text-white size-14 rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 group">
+<span class="material-symbols-outlined text-3xl font-bold">add</span>
+<span class="absolute right-full mr-4 bg-slate-900 text-white text-xs font-bold py-1 px-3 rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap">Crear Jornada</span>
+</button>
+</main>
+</div>
+<!-- Quick Info Panel (Optional sidebar right) -->
+<div class="hidden xl:flex w-72 bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 flex-col overflow-y-auto">
+<div class="p-6">
+<h3 class="font-bold text-lg mb-4">Summary: Oct 2023</h3>
+<div class="space-y-4">
+<div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+<div class="flex items-center gap-2 text-blue-700 dark:text-blue-300 mb-1">
+<span class="material-symbols-outlined text-lg">theater_comedy</span>
+<span class="text-xs font-bold uppercase tracking-wider">Theater Work</span>
+</div>
+<p class="text-2xl font-bold text-blue-900 dark:text-blue-100">12 Performances</p>
+</div>
+<div class="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
+<div class="flex items-center gap-2 text-indigo-700 dark:text-indigo-300 mb-1">
+<span class="material-symbols-outlined text-lg">directions_bus</span>
+<span class="text-xs font-bold uppercase tracking-wider">Traveling Schools</span>
+</div>
+<p class="text-2xl font-bold text-indigo-900 dark:text-indigo-100">18 Visits</p>
+</div>
+<div class="pt-4 border-t border-slate-100 dark:border-slate-800">
+<h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Today's Reminders</h4>
+<div class="space-y-3">
+<div class="flex gap-3">
+<div class="size-2 rounded-full bg-yellow-400 mt-1.5 shrink-0"></div>
+<div>
+<p class="text-sm font-semibold">Check transport for Day 5</p>
+<p class="text-xs text-slate-500">School Normal needs confirmation</p>
+</div>
+</div>
+<div class="flex gap-3">
+<div class="size-2 rounded-full bg-green-400 mt-1.5 shrink-0"></div>
+<div>
+<p class="text-sm font-semibold">Cervantes venue ready</p>
+<p class="text-xs text-slate-500">Logistics approved</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-auto p-6 bg-slate-50 dark:bg-slate-800/50">
+<button class="w-full py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-lg">download</span>
+                Export Schedule (PDF)
+            </button>
+</div>
+</div>
+</body></html>

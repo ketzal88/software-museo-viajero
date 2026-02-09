@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bookings Inbox - Museo Viajero</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#111418] dark:text-white antialiased">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Navigation Header -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#f0f2f4] dark:border-[#2d3a4a] bg-white dark:bg-background-dark px-6 py-3 lg:px-10">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-primary">
+<span class="material-symbols-outlined text-3xl">museum</span>
+<h2 class="text-[#111418] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Museo Viajero</h2>
+</div>
+<nav class="hidden md:flex items-center gap-9">
+<a class="text-[#111418] dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-primary text-sm font-bold border-b-2 border-primary pb-1" href="#">Bookings</a>
+<a class="text-[#617589] dark:text-gray-400 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Schools</a>
+<a class="text-[#617589] dark:text-gray-400 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Reports</a>
+</nav>
+</div>
+<div class="flex flex-1 justify-end gap-6 items-center">
+<label class="hidden sm:flex flex-col min-w-40 h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-xl h-full">
+<div class="text-[#617589] flex border-none bg-[#f0f2f4] dark:bg-[#1c2a38] items-center justify-center pl-4 rounded-l-xl">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 border-none bg-[#f0f2f4] dark:bg-[#1c2a38] h-full placeholder:text-[#617589] px-4 rounded-r-xl focus:ring-0 text-base" placeholder="Search school or show..." value=""/>
+</div>
+</label>
+<div class="flex items-center gap-3">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-gray-200 dark:border-gray-700" data-alt="Operator profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBo78myY94C4gFB_HlliXJzaFfufs7HWvE5JzSarOEIUZyiZxiDIxuHUDZ-GunBVmkKrcajVLvBj89J4QdOfCI18Gj-yAE_dO5EWMIfkcJ817U7p0TzbF9SS5puNUnQvBEQLnk0GH4j63IC-dZBABoTEfnEE98guq_uiFc10y-oXmqkypP8jMU9Ymrqu7Iu0wx8996siqvt4B963gsGSvDhojpP65DSNUw5B5zodMZPb7XpuB5c7NE9ru54hJ5oHOH2dmyOK-NTNnY");'></div>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex flex-1 flex-col mx-auto w-full max-w-[1200px] py-8 px-4 lg:px-10">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+<div class="flex flex-col gap-1">
+<h1 class="text-[#111418] dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">Bookings Inbox</h1>
+<p class="text-[#617589] dark:text-gray-400 text-base font-normal">Prioritizing bookings by expiry date (Vence antes)</p>
+</div>
+<div class="flex gap-2">
+<button class="flex h-10 items-center justify-center gap-2 rounded-xl bg-[#f0f2f4] dark:bg-[#1c2a38] px-4 text-[#111418] dark:text-white font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+                            Filter
+                        </button>
+<button class="flex h-10 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-white font-medium shadow-sm hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                            New Booking
+                        </button>
+</div>
+</div>
+<!-- Status Tabs -->
+<div class="mb-6 border-b border-[#dbe0e6] dark:border-[#2d3a4a]">
+<div class="flex gap-8 overflow-x-auto no-scrollbar">
+<a class="flex flex-col items-center justify-center border-b-[3px] border-primary text-primary pb-3 pt-2" href="#">
+<div class="flex items-center gap-2">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">HOLD</p>
+<span class="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full font-bold">12</span>
+</div>
+</a>
+<a class="flex flex-col items-center justify-center border-b-[3px] border-transparent text-[#617589] dark:text-gray-400 pb-3 pt-2 hover:text-[#111418] dark:hover:text-white transition-colors" href="#">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">CONFIRMED</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-[3px] border-transparent text-[#617589] dark:text-gray-400 pb-3 pt-2 hover:text-[#111418] dark:hover:text-white transition-colors" href="#">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">EXPIRED</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-[3px] border-transparent text-[#617589] dark:text-gray-400 pb-3 pt-2 hover:text-[#111418] dark:hover:text-white transition-colors" href="#">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">CANCELLED</p>
+</a>
+</div>
+</div>
+<!-- Filter Pills -->
+<div class="flex gap-3 mb-6 overflow-x-auto no-scrollbar">
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-primary text-white px-4 text-sm font-medium">All Types</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#f0f2f4] dark:bg-[#1c2a38] px-4 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700">
+<span class="material-symbols-outlined text-[18px]">theater_comedy</span> Theater
+                    </button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#f0f2f4] dark:bg-[#1c2a38] px-4 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700">
+<span class="material-symbols-outlined text-[18px]">flight_takeoff</span> Travel
+                    </button>
+</div>
+<!-- Bookings Grid -->
+<div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+<!-- Card 1: Urgent -->
+<div class="flex flex-col bg-white dark:bg-[#1c2a38] rounded-xl border border-red-200 dark:border-red-900/30 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700">
+<div class="flex items-center gap-2">
+<span class="flex items-center justify-center bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-sm mr-1">theater_comedy</span> Teatro
+                                </span>
+<span class="bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-full animate-pulse">VENCE HOY</span>
+</div>
+<div class="flex items-center text-red-600 dark:text-red-400 font-bold text-sm">
+<span class="material-symbols-outlined text-sm mr-1">timer</span> 2h 15m
+                            </div>
+</div>
+<div class="p-4 flex gap-4">
+<div class="hidden sm:block w-32 h-24 bg-center bg-cover rounded-lg shrink-0" data-alt="Play promotional poster" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBvdJ59mwsvnXUqMbfzvJ6p3bfOFS2t1ba-yvs7UxSq-clfH0A0MvS7rIablA1we_z82-Owmrydp4HrBLsX-heILAgVq5y_mwxJdMgOjcA46s27Gea2dM_mhJ7-b4bHu4Uy9Rfr3i27vTLYQ54weBZNSNzW-pcXI4wjrjb5xxRM7TVAA-gz-7n_njZK2VETfevMrSL993Rb42KenJSWJZq_2crLIQ1BXjvGQhZUwMHoVsCXBF7xwDBVUOXlYqHX9G_EtbdOoEiq3E4");'></div>
+<div class="flex flex-col grow min-w-0">
+<h3 class="text-lg font-bold text-[#111418] dark:text-white truncate">Belgrano hace bandera</h3>
+<p class="text-[#617589] dark:text-gray-400 text-sm font-medium mb-2">Escuela Primaria N° 12</p>
+<div class="flex items-center gap-4 mt-auto">
+<div class="flex items-center gap-1 text-[#617589] dark:text-gray-400 text-xs">
+<span class="material-symbols-outlined text-sm">calendar_month</span>
+                                        14 Oct
+                                    </div>
+<div class="flex items-center gap-1 text-[#617589] dark:text-gray-400 text-xs">
+<span class="material-symbols-outlined text-sm">schedule</span>
+                                        10:00 AM
+                                    </div>
+</div>
+</div>
+</div>
+<div class="p-4 bg-[#f9fafb] dark:bg-[#16212b] flex justify-between items-center border-t border-gray-100 dark:border-gray-700">
+<div class="flex gap-2">
+<button class="flex items-center justify-center h-9 w-9 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">mail</span>
+</button>
+<button class="flex items-center justify-center h-9 px-4 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-red-600 font-medium text-sm hover:bg-red-50 transition-colors">
+                                    Cancel
+                                </button>
+</div>
+<button class="flex items-center justify-center h-9 px-6 rounded-lg bg-primary text-white font-bold text-sm shadow-sm hover:opacity-90 transition-all">
+                                Confirm
+                            </button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="flex flex-col bg-white dark:bg-[#1c2a38] rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700">
+<div class="flex items-center gap-2">
+<span class="flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-sm mr-1">flight_takeoff</span> Viaje
+                                </span>
+</div>
+<div class="flex items-center text-[#617589] dark:text-gray-400 font-medium text-sm">
+<span class="material-symbols-outlined text-sm mr-1">timer</span> 2 días
+                            </div>
+</div>
+<div class="p-4 flex gap-4">
+<div class="hidden sm:block w-32 h-24 bg-center bg-cover rounded-lg shrink-0" data-alt="Travel destination map preview" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBl1beb4gthqYB-kONu8UuJLufHdxg1C0RT6FhJ9jlGqACRrSRCWOscEp2MsKmkjH7mox-QXjNnvejOwzSfYGJY7Gb4UnbVyZEm3Sz2TUc2XI6Pd2-e67-ZASPN-H8JVFaoDln06Bz53EuiWtHSvU6so40Zxx8vIL-7NWAefsMf6QmibMJfKP5DRZJBmjOwbVdZJMvehxt9uaF8ooSjL70LMJVf3nGAf8T5lO9CiV-S13EsQ72YpILMhrGCtNY169Mn9eEsZs5V54s");'></div>
+<div class="flex flex-col grow min-w-0">
+<h3 class="text-lg font-bold text-[#111418] dark:text-white truncate">Cabildo y Revolución</h3>
+<p class="text-[#617589] dark:text-gray-400 text-sm font-medium mb-2">Colegio San Juan Bautista</p>
+<div class="flex items-center gap-4 mt-auto">
+<div class="flex items-center gap-1 text-[#617589] dark:text-gray-400 text-xs">
+<span class="material-symbols-outlined text-sm">calendar_month</span>
+                                        16 Oct
+                                    </div>
+<div class="flex items-center gap-1 text-[#617589] dark:text-gray-400 text-xs">
+<span class="material-symbols-outlined text-sm">schedule</span>
+                                        08:30 AM
+                                    </div>
+</div>
+</div>
+</div>
+<div class="p-4 bg-[#f9fafb] dark:bg-[#16212b] flex justify-between items-center border-t border-gray-100 dark:border-gray-700">
+<div class="flex gap-2">
+<button class="flex items-center justify-center h-9 w-9 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">mail</span>
+</button>
+<button class="flex items-center justify-center h-9 px-4 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-red-600 font-medium text-sm hover:bg-red-50 transition-colors">
+                                    Cancel
+                                </button>
+</div>
+<button class="flex items-center justify-center h-9 px-6 rounded-lg bg-primary text-white font-bold text-sm shadow-sm hover:opacity-90 transition-all">
+                                Confirm
+                            </button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="flex flex-col bg-white dark:bg-[#1c2a38] rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700">
+<div class="flex items-center gap-2">
+<span class="flex items-center justify-center bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-sm mr-1">theater_comedy</span> Teatro
+                                </span>
+</div>
+<div class="flex items-center text-[#617589] dark:text-gray-400 font-medium text-sm">
+<span class="material-symbols-outlined text-sm mr-1">timer</span> 3 días
+                            </div>
+</div>
+<div class="p-4 flex gap-4">
+<div class="hidden sm:block w-32 h-24 bg-center bg-cover rounded-lg shrink-0" data-alt="Play scenery sketch" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAjm4ct4DTnYzBTGPE87locNCii85Qm_2_BZ8_n9r7sE_WyTymWnDYcyaBmqEVfB5v2ELp3wol3_fQhcdA0wi2v3x-HeFCxrcBQ5UEsL-1HmsxZ5aOmHWG-1y38GZ0oa5afar4N-IItl203gq3L7MQ8p5FuYpzDV5uoh8ic-oCemZ3pRy5qw0_ZZvQ7_-BHtpK87z5vTWdrQyHLJSgfAeWL6XkuQz5twiAvTuaTxJ3kUxRyJjtO6CjfOTdOWZtz6WkO7KsagW_65to");'></div>
+<div class="flex flex-col grow min-w-0">
+<h3 class="text-lg font-bold text-[#111418] dark:text-white truncate">Juana Azurduy: La Generala</h3>
+<p class="text-[#617589] dark:text-gray-400 text-sm font-medium mb-2">Escuela Municipal N° 4</p>
+<div class="flex items-center gap-4 mt-auto">
+<div class="flex items-center gap-1 text-[#617589] dark:text-gray-400 text-xs">
+<span class="material-symbols-outlined text-sm">calendar_month</span>
+                                        18 Oct
+                                    </div>
+<div class="flex items-center gap-1 text-[#617589] dark:text-gray-400 text-xs">
+<span class="material-symbols-outlined text-sm">schedule</span>
+                                        14:00 PM
+                                    </div>
+</div>
+</div>
+</div>
+<div class="p-4 bg-[#f9fafb] dark:bg-[#16212b] flex justify-between items-center border-t border-gray-100 dark:border-gray-700">
+<div class="flex gap-2">
+<button class="flex items-center justify-center h-9 w-9 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">mail</span>
+</button>
+<button class="flex items-center justify-center h-9 px-4 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-red-600 font-medium text-sm hover:bg-red-50 transition-colors">
+                                    Cancel
+                                </button>
+</div>
+<button class="flex items-center justify-center h-9 px-6 rounded-lg bg-primary text-white font-bold text-sm shadow-sm hover:opacity-90 transition-all">
+                                Confirm
+                            </button>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="flex flex-col bg-white dark:bg-[#1c2a38] rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700">
+<div class="flex items-center gap-2">
+<span class="flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-sm mr-1">flight_takeoff</span> Viaje
+                                </span>
+</div>
+<div class="flex items-center text-[#617589] dark:text-gray-400 font-medium text-sm">
+<span class="material-symbols-outlined text-sm mr-1">timer</span> 5 días
+                            </div>
+</div>
+<div class="p-4 flex gap-4">
+<div class="hidden sm:block w-32 h-24 bg-center bg-cover rounded-lg shrink-0" data-alt="National museum exterior" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBoo1clzvoMFQ7EPjXPIXFBGYn6SZ4fM7Lh5WUdsPReNIRdeM_P-Piqc8X0OJegJQ4AUSZ41Ap1ttAqudw35bZe2XV3iJw8QJVBAd5LhxNGeRJXiTHiuML9E9k7l6EBuNP6GQPqcjrp4TH2gWQ2QlfPzXCe_A4YKPekMeDphpPAeZTpwvtpN_q8C9WT2fyR5x6-al_qjNfWJC20pcEoi4CFhYgStbs2iyjOzpLs1sh7wGlSKng2ApXPeHWKPWNc374GruVWrd1-HJc");'></div>
+<div class="flex flex-col grow min-w-0">
+<h3 class="text-lg font-bold text-[#111418] dark:text-white truncate">Museo Histórico Nacional</h3>
+<p class="text-[#617589] dark:text-gray-400 text-sm font-medium mb-2">Escuela del Sol</p>
+<div class="flex items-center gap-4 mt-auto">
+<div class="flex items-center gap-1 text-[#617589] dark:text-gray-400 text-xs">
+<span class="material-symbols-outlined text-sm">calendar_month</span>
+                                        20 Oct
+                                    </div>
+<div class="flex items-center gap-1 text-[#617589] dark:text-gray-400 text-xs">
+<span class="material-symbols-outlined text-sm">schedule</span>
+                                        11:00 AM
+                                    </div>
+</div>
+</div>
+</div>
+<div class="p-4 bg-[#f9fafb] dark:bg-[#16212b] flex justify-between items-center border-t border-gray-100 dark:border-gray-700">
+<div class="flex gap-2">
+<button class="flex items-center justify-center h-9 w-9 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">mail</span>
+</button>
+<button class="flex items-center justify-center h-9 px-4 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-red-600 font-medium text-sm hover:bg-red-50 transition-colors">
+                                    Cancel
+                                </button>
+</div>
+<button class="flex items-center justify-center h-9 px-6 rounded-lg bg-primary text-white font-bold text-sm shadow-sm hover:opacity-90 transition-all">
+                                Confirm
+                            </button>
+</div>
+</div>
+</div>
+<!-- Footer Stats / Pagination -->
+<div class="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-100 dark:border-gray-700 pt-6">
+<p class="text-sm text-[#617589] dark:text-gray-400">Showing <span class="font-bold">4</span> of <span class="font-bold">12</span> pending bookings</p>
+<div class="flex gap-2">
+<button class="flex h-10 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 text-sm font-bold text-gray-400 cursor-not-allowed">
+                            Previous
+                        </button>
+<button class="flex h-10 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
+                            Next
+                        </button>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

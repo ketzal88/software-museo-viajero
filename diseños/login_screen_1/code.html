@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login - Museo Viajero</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="flex min-h-screen">
+<!-- Left Section: Login Form -->
+<div class="flex w-full flex-col justify-center px-6 py-12 lg:w-[40%] xl:w-[35%] bg-white dark:bg-background-dark">
+<div class="mx-auto w-full max-w-sm">
+<!-- Header/Logo Area -->
+<div class="mb-10 text-center lg:text-left">
+<div class="flex items-center justify-center lg:justify-start gap-2 mb-4">
+<div class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white">
+<span class="material-symbols-outlined text-3xl">museum</span>
+</div>
+<div>
+<h1 class="text-2xl font-black tracking-tight text-[#111418] dark:text-white leading-none">Museo Viajero</h1>
+<p class="text-sm font-medium text-primary/80 mt-1">Gestión de Operadores</p>
+</div>
+</div>
+<h2 class="text-3xl font-bold text-[#111418] dark:text-white">Bienvenido</h2>
+<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Ingresa tus credenciales para acceder al sistema.</p>
+</div>
+<!-- Form -->
+<form action="#" class="space-y-6" method="POST">
+<div>
+<label class="block text-sm font-semibold leading-6 text-[#111418] dark:text-gray-200" for="email">Correo electrónico</label>
+<div class="mt-2">
+<input autocomplete="email" class="block w-full rounded-lg border-0 py-3 text-[#111418] shadow-sm ring-1 ring-inset ring-[#dbe0e6] placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 dark:bg-[#1a2530] dark:ring-gray-700 dark:text-white" id="email" name="email" placeholder="ejemplo@museoviajero.com" required="" type="email"/>
+</div>
+</div>
+<div>
+<div class="flex items-center justify-between">
+<label class="block text-sm font-semibold leading-6 text-[#111418] dark:text-gray-200" for="password">Contraseña</label>
+<div class="text-sm">
+<a class="font-semibold text-primary hover:text-primary/80" href="#">¿Olvidó su contraseña?</a>
+</div>
+</div>
+<div class="mt-2 relative">
+<input autocomplete="current-password" class="block w-full rounded-lg border-0 py-3 text-[#111418] shadow-sm ring-1 ring-inset ring-[#dbe0e6] placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 dark:bg-[#1a2530] dark:ring-gray-700 dark:text-white" id="password" name="password" placeholder="••••••••" required="" type="password"/>
+<button class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400" type="button">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+</div>
+</div>
+<div>
+<button class="flex w-full justify-center rounded-lg bg-primary px-3 py-3 text-sm font-bold leading-6 text-white shadow-sm hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition-colors" type="submit">
+                            Iniciar Sesión
+                        </button>
+</div>
+</form>
+<div class="mt-10">
+<div class="relative">
+<div aria-hidden="true" class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-gray-200 dark:border-gray-700"></div>
+</div>
+<div class="relative flex justify-center text-sm font-medium leading-6">
+<span class="bg-white px-6 text-gray-500 dark:bg-background-dark dark:text-gray-400 uppercase tracking-widest text-[10px]">O continuar con</span>
+</div>
+</div>
+<div class="mt-6">
+<button class="flex w-full items-center justify-center gap-3 rounded-lg bg-white px-3 py-3 text-sm font-bold text-[#111418] shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:ring-transparent transition-all dark:bg-transparent dark:text-white dark:ring-gray-700 dark:hover:bg-gray-800">
+<svg class="h-5 w-5" viewbox="0 0 24 24">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+</svg>
+<span class="text-sm font-semibold leading-6">Continuar con Google</span>
+</button>
+</div>
+</div>
+<p class="mt-10 text-center text-sm text-gray-500 dark:text-gray-400">
+                    ¿No tienes acceso?
+                    <a class="font-semibold leading-6 text-primary hover:text-primary/80" href="#">Solicitar cuenta</a>
+</p>
+</div>
+<!-- Footer Small Print -->
+<div class="mt-auto pt-10 text-center lg:text-left">
+<p class="text-[10px] text-gray-400 uppercase tracking-widest">© 2024 Museo Viajero. Sistema de Gestión Interna.</p>
+</div>
+</div>
+<!-- Right Section: Evocative Image -->
+<div class="relative hidden w-0 flex-1 lg:block">
+<div class="absolute inset-0 h-full w-full bg-cover bg-center" data-alt="Gran teatro clásico con telones rojos y butacas elegantes" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBH5Y-4mjtPrsWemA7VcZr23ofhZWxpaWLVgll5Bezu_d2_HDb8pPPCoBZX3HJPPBuouKqGR4psUOljlmNjRps0XBftcZ9L3kZCAMr3oXaG48lu7TsGwFl_AELzkDTeSnLrbX95Nu5JA2StCQO6Owtfsheawy1BHilgmkxCtHc_0rWl-KbUHqFPmMH1GqSZRUxlyneEMpG0-9fypqVErrnUOKIIWLTpQ0hkrXfoMYuykhIe0z_WT0aR8JEzVbRgQ15McVko1kACgCI');">
+<!-- Overlay to tie into brand -->
+<div class="absolute inset-0 bg-primary/20 mix-blend-multiply"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-background-dark/80 via-transparent to-transparent"></div>
+</div>
+<!-- Branding Overlay Content -->
+<div class="absolute bottom-12 left-12 right-12 text-white">
+<div class="max-w-xl">
+<span class="inline-block px-3 py-1 bg-primary/30 backdrop-blur-md rounded-full text-xs font-bold tracking-widest uppercase mb-4">Misión Cultural</span>
+<h3 class="text-4xl font-bold leading-tight mb-4">Llevando la historia y el arte a cada rincón del mundo.</h3>
+<p class="text-lg text-gray-200">Plataforma de coordinación logística para operadores del Museo Viajero. Administra funciones, reservas y giras culturales en tiempo real.</p>
+</div>
+</div>
+</div>
+</div>
+</body></html>
