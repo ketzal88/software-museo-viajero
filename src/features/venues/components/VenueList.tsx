@@ -1,16 +1,6 @@
 "use client";
 
 import { Venue } from "@/types";
-import { MapPin, Users, Phone, Edit, Calendar } from "lucide-react";
-import Link from "next/link";
-
-interface VenueListProps {
-    venues: Venue[];
-}
-
-"use client";
-
-import { Venue } from "@/types";
 import { MapPin, Users, Edit, Map as MapIcon, Plus } from "lucide-react";
 import Link from "next/link";
 
@@ -42,7 +32,6 @@ export function VenueList({ venues }: VenueListProps) {
             {venues.map((venue) => (
                 <div key={venue.id} className="bg-card dark:bg-[#1a2632] border border-border dark:border-gray-800 rounded-xl overflow-hidden shadow-sm flex flex-col hover:shadow-md transition-shadow">
                     <div className="h-40 bg-muted dark:bg-gray-700 relative">
-                        {/* Placeholder gradient since we don't have images yet */}
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 dark:from-primary/10 dark:to-background"></div>
                         <div className="absolute inset-0 flex items-center justify-center text-primary/20">
                             <MapPin className="h-16 w-16" />
@@ -100,7 +89,6 @@ export function VenueList({ venues }: VenueListProps) {
                 </div>
             ))}
 
-            {/* "Add New" Card as the last item in the grid for quick access */}
             <Link
                 href="/teatros/nuevo"
                 className="border-2 border-dashed border-border dark:border-gray-800 rounded-xl flex flex-col items-center justify-center p-8 bg-muted/30 dark:bg-gray-800/20 group hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer min-h-[300px]"
