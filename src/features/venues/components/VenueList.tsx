@@ -59,7 +59,7 @@ export function VenueList({ venues }: VenueListProps) {
 
                         {venue.notes && (
                             <div className="bg-muted dark:bg-gray-800/50 p-3 rounded-lg text-xs italic text-muted-foreground flex-1 line-clamp-3">
-                                "{venue.notes}"
+                                &quot;{venue.notes}&quot;
                             </div>
                         )}
 

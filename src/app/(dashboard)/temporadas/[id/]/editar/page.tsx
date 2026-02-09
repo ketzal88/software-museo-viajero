@@ -1,4 +1,6 @@
 import { getSeasonById, getWorks } from "@/lib/actions";
+
+export const dynamic = "force-dynamic";
 import { SeasonForm } from "@/features/seasons/components/SeasonForm";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";

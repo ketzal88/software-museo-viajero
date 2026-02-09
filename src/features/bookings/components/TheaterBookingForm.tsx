@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { School, EventSlot, Work, BookingStatus } from "@/types";
+import { School, EventSlot, Work } from "@/types";
 import { addTheaterBooking } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { Users, Info, Ticket, Check, ShieldCheck, Clock } from "lucide-react";

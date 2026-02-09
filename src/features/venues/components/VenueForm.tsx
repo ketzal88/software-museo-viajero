@@ -5,7 +5,6 @@ import { Venue, SlotTemplate } from "@/types";
 import { addVenue, updateVenue } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { Plus, Trash, MapPin, Users, Phone, User, FileText } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface VenueFormProps {
     initialData?: Venue;

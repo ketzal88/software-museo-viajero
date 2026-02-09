@@ -1,4 +1,4 @@
-import { Calendar, BookOpen, GraduationCap, MapPin, Theater, Settings, Layers, Inbox } from "lucide-react";
+import { Calendar, BookOpen, GraduationCap, MapPin, Theater, Layers, Inbox } from "lucide-react";
 
 export const NAV_LINKS = [
     { href: "/calendario", label: "Calendario", icon: Calendar },

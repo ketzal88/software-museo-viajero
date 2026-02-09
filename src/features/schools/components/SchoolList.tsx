@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { School } from "@/types";
-import { MapPin, User, Phone, Edit, MessageCircle, PhoneCall, Search, SearchX } from "lucide-react";
+import { MapPin, User, Edit, MessageCircle, PhoneCall, Search, SearchX } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 
 interface SchoolListProps {
     schools: School[];

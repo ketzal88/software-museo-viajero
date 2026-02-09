@@ -6,9 +6,6 @@ import { updateBookingStatus, deleteBooking } from "@/lib/actions";
 import {
     Clock,
     CheckCircle2,
-    XCircle,
-    ExternalLink,
-    AlertTriangle,
     Theater,
     Truck,
     MessageSquare,
@@ -25,6 +22,7 @@ interface InboxItem extends Partial<TheaterBooking & TravelBooking> {
     id: string;
     type: 'theater' | 'travel';
     school: School | null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     slotDetails: any;
 }
 
@@ -166,6 +164,7 @@ export function InboxList({ items }: InboxListProps) {
                                         <button
                                             onClick={() => {
                                                 const msg = generateWhatsAppMessage(
+                                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                                     item as any,
                                                     item.type,
                                                     item.school!,
@@ -182,6 +181,7 @@ export function InboxList({ items }: InboxListProps) {
                                         <button
                                             onClick={() => {
                                                 const draft = generateEmailDraft(
+                                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                                     item as any,
                                                     item.type,
                                                     item.school!,

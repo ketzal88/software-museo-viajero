@@ -1,7 +1,7 @@
 "use client";
 
 import { Season } from "@/types";
-import { Edit, Calendar, CheckCircle2, XCircle } from "lucide-react";
+import { Edit, Calendar } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 

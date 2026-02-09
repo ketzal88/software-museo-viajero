@@ -95,7 +95,7 @@ export function SchoolAutocomplete({ onSelect, className, placeholder }: SchoolA
                             ))
                         ) : (
                             <div className="p-8 text-center">
-                                <p className="text-sm text-muted-foreground">No se encontraron escuelas con "{query}"</p>
+                                <p className="text-sm text-muted-foreground">No se encontraron escuelas con &quot;{query}&quot;</p>
                             </div>
                         )}
                     </div>

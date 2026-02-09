@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { EventDay, EventType, Season, Venue, Work } from "@/types";
+import { EventType, Season, Venue, Work } from "@/types";
 import { addEventDay, getSeasons, getVenues, getWorks } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { Calendar, MapPin, Theater, Layers, Info } from "lucide-react";

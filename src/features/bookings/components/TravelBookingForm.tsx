@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { School, EventSlot, Work, TravelMode } from "@/types";
 import { addTravelBooking } from "@/lib/actions";
 import { useRouter } from "next/navigation";
-import { Users, Ticket, Check, MapPin, Truck, Sparkles, AlertCircle } from "lucide-react";
+import { Users, Ticket, Check, MapPin, Truck, Sparkles } from "lucide-react";
 import { SchoolAutocomplete } from "@/features/schools/components/SchoolAutocomplete";
 import { cn, TRAVEL_PRICES, recommendTravelModality } from "@/lib/utils";
 

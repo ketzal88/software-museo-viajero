@@ -1,10 +1,10 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
-import { Venue, School, Work, Season, EventDay, EventSlot, EventType, TheaterBooking, TravelBooking, BookingStatus, TravelMode } from "@/types";
+import { Venue, School, Work, Season, EventDay, EventSlot, EventType, TheaterBooking, TravelBooking, BookingStatus } from "@/types";
 import { revalidatePath } from "next/cache";
-import { buildSearchTokens, TRAVEL_PRICES, recommendTravelModality } from "./utils";
-import { addHours, isAfter } from "date-fns";
+import { buildSearchTokens } from "./utils";
+import { addHours } from "date-fns";
 
 export async function getTestCollection() {
     try {
@@ -14,6 +14,7 @@ export async function getTestCollection() {
             message: "Firestore is accessible from Server Actions",
             empty: snapshot.empty
         };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         return {
             status: "error",
@@ -34,6 +35,7 @@ export async function getVenues(): Promise<Venue[]> {
 }
 
 export async function getVenueById(id: string): Promise<Venue | null> {
+    if (!id) return null;
     try {
         const doc = await adminDb.collection("venues").doc(id).get();
         if (!doc.exists) return null;
@@ -89,6 +91,7 @@ export async function getSchools(): Promise<School[]> {
 }
 
 export async function getSchoolById(id: string): Promise<School | null> {
+    if (!id) return null;
     try {
         const doc = await adminDb.collection("schools").doc(id).get();
         if (!doc.exists) return null;
@@ -173,6 +176,7 @@ export async function getWorks(): Promise<Work[]> {
 }
 
 export async function getWorkById(id: string): Promise<Work | null> {
+    if (!id) return null;
     try {
         const doc = await adminDb.collection("works").doc(id).get();
         if (!doc.exists) return null;
@@ -228,6 +232,7 @@ export async function getSeasons(): Promise<Season[]> {
 }
 
 export async function getSeasonById(id: string): Promise<Season | null> {
+    if (!id) return null;
     try {
         const doc = await adminDb.collection("seasons").doc(id).get();
         if (!doc.exists) return null;
@@ -283,6 +288,7 @@ export async function getEventDays(): Promise<EventDay[]> {
 }
 
 export async function getEventDaysByDate(date: string): Promise<EventDay[]> {
+    if (!date || date === "undefined") return [];
     try {
         const snapshot = await adminDb.collection("event_days")
             .where("date", "==", date)
@@ -295,6 +301,7 @@ export async function getEventDaysByDate(date: string): Promise<EventDay[]> {
 }
 
 export async function getEventDayById(id: string): Promise<EventDay | null> {
+    if (!id) return null;
     try {
         const doc = await adminDb.collection("event_days").doc(id).get();
         if (!doc.exists) return null;
@@ -306,6 +313,7 @@ export async function getEventDayById(id: string): Promise<EventDay | null> {
 }
 
 export async function getSlotsByEventDay(eventDayId: string): Promise<EventSlot[]> {
+    if (!eventDayId) return [];
     try {
         const snapshot = await adminDb.collection("event_slots")
             .where("eventDayId", "==", eventDayId)
@@ -318,6 +326,7 @@ export async function getSlotsByEventDay(eventDayId: string): Promise<EventSlot[
 }
 
 export async function getSlotDetails(slotId: string) {
+    if (!slotId) return null;
     try {
         const slotDoc = await adminDb.collection("event_slots").doc(slotId).get();
         if (!slotDoc.exists) return null;
@@ -584,6 +593,7 @@ export async function deleteBooking(id: string, type: 'theater' | 'travel') {
 
 // REPORTING HELPERS
 export async function getTheaterBookingsBySlot(eventSlotId: string) {
+    if (!eventSlotId) return [];
     try {
         const snapshot = await adminDb.collection("theater_bookings")
             .where("eventSlotId", "==", eventSlotId)
@@ -607,6 +617,7 @@ export async function getTheaterBookingsBySlot(eventSlotId: string) {
 }
 
 export async function getTravelBookingsBySlot(eventSlotId: string) {
+    if (!eventSlotId) return [];
     try {
         const snapshot = await adminDb.collection("travel_bookings")
             .where("eventSlotId", "==", eventSlotId)

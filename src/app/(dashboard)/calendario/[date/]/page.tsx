@@ -1,10 +1,12 @@
 import { getEventDaysByDate, getSlotsByEventDay, getVenueById, getWorkById } from "@/lib/actions";
-import { ChevronLeft, Theater, MapPin, Clock, Users, Plus, Printer } from "lucide-react";
+import { ChevronLeft, Theater, MapPin, Clock, Plus, Printer } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { EventType } from "@/types";
 import { cn } from "@/lib/utils";
+
+export const dynamic = "force-dynamic";
 
 interface DayDetailPageProps {
     params: {

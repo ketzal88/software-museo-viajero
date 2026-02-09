@@ -1,4 +1,6 @@
 import { getWorkById } from "@/lib/actions";
+
+export const dynamic = "force-dynamic";
 import { WorkForm } from "@/features/works/components/WorkForm";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";

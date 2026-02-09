@@ -1,4 +1,6 @@
 import { getSlotDetails } from "@/lib/actions";
+
+export const dynamic = "force-dynamic";
 import { TheaterBookingForm } from "@/features/bookings/components/TheaterBookingForm";
 import { TravelBookingForm } from "@/features/bookings/components/TravelBookingForm";
 import { notFound } from "next/navigation";

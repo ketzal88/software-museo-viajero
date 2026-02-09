@@ -11,6 +11,8 @@ interface PrintPageProps {
     };
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function PrintPage({ params }: PrintPageProps) {
     const eventDays = await getEventDaysByDate(params.date);
 
@@ -26,7 +28,7 @@ export default async function PrintPage({ params }: PrintPageProps) {
 
         const slotsWithBookings = await Promise.all(slots.map(async (slot) => {
             const work = await getWorkById(slot.workId);
-            let bookings: any[] = [];
+            let bookings: (ReturnType<typeof getTheaterBookingsBySlot> extends Promise<infer T> ? T : any)[] = [];
 
             if (event.type === EventType.THEATER) {
                 bookings = await getTheaterBookingsBySlot(slot.id);

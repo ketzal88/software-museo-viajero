@@ -1,4 +1,4 @@
-import { TheaterBooking, TravelBooking, School, Work, EventDay, EventSlot, EventType } from "@/types";
+import { TheaterBooking, TravelBooking, School, Work, EventDay, EventSlot } from "@/types";
 import { TRAVEL_PRICES } from "./utils";
 
 export function generateWhatsAppMessage(

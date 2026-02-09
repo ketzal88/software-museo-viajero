@@ -1,4 +1,6 @@
 import { getVenueById } from "@/lib/actions";
+
+export const dynamic = "force-dynamic";
 import { VenueForm } from "@/features/venues/components/VenueForm";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";

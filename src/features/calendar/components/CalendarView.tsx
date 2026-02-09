@@ -12,11 +12,9 @@ import {
     isSameMonth,
     isToday,
     eachDayOfInterval,
-    addWeeks,
-    subWeeks
 } from "date-fns";
 import { es } from "date-fns/locale";
-import { ChevronLeft, ChevronRight, Theater, MapPin, Search, Plus, Download, Bell, Filter } from "lucide-react";
+import { ChevronLeft, ChevronRight, Theater, MapPin, Search, Plus, Download, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EventDay, EventType, Venue } from "@/types";
 import Link from "next/link";
