@@ -1,13 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { NAV_LINKS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { LogOut, Settings, User } from "lucide-react";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useAuth } from "@/providers/AuthProvider";
 
 export function Sidebar() {
     const pathname = usePathname();
+    const router = useRouter();
+    const { user } = useAuth();
+
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+            router.push("/login");
+        } catch (error) {
+            console.error("Logout error:", error);
+        }
+    };
 
     return (
         <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r bg-white dark:bg-[#1a2632] border-slate-200 dark:border-slate-800 md:flex transition-colors shrink-0 z-50">
@@ -61,14 +75,23 @@ export function Sidebar() {
 
                 <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
                     <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-primary overflow-hidden">
-                        <User className="h-4 w-4" />
+                        {user?.photoURL ? (
+                            <img src={user.photoURL} alt={user.displayName || "User"} className="h-full w-full object-cover" />
+                        ) : (
+                            <User className="h-4 w-4" />
+                        )}
                     </div>
                     <div className="flex flex-col min-w-0 flex-1">
-                        <span className="text-xs font-bold text-slate-900 dark:text-white truncate">Operador</span>
-                        <div className="flex items-center gap-1 text-[10px] text-slate-500 cursor-pointer hover:text-red-500 transition-colors">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                            {user?.displayName || "Operador"}
+                        </span>
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-1 text-[10px] text-slate-500 cursor-pointer hover:text-red-500 transition-colors border-none bg-transparent p-0 text-left outline-none"
+                        >
                             <LogOut className="h-3 w-3" />
                             <span>Cerrar Sesión</span>
-                        </div>
+                        </button>
                     </div>
                 </div>
             </div>

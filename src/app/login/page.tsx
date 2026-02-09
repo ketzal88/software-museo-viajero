@@ -1,6 +1,71 @@
-import { Landmark, Eye } from "lucide-react";
+"use client";
+
+import { useState, useEffect } from "react";
+import { Landmark, Eye, EyeOff, Loader2 } from "lucide-react";
+import {
+    signInWithEmailAndPassword,
+    signInWithPopup,
+    GoogleAuthProvider,
+    onAuthStateChanged
+} from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/providers/AuthProvider";
 
 export default function LoginPage() {
+    const router = useRouter();
+    const { user, loading: authLoading } = useAuth();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    // Redirect if already logged in
+    useEffect(() => {
+        if (!authLoading && user) {
+            router.push("/");
+        }
+    }, [user, authLoading, router]);
+
+    const handleEmailLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            router.push("/");
+        } catch (err: any) {
+            console.error("Login error:", err);
+            setError("Credenciales inválidas. Por favor intenta de nuevo.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGoogleLogin = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const provider = new GoogleAuthProvider();
+            await signInWithPopup(auth, provider);
+            router.push("/");
+        } catch (err: any) {
+            console.error("Google login error:", err);
+            setError("Error al iniciar sesión con Google.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (authLoading) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-background-light dark:bg-background-dark">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
     return (
         <div className="flex min-h-screen font-sans bg-background-light dark:bg-background-dark">
             {/* Left Section: Login Form */}
@@ -21,8 +86,15 @@ export default function LoginPage() {
                         <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Ingresa tus credenciales para acceder al sistema.</p>
                     </div>
 
+                    {/* Error Message */}
+                    {error && (
+                        <div className="mb-6 p-3 rounded-lg bg-red-50 border border-red-100 text-red-600 text-sm font-medium animate-in fade-in slide-in-from-top-1">
+                            {error}
+                        </div>
+                    )}
+
                     {/* Form */}
-                    <form action="#" className="space-y-6" method="POST">
+                    <form onSubmit={handleEmailLogin} className="space-y-6">
                         <div>
                             <label htmlFor="email" className="block text-sm font-semibold leading-6 text-[#111418] dark:text-gray-200">
                                 Correo electrónico
@@ -34,6 +106,8 @@ export default function LoginPage() {
                                     type="email"
                                     autoComplete="email"
                                     required
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     placeholder="ejemplo@museoviajero.com"
                                     className="block w-full rounded-lg border-0 py-3 text-[#111418] shadow-sm ring-1 ring-inset ring-[#dbe0e6] placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 dark:bg-[#1a2530] dark:ring-gray-700 dark:text-white"
                                 />
@@ -46,23 +120,29 @@ export default function LoginPage() {
                                     Contraseña
                                 </label>
                                 <div className="text-sm">
-                                    <a href="#" className="font-semibold text-primary hover:text-primary/80">
+                                    <button type="button" className="font-semibold text-primary hover:text-primary/80">
                                         ¿Olvidó su contraseña?
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
                             <div className="mt-2 relative">
                                 <input
                                     id="password"
                                     name="password"
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     autoComplete="current-password"
                                     required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
                                     className="block w-full rounded-lg border-0 py-3 text-[#111418] shadow-sm ring-1 ring-inset ring-[#dbe0e6] placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 dark:bg-[#1a2530] dark:ring-gray-700 dark:text-white"
                                 />
-                                <button type="button" className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400">
-                                    <Eye className="h-5 w-5" />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400"
+                                >
+                                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                 </button>
                             </div>
                         </div>
@@ -70,9 +150,10 @@ export default function LoginPage() {
                         <div>
                             <button
                                 type="submit"
-                                className="flex w-full justify-center rounded-lg bg-primary px-3 py-3 text-sm font-bold leading-6 text-white shadow-sm hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition-colors"
+                                disabled={loading}
+                                className="flex w-full justify-center items-center gap-2 rounded-lg bg-primary px-3 py-3 text-sm font-bold leading-6 text-white shadow-sm hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition-colors disabled:opacity-50"
                             >
-                                Iniciar Sesión
+                                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Iniciar Sesión"}
                             </button>
                         </div>
                     </form>
@@ -92,7 +173,9 @@ export default function LoginPage() {
                         <div className="mt-6 grid grid-cols-1 gap-3">
                             <button
                                 type="button"
-                                className="flex w-full items-center justify-center gap-3 rounded-lg bg-white px-3 py-3 text-sm font-bold text-[#111418] shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:ring-transparent transition-all dark:bg-transparent dark:text-white dark:ring-gray-700 dark:hover:bg-gray-800"
+                                onClick={handleGoogleLogin}
+                                disabled={loading}
+                                className="flex w-full items-center justify-center gap-3 rounded-lg bg-white px-3 py-3 text-sm font-bold text-[#111418] shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:ring-transparent transition-all dark:bg-transparent dark:text-white dark:ring-gray-700 dark:hover:bg-gray-800 disabled:opacity-50"
                             >
                                 <svg className="h-5 w-5" viewBox="0 0 24 24">
                                     <path
@@ -119,9 +202,9 @@ export default function LoginPage() {
 
                     <p className="mt-10 text-center text-sm text-gray-500 dark:text-gray-400">
                         ¿No tienes acceso?{" "}
-                        <a href="#" className="font-semibold leading-6 text-primary hover:text-primary/80">
+                        <button type="button" className="font-semibold leading-6 text-primary hover:text-primary/80">
                             Solicitar cuenta
-                        </a>
+                        </button>
                     </p>
                 </div>
 
