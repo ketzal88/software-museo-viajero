@@ -14,6 +14,19 @@ pnpm dev
 bun dev
 ```
 
+## Database Seeding
+
+To seed the Firestore database with initial data (seasons, works, venues):
+
+1. Ensure you have the Google Application Credentials JSON file.
+2. Set the environment variable:
+   - Windows (PowerShell): `$env:GOOGLE_APPLICATION_CREDENTIALS="path/to/your/service-account-file.json"`
+   - Linux/Mac/Git Bash: `export GOOGLE_APPLICATION_CREDENTIALS="path/to/your/service-account-file.json"`
+3. Run the seed script:
+   ```bash
+   npm run seed
+   ```
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
