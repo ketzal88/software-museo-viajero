@@ -16,7 +16,7 @@ export function VenueList({ venues }: VenueListProps) {
                     <MapPin className="h-8 w-8" />
                 </div>
                 <h3 className="text-lg font-bold mb-1">No hay teatros registrados</h3>
-                <p className="text-sm text-muted-foreground mb-6">Comienza agregando los espacios donde se realizan las funciones.</p>
+                <p className="text-sm text-muted-foreground mb-6">Comienza agregando los espacios donde se realizan las funciones. </p>
                 <Link
                     href="/teatros/nuevo"
                     className="flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:opacity-90 active:scale-95 transition-all"
