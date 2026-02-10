@@ -2,7 +2,7 @@
 
 import * as admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
-import { Venue, School, Work, Season, EventDay, EventSlot, EventType, TheaterBooking, TravelBooking, BookingStatus, SlotTemplate, Person, WorkCast, PersonRate, Payout, RoleType, ShiftType, PayoutStatus, AttendanceStatus, BillingPolicy, DailySummary, MonthlySummary, SeasonSummary } from "@/types";
+import { Venue, School, Work, Season, EventDay, EventSlot, EventType, TheaterBooking, TravelBooking, BookingStatus, SlotTemplate, Person, WorkCast, PersonRate, Payout, RoleType, ShiftType, PayoutStatus, AttendanceStatus, BillingPolicy, DailySummary, MonthlySummary, SeasonSummary, PricingRule, PricingType } from "@/types";
 import { revalidatePath } from "next/cache";
 import { buildSearchTokens, serializeFirestore } from "./utils";
 import { addHours } from "date-fns";
@@ -1272,5 +1272,101 @@ export async function getDailySummaries(filters?: { startDate?: string, endDate?
     } catch (error) {
         console.error("Error fetching daily summaries:", error);
         return [];
+    }
+}// PRICING RULES (Mission P1 & P2)
+export async function getPricingRules(): Promise<PricingRule[]> {
+    try {
+        const snapshot = await adminDb.collection("pricingRules")
+            .orderBy("validFrom", "desc")
+            .get();
+        return snapshot.docs.map(doc => serializeFirestore<PricingRule>({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+        console.error("Error fetching pricing rules:", error);
+        return [];
+    }
+}
+
+export async function addPricingRule(rule: Omit<PricingRule, "id" | "createdAt" | "updatedAt">) {
+    try {
+        const now = new Date().toISOString();
+        const docRef = await adminDb.collection("pricingRules").add({
+            ...rule,
+            createdAt: now,
+            updatedAt: now,
+        });
+        revalidatePath("/reportes");
+        revalidatePath("/ajustes");
+        return { success: true, id: docRef.id };
+    } catch (error: unknown) {
+        console.error("Error adding pricing rule:", error);
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+    }
+}
+
+export async function updatePricingRule(id: string, updates: Partial<PricingRule>) {
+    try {
+        const now = new Date().toISOString();
+        await adminDb.collection("pricingRules").doc(id).update({
+            ...updates,
+            updatedAt: now,
+        });
+        revalidatePath("/reportes");
+        revalidatePath("/ajustes");
+        return { success: true };
+    } catch (error: unknown) {
+        console.error("Error updating pricing rule:", error);
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+    }
+}
+
+export async function deletePricingRule(id: string) {
+    try {
+        await adminDb.collection("pricingRules").doc(id).delete();
+        revalidatePath("/ajustes");
+        return { success: true };
+    } catch (error: unknown) {
+        console.error("Error deleting pricing rule:", error);
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+    }
+}
+
+/**
+ * Resolves the active pricing rule for a specific date and type.
+ * Rule must satisfy: validFrom <= date <= validTo
+ * Mission P2
+ */
+export async function resolvePricing(date: string, type: PricingType, seasonId?: string): Promise<{ success: boolean; rule?: PricingRule; error?: string }> {
+    try {
+        const snapshot = await adminDb.collection("pricingRules")
+            .where("type", "==", type)
+            .where("isActive", "==", true)
+            .get();
+
+        const rules = snapshot.docs.map(doc => serializeFirestore<PricingRule>({ id: doc.id, ...doc.data() }));
+
+        const dateObj = new Date(date + "T12:00:00");
+        const matches = rules.filter(rule => {
+            const from = new Date(rule.validFrom + "T00:00:00");
+            const to = new Date(rule.validTo + "T23:59:59");
+            const seasonMatch = !rule.seasonId || rule.seasonId === seasonId;
+            return dateObj >= from && dateObj <= to && seasonMatch;
+        });
+
+        if (matches.length === 0) {
+            return { success: false, error: `No se encontró una regla de precios vigente para la fecha ${date}.` };
+        }
+
+        if (matches.length > 1) {
+            // Priority: Season-specific rules over Global rules
+            const seasonSpecific = matches.find(m => m.scope === "SEASON");
+            if (seasonSpecific) return { success: true, rule: seasonSpecific };
+
+            return { success: false, error: `Se encontraron múltiples reglas de precios (${matches.length}) superpuestas para la fecha ${date}.` };
+        }
+
+        return { success: true, rule: matches[0] };
+    } catch (error) {
+        console.error("Error resolving pricing:", error);
+        return { success: false, error: "Error al resolver precios." };
     }
 }

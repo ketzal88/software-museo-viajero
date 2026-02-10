@@ -134,6 +134,7 @@ export interface TheaterBooking {
 
     status: BookingStatus;
     attendanceStatus: AttendanceStatus;
+    pricingRuleId: string;
     notes?: string;
     createdAt: string;
     updatedAt: string;
@@ -154,6 +155,7 @@ export interface TravelBooking {
 
     status: BookingStatus;
     attendanceStatus: AttendanceStatus;
+    pricingRuleId: string;
     totalPrice: number; // For travel, it's usually fixed by modality
     notes?: string;
     createdAt: string;
@@ -299,6 +301,31 @@ export interface Payout {
     amount: number;
     currency: "ARS";
     status: PayoutStatus;
+    notes?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+// PRICING SYSTEM
+export enum PricingType {
+    THEATER_TICKET = "THEATER_TICKET",
+    TRAVEL_FORMAT = "TRAVEL_FORMAT",
+}
+
+export interface PricingRule {
+    id: string;
+    type: PricingType;
+    scope: "GLOBAL" | "SEASON";
+    seasonId?: string;
+    validFrom: string; // ISO Date YYYY-MM-DD
+    validTo: string; // ISO Date YYYY-MM-DD
+    currency: "ARS";
+    values: {
+        // For THEATER_TICKET: student, adult
+        // For TRAVEL_FORMAT: half_day_morning, half_day_afternoon, half_day_mixed, full_day
+        [key: string]: number | undefined;
+    };
+    isActive: boolean;
     notes?: string;
     createdAt: string;
     updatedAt: string;

@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { School, EventSlot, Work, TheaterBooking, BillingPolicy, AttendanceStatus } from "@/types";
-import { addTheaterBooking } from "@/lib/actions";
+import { addTheaterBooking, getEventDayById, resolvePricing } from "@/lib/actions";
 import { useRouter } from "next/navigation";
-import { Users, Info, Ticket, Check, ShieldCheck, Clock, DollarSign } from "lucide-react";
+import { Users, Info, Ticket, Check, ShieldCheck, Clock, DollarSign, AlertCircle } from "lucide-react";
 import { SchoolAutocomplete } from "@/features/schools/components/SchoolAutocomplete";
 import { cn } from "@/lib/utils";
 import { theaterBookingSchema } from "@/lib/validations";
@@ -20,6 +20,7 @@ interface TheaterBookingFormValues {
     unitPriceStudent: number;
     unitPriceAdult: number;
     totalExpected: number;
+    pricingRuleId: string;
     notes?: string;
     isHold: boolean;
 }
@@ -50,6 +51,7 @@ export function TheaterBookingForm({ slot, work }: TheaterBookingFormProps) {
             unitPriceStudent: 0,
             unitPriceAdult: 0,
             totalExpected: 0,
+            pricingRuleId: "",
             notes: "",
             isHold: true,
         },
@@ -62,11 +64,29 @@ export function TheaterBookingForm({ slot, work }: TheaterBookingFormProps) {
     const unitPriceAdult = watch("unitPriceAdult") || 0;
     const availableSlots = slot.availableCapacity;
 
-    // Auto-calculate totalExpected
     useEffect(() => {
         const total = (qtyReservedStudents * unitPriceStudent) + (qtyReservedAdults * unitPriceAdult);
         setValue("totalExpected", total);
     }, [qtyReservedStudents, qtyReservedAdults, unitPriceStudent, unitPriceAdult, setValue]);
+
+    // Mission P3: Snapshot Prices
+    useEffect(() => {
+        const loadPricing = async () => {
+            const day = await getEventDayById(slot.eventDayId);
+            if (day) {
+                const result = await resolvePricing(day.date, "THEATER_TICKET" as any, day.seasonId);
+                if (result.success && result.rule) {
+                    setValue("pricingRuleId", result.rule.id);
+                    // Solo setear si el form está vacío o no se tocó manualmente (opcional)
+                    setValue("unitPriceStudent", result.rule.values.student || 0);
+                    setValue("unitPriceAdult", result.rule.values.adult || 0);
+                } else {
+                    toast.error(result.error || "No hay precios definidos para esta fecha");
+                }
+            }
+        };
+        loadPricing();
+    }, [slot.eventDayId, setValue]);
 
     const onSubmit = async (data: TheaterBookingFormValues) => {
         setLoading(true);
@@ -81,6 +101,7 @@ export function TheaterBookingForm({ slot, work }: TheaterBookingFormProps) {
                 unitPriceAdult: data.unitPriceAdult,
                 totalExpected: data.totalExpected,
                 attendanceStatus: AttendanceStatus.PENDING,
+                pricingRuleId: data.pricingRuleId,
                 notes: data.notes || "",
             }, data.isHold);
 

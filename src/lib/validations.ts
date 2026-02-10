@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { BillingPolicy } from "@/types";
+import { BillingPolicy, PricingType } from "@/types";
 
 export const venueSchema = z.object({
     name: z.string().min(3, "El nombre debe tener al menos 3 caracteres"),
@@ -49,6 +49,7 @@ export const theaterBookingSchema = z.object({
     unitPriceStudent: z.number().min(0),
     unitPriceAdult: z.number().min(0),
     totalExpected: z.number().min(0),
+    pricingRuleId: z.string().min(1, "Regla de precio requerida"),
     notes: z.string().optional(),
     isHold: z.boolean(),
 });
@@ -59,6 +60,7 @@ export const travelBookingSchema = z.object({
     qtyReservedStudents: z.number().min(1, "Debes ingresar al menos 1 alumno"),
     qtyReservedAdults: z.number().min(0),
     totalPrice: z.number().min(0, "El precio no puede ser negativo"),
+    pricingRuleId: z.string().min(1, "Regla de precio requerida"),
     notes: z.string().optional(),
 });
 
@@ -68,4 +70,16 @@ export const eventDaySchema = z.object({
     seasonId: z.string().min(1, "La temporada es obligatoria"),
     locationId: z.string().optional(),
     workId: z.string().min(1, "La obra es obligatoria"),
+});
+
+export const pricingRuleSchema = z.object({
+    type: z.nativeEnum(PricingType),
+    scope: z.enum(["GLOBAL", "SEASON"]),
+    seasonId: z.string().optional(),
+    validFrom: z.string().min(1, "Fecha desde es obligatoria"),
+    validTo: z.string().min(1, "Fecha hasta es obligatoria"),
+    currency: z.literal("ARS"),
+    values: z.record(z.string(), z.number().min(0)),
+    isActive: z.boolean(),
+    notes: z.string().optional(),
 });

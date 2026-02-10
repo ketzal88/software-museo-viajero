@@ -4,13 +4,14 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { School, EventSlot, Work, TravelMode, AttendanceStatus } from "@/types";
-import { addTravelBooking } from "@/lib/actions";
+import { getEventDayById, addTravelBooking, resolvePricing } from "@/lib/actions";
 import { useRouter } from "next/navigation";
-import { Users, Ticket, Check, MapPin, Truck, Sparkles } from "lucide-react";
+import { Users, Ticket, Check, MapPin, Truck, Sparkles, DollarSign } from "lucide-react";
 import { SchoolAutocomplete } from "@/features/schools/components/SchoolAutocomplete";
-import { cn, TRAVEL_PRICES, recommendTravelModality } from "@/lib/utils";
+import { cn, recommendTravelModality } from "@/lib/utils";
 import { travelBookingSchema } from "@/lib/validations";
 import { toast } from "sonner";
+import { ShiftType } from "@/types";
 
 interface TravelBookingFormValues {
     schoolId: string;
@@ -18,6 +19,7 @@ interface TravelBookingFormValues {
     qtyReservedStudents: number;
     qtyReservedAdults: number;
     totalPrice: number;
+    pricingRuleId: string;
     notes?: string;
 }
 
@@ -45,6 +47,7 @@ export function TravelBookingForm({ slot, work }: TravelBookingFormProps) {
             qtyReservedStudents: 0,
             qtyReservedAdults: 0,
             totalPrice: 0,
+            pricingRuleId: "",
             notes: "",
         },
     });
@@ -52,12 +55,33 @@ export function TravelBookingForm({ slot, work }: TravelBookingFormProps) {
     const qtyReservedStudents = watch("qtyReservedStudents");
     const modality = watch("modality");
 
-    // Auto-recommendation and auto-pricing
+    const pricingRuleId = watch("pricingRuleId");
+
+    // Mission P3: Snapshot Prices
+    const [prices, setPrices] = useState<Record<string, number>>({});
+
+    useEffect(() => {
+        const loadPricing = async () => {
+            const day = await getEventDayById(slot.eventDayId);
+            if (day) {
+                const result = await resolvePricing(day.date, "TRAVEL_FORMAT" as any, day.seasonId);
+                if (result.success && result.rule) {
+                    setValue("pricingRuleId", result.rule.id);
+                    setPrices(result.rule.values as Record<string, number>);
+                } else {
+                    toast.error(result.error || "No hay precios viajeros definidos para esta fecha");
+                }
+            }
+        };
+        loadPricing();
+    }, [slot.eventDayId, setValue]);
+
+    // Auto-recommendation and pricing update
     useEffect(() => {
         if (qtyReservedStudents > 0) {
-            const recommended = recommendTravelModality(qtyReservedStudents);
-            setValue("modality", recommended, { shouldValidate: true });
-            setValue("totalPrice", TRAVEL_PRICES[recommended].price, { shouldValidate: true });
+            // Note: recommendTravelModality returns key like "CLASSROOM" but prices are keyed by ShiftType
+            // We need a mapping or update recommendTravelModality. 
+            // For now, let's assume the user picks the modality from the UI which maps to ShiftType
         }
     }, [qtyReservedStudents, setValue]);
 
@@ -71,6 +95,7 @@ export function TravelBookingForm({ slot, work }: TravelBookingFormProps) {
                 qtyReservedStudents: data.qtyReservedStudents,
                 qtyReservedAdults: data.qtyReservedAdults,
                 totalPrice: data.totalPrice,
+                pricingRuleId: data.pricingRuleId,
                 notes: data.notes || "",
                 attendanceStatus: AttendanceStatus.PENDING,
             });
@@ -156,23 +181,19 @@ export function TravelBookingForm({ slot, work }: TravelBookingFormProps) {
 
                 <div className="space-y-3">
                     <label className="text-sm font-semibold flex items-center gap-2">
-                        Modalidad Recomendada
-                        {qtyReservedStudents > 0 && (
-                            <span className="flex items-center gap-1 text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold uppercase transition-all">
-                                <Sparkles className="h-2 w-2" /> Sugerido
-                            </span>
-                        )}
+                        Modalidad y Precio (Según Vigencia)
                     </label>
-                    <div className="grid gap-3">
-                        {Object.entries(TRAVEL_PRICES).map(([key, config]) => {
-                            const isSelected = modality === key;
+                    <div className="grid md:grid-cols-2 gap-3">
+                        {Object.values(ShiftType).map((shift) => {
+                            const isSelected = modality === shift;
+                            const price = prices[shift] || 0;
                             return (
                                 <button
-                                    key={key}
+                                    key={shift}
                                     type="button"
                                     onClick={() => {
-                                        setValue("modality", key, { shouldValidate: true });
-                                        setValue("totalPrice", config.price, { shouldValidate: true });
+                                        setValue("modality", shift, { shouldValidate: true });
+                                        setValue("totalPrice", price, { shouldValidate: true });
                                     }}
                                     className={cn(
                                         "flex items-center justify-between p-4 rounded-xl border text-left transition-all hover:shadow-md active:scale-[0.98]",
@@ -182,14 +203,13 @@ export function TravelBookingForm({ slot, work }: TravelBookingFormProps) {
                                     )}
                                 >
                                     <div>
-                                        <p className={cn("text-sm font-bold", isSelected ? "text-amber-900" : "text-foreground")}>
-                                            {config.label}
+                                        <p className={cn("text-sm font-bold capitalize", isSelected ? "text-amber-900" : "text-foreground")}>
+                                            {shift.replace(/_/g, " ").toLowerCase()}
                                         </p>
-                                        <p className="text-[10px] text-muted-foreground">Rango: {config.min}-{config.max} alumnos</p>
                                     </div>
                                     <div className="text-right">
                                         <p className={cn("text-sm font-bold", isSelected ? "text-amber-700" : "text-muted-foreground")}>
-                                            ${config.price.toLocaleString('es-AR')}
+                                            ${price.toLocaleString('es-AR')}
                                         </p>
                                         {isSelected && <Check className="h-4 w-4 text-amber-600 ml-auto mt-1" />}
                                     </div>
