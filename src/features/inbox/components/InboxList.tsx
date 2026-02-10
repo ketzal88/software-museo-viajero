@@ -165,7 +165,7 @@ export function InboxList({ items }: InboxListProps) {
                                     </div>
                                     <div className="flex items-center gap-1 text-muted-foreground text-xs">
                                         <Users className="h-3 w-3" />
-                                        {item.countStudents}
+                                        {item.qtyReservedStudents}
                                     </div>
                                 </div>
                             </div>

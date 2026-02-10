@@ -1,4 +1,5 @@
 import { getMonthlySummaries, getDailySummaries } from "@/lib/actions";
+import { EventType } from "@/types";
 import { TrendingUp, Users, DollarSign, Wallet, FileText, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -103,7 +104,7 @@ export default async function ReportsPage() {
                                 <div className="flex items-center gap-3">
                                     <div className={cn(
                                         "p-2 rounded-lg",
-                                        summary.type === "THEATER" ? "bg-blue-100 text-blue-700" : "bg-amber-100 text-amber-700"
+                                        summary.type === EventType.THEATER ? "bg-blue-100 text-blue-700" : "bg-amber-100 text-amber-700"
                                     )}>
                                         <Calendar className="h-4 w-4" />
                                     </div>

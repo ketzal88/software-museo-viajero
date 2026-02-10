@@ -13,9 +13,9 @@ import { toast } from "sonner";
 
 interface EventDayFormValues {
     date: string;
-    type: EventType;
+    type: string;
     seasonId: string;
-    locationId: string;
+    locationId?: string;
     workId: string;
 }
 
@@ -82,9 +82,11 @@ export function EventDayForm() {
         try {
             const result = await addEventDay({
                 date: data.date,
-                type: data.type,
+                type: data.type as EventType,
                 seasonId: data.seasonId,
-                locationId: data.type === EventType.THEATER ? data.locationId : "",
+                locationId: data.type === EventType.THEATER ? (data.locationId ?? "") : "",
+                status: "OPEN",
+                updatedAt: new Date().toISOString(),
             }, data.workId);
 
             if (result.success) {

@@ -17,9 +17,10 @@ interface PersonDetailsProps {
     person: Person;
     rates: PersonRate[];
     castings: (WorkCast & { work: Work | null })[];
+    allWorks: Work[];
 }
 
-export function PersonDetails({ person, rates, castings }: PersonDetailsProps) {
+export function PersonDetails({ person, rates, castings, allWorks }: PersonDetailsProps) {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<"INFO" | "RATES" | "WORKS">("INFO");
 
