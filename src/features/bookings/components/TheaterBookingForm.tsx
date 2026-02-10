@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { School, EventSlot, Work } from "@/types";
+import { School, EventSlot, Work, TheaterBooking, BillingPolicy, AttendanceStatus } from "@/types";
 import { addTheaterBooking } from "@/lib/actions";
 import { useRouter } from "next/navigation";
-import { Users, Info, Ticket, Check, ShieldCheck, Clock } from "lucide-react";
+import { Users, Info, Ticket, Check, ShieldCheck, Clock, DollarSign } from "lucide-react";
 import { SchoolAutocomplete } from "@/features/schools/components/SchoolAutocomplete";
 import { cn } from "@/lib/utils";
 import { theaterBookingSchema } from "@/lib/validations";
@@ -14,9 +14,12 @@ import { toast } from "sonner";
 
 interface TheaterBookingFormValues {
     schoolId: string;
-    countStudents: number;
-    countTeachers: number;
-    totalPrice: number;
+    qtyReservedStudents: number;
+    qtyReservedAdults: number;
+    billingPolicy: BillingPolicy;
+    unitPriceStudent: number;
+    unitPriceAdult: number;
+    totalExpected: number;
     notes?: string;
     isHold: boolean;
 }
@@ -41,17 +44,29 @@ export function TheaterBookingForm({ slot, work }: TheaterBookingFormProps) {
         resolver: zodResolver(theaterBookingSchema),
         defaultValues: {
             schoolId: "",
-            countStudents: 0,
-            countTeachers: 0,
-            totalPrice: 0,
+            qtyReservedStudents: 0,
+            qtyReservedAdults: 0,
+            billingPolicy: BillingPolicy.RESERVED,
+            unitPriceStudent: 0,
+            unitPriceAdult: 0,
+            totalExpected: 0,
             notes: "",
             isHold: true,
         },
     });
 
     const isHold = watch("isHold");
-    const countStudents = watch("countStudents") || 0;
+    const qtyReservedStudents = watch("qtyReservedStudents") || 0;
+    const qtyReservedAdults = watch("qtyReservedAdults") || 0;
+    const unitPriceStudent = watch("unitPriceStudent") || 0;
+    const unitPriceAdult = watch("unitPriceAdult") || 0;
     const availableSlots = slot.availableCapacity;
+
+    // Auto-calculate totalExpected
+    useEffect(() => {
+        const total = (qtyReservedStudents * unitPriceStudent) + (qtyReservedAdults * unitPriceAdult);
+        setValue("totalExpected", total);
+    }, [qtyReservedStudents, qtyReservedAdults, unitPriceStudent, unitPriceAdult, setValue]);
 
     const onSubmit = async (data: TheaterBookingFormValues) => {
         setLoading(true);
@@ -59,15 +74,19 @@ export function TheaterBookingForm({ slot, work }: TheaterBookingFormProps) {
             const result = await addTheaterBooking({
                 eventSlotId: slot.id,
                 schoolId: data.schoolId,
-                countStudents: data.countStudents,
-                countTeachers: data.countTeachers,
-                totalPrice: data.totalPrice,
+                qtyReservedStudents: data.qtyReservedStudents,
+                qtyReservedAdults: data.qtyReservedAdults,
+                billingPolicy: data.billingPolicy,
+                unitPriceStudent: data.unitPriceStudent,
+                unitPriceAdult: data.unitPriceAdult,
+                totalExpected: data.totalExpected,
+                attendanceStatus: AttendanceStatus.PENDING,
                 notes: data.notes || "",
             }, data.isHold);
 
             if (result.success) {
                 toast.success("Reserva creada correctamente");
-                router.push("/reservas");
+                router.push(`/calendario/${slot.eventDayId}`); // Redirect to day detail
                 router.refresh();
             } else {
                 toast.error(result.error || "Error al crear la reserva");
@@ -127,41 +146,73 @@ export function TheaterBookingForm({ slot, work }: TheaterBookingFormProps) {
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <label className="text-sm font-semibold">Cant. Alumnos</label>
+                        <label className="text-sm font-semibold">Alumnos Reservados</label>
                         <div className="relative">
                             <Users className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                             <input
                                 type="number"
-                                {...register("countStudents", { valueAsNumber: true })}
-                                className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.countStudents ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                                {...register("qtyReservedStudents", { valueAsNumber: true })}
+                                className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.qtyReservedStudents ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
                             />
                         </div>
-                        {errors.countStudents && <p className="text-xs text-red-500 font-medium">{errors.countStudents.message}</p>}
+                        {errors.qtyReservedStudents && <p className="text-xs text-red-500 font-medium">{errors.qtyReservedStudents.message}</p>}
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-semibold">Cant. Docentes</label>
+                        <label className="text-sm font-semibold">Adultos Reservados</label>
                         <div className="relative">
                             <Users className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                             <input
                                 type="number"
-                                {...register("countTeachers", { valueAsNumber: true })}
-                                className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.countTeachers ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                                {...register("qtyReservedAdults", { valueAsNumber: true })}
+                                className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.qtyReservedAdults ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 border-t pt-4">
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold">Precio x Alumno</label>
+                        <div className="relative">
+                            <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <input
+                                type="number"
+                                {...register("unitPriceStudent", { valueAsNumber: true })}
+                                className="w-full rounded-lg border border-slate-200 bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
+                            />
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold">Precio x Adulto</label>
+                        <div className="relative">
+                            <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <input
+                                type="number"
+                                {...register("unitPriceAdult", { valueAsNumber: true })}
+                                className="w-full rounded-lg border border-slate-200 bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
                             />
                         </div>
                     </div>
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold">Precio Total (Acordado)</label>
-                    <div className="relative">
-                        <Ticket className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <input
-                            type="number"
-                            {...register("totalPrice", { valueAsNumber: true })}
-                            className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.totalPrice ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
-                        />
+                    <label className="text-sm font-semibold italic opacity-70">Política de Facturación</label>
+                    <select
+                        {...register("billingPolicy")}
+                        className="w-full rounded-lg border border-slate-200 bg-background px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
+                    >
+                        <option value={BillingPolicy.RESERVED}>Cobrar por Reservado (Default)</option>
+                        <option value={BillingPolicy.ATTENDED}>Cobrar por Asistido</option>
+                        <option value={BillingPolicy.CUSTOM}>Acuerdo Especial / Custom</option>
+                    </select>
+                </div>
+
+                <div className="bg-slate-900 text-white p-4 rounded-xl flex items-center justify-between shadow-inner">
+                    <div className="space-y-0.5">
+                        <p className="text-[10px] uppercase tracking-widest font-bold text-slate-400">Total Esperado</p>
+                        <p className="text-2xl font-black text-primary">${(watch("totalExpected") || 0).toLocaleString()}</p>
                     </div>
-                    {errors.totalPrice && <p className="text-xs text-red-500 font-medium">{errors.totalPrice.message}</p>}
+                    <Ticket className="h-8 w-8 text-slate-700" />
                 </div>
 
                 <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 dark:bg-slate-900/20">
@@ -203,10 +254,10 @@ export function TheaterBookingForm({ slot, work }: TheaterBookingFormProps) {
             <div className="flex justify-end gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <button
                     type="submit"
-                    disabled={loading || (countStudents > availableSlots)}
+                    disabled={loading || (qtyReservedStudents > availableSlots)}
                     className="w-full py-3.5 bg-primary text-primary-foreground rounded-xl hover:opacity-90 disabled:opacity-50 text-sm font-bold shadow-lg shadow-primary/20 transition-all active:scale-95"
                 >
-                    {loading ? "Procesando..." : countStudents > availableSlots ? "Capacidad Insuficiente" : isHold ? "Crear Reserva HOLD" : "Crear Reserva Pendiente"}
+                    {loading ? "Procesando..." : qtyReservedStudents > availableSlots ? "Capacidad Insuficiente" : isHold ? "Crear Reserva HOLD" : "Crear Reserva Pendiente"}
                 </button>
             </div>
         </form>

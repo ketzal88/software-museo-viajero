@@ -1,4 +1,5 @@
 import * as z from "zod";
+import { BillingPolicy } from "@/types";
 
 export const venueSchema = z.object({
     name: z.string().min(3, "El nombre debe tener al menos 3 caracteres"),
@@ -42,9 +43,12 @@ export const seasonSchema = z.object({
 });
 export const theaterBookingSchema = z.object({
     schoolId: z.string().min(1, "Debes seleccionar una escuela"),
-    countStudents: z.number().min(1, "Debes ingresar al menos 1 alumno"),
-    countTeachers: z.number().min(0),
-    totalPrice: z.number().min(0, "El precio no puede ser negativo"),
+    qtyReservedStudents: z.number().min(1, "Debes ingresar al menos 1 alumno"),
+    qtyReservedAdults: z.number().min(0),
+    billingPolicy: z.nativeEnum(BillingPolicy),
+    unitPriceStudent: z.number().min(0),
+    unitPriceAdult: z.number().min(0),
+    totalExpected: z.number().min(0),
     notes: z.string().optional(),
     isHold: z.boolean(),
 });
@@ -52,8 +56,8 @@ export const theaterBookingSchema = z.object({
 export const travelBookingSchema = z.object({
     schoolId: z.string().min(1, "Debes seleccionar una escuela"),
     modality: z.string().min(1, "Debes seleccionar una modalidad"),
-    countStudents: z.number().min(1, "Debes ingresar al menos 1 alumno"),
-    countTeachers: z.number().min(0),
+    qtyReservedStudents: z.number().min(1, "Debes ingresar al menos 1 alumno"),
+    qtyReservedAdults: z.number().min(0),
     totalPrice: z.number().min(0, "El precio no puede ser negativo"),
     notes: z.string().optional(),
 });

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { School, EventSlot, Work, TravelMode } from "@/types";
+import { School, EventSlot, Work, TravelMode, AttendanceStatus } from "@/types";
 import { addTravelBooking } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { Users, Ticket, Check, MapPin, Truck, Sparkles } from "lucide-react";
@@ -15,8 +15,8 @@ import { toast } from "sonner";
 interface TravelBookingFormValues {
     schoolId: string;
     modality: string;
-    countStudents: number;
-    countTeachers: number;
+    qtyReservedStudents: number;
+    qtyReservedAdults: number;
     totalPrice: number;
     notes?: string;
 }
@@ -42,24 +42,24 @@ export function TravelBookingForm({ slot, work }: TravelBookingFormProps) {
         defaultValues: {
             schoolId: "",
             modality: TravelMode.CLASSROOM,
-            countStudents: 0,
-            countTeachers: 0,
+            qtyReservedStudents: 0,
+            qtyReservedAdults: 0,
             totalPrice: 0,
             notes: "",
         },
     });
 
-    const countStudents = watch("countStudents");
+    const qtyReservedStudents = watch("qtyReservedStudents");
     const modality = watch("modality");
 
     // Auto-recommendation and auto-pricing
     useEffect(() => {
-        if (countStudents > 0) {
-            const recommended = recommendTravelModality(countStudents);
+        if (qtyReservedStudents > 0) {
+            const recommended = recommendTravelModality(qtyReservedStudents);
             setValue("modality", recommended, { shouldValidate: true });
             setValue("totalPrice", TRAVEL_PRICES[recommended].price, { shouldValidate: true });
         }
-    }, [countStudents, setValue]);
+    }, [qtyReservedStudents, setValue]);
 
     const onSubmit = async (data: TravelBookingFormValues) => {
         setLoading(true);
@@ -68,15 +68,16 @@ export function TravelBookingForm({ slot, work }: TravelBookingFormProps) {
                 eventSlotId: slot.id,
                 schoolId: data.schoolId,
                 modality: data.modality as TravelMode,
-                countStudents: data.countStudents,
-                countTeachers: data.countTeachers,
+                qtyReservedStudents: data.qtyReservedStudents,
+                qtyReservedAdults: data.qtyReservedAdults,
                 totalPrice: data.totalPrice,
                 notes: data.notes || "",
+                attendanceStatus: AttendanceStatus.PENDING,
             });
 
             if (result.success) {
                 toast.success("Reserva viajera creada correctamente");
-                router.push("/reservas");
+                router.push(`/calendario/${slot.eventDayId}`);
                 router.refresh();
             } else {
                 toast.error(result.error || "Error al crear la reserva");
@@ -129,25 +130,25 @@ export function TravelBookingForm({ slot, work }: TravelBookingFormProps) {
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <label className="text-sm font-semibold">Cant. Alumnos</label>
+                        <label className="text-sm font-semibold">Alumnos Reservados</label>
                         <div className="relative">
                             <Users className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                             <input
                                 type="number"
-                                {...register("countStudents", { valueAsNumber: true })}
-                                className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition-all ${errors.countStudents ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                                {...register("qtyReservedStudents", { valueAsNumber: true })}
+                                className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition-all ${errors.qtyReservedStudents ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
                             />
                         </div>
-                        {errors.countStudents && <p className="text-xs text-red-500 font-medium">{errors.countStudents.message}</p>}
+                        {errors.qtyReservedStudents && <p className="text-xs text-red-500 font-medium">{errors.qtyReservedStudents.message}</p>}
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-semibold">Cant. Docentes</label>
+                        <label className="text-sm font-semibold">Adultos Reservados</label>
                         <div className="relative">
                             <Users className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                             <input
                                 type="number"
-                                {...register("countTeachers", { valueAsNumber: true })}
-                                className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition-all ${errors.countTeachers ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                                {...register("qtyReservedAdults", { valueAsNumber: true })}
+                                className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition-all ${errors.qtyReservedAdults ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
                             />
                         </div>
                     </div>
@@ -156,7 +157,7 @@ export function TravelBookingForm({ slot, work }: TravelBookingFormProps) {
                 <div className="space-y-3">
                     <label className="text-sm font-semibold flex items-center gap-2">
                         Modalidad Recomendada
-                        {countStudents > 0 && (
+                        {qtyReservedStudents > 0 && (
                             <span className="flex items-center gap-1 text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold uppercase transition-all">
                                 <Sparkles className="h-2 w-2" /> Sugerido
                             </span>

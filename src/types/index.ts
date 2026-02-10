@@ -89,6 +89,9 @@ export interface EventDay {
     type: EventType;
     seasonId: string;
     locationId: string; // Venue ID (si es Teatro) o se deja nulo/ID de la Escuela base (si es Viaje)
+    status: "OPEN" | "CLOSED";
+    closedAt?: string;
+    updatedAt: string;
 }
 
 export interface EventSlot {
@@ -101,16 +104,39 @@ export interface EventSlot {
     availableCapacity: number;
 }
 
+export enum AttendanceStatus {
+    PENDING = "PENDING",
+    FINAL = "FINAL",
+}
+
+export enum BillingPolicy {
+    RESERVED = "RESERVED",
+    ATTENDED = "ATTENDED",
+    CUSTOM = "CUSTOM",
+}
+
 export interface TheaterBooking {
     id: string;
     eventSlotId: string;
     schoolId: string;
-    countStudents: number;
-    countTeachers: number;
+    // Reserved counts
+    qtyReservedStudents: number;
+    qtyReservedAdults: number;
+    // Attended counts (filled later)
+    qtyAttendedStudents?: number;
+    qtyAttendedAdults?: number;
+    // Calculation & Policy
+    billingPolicy: BillingPolicy;
+    unitPriceStudent: number;
+    unitPriceAdult: number;
+    totalExpected: number;
+    totalFinal?: number;
+
     status: BookingStatus;
-    totalPrice: number;
+    attendanceStatus: AttendanceStatus;
     notes?: string;
     createdAt: string;
+    updatedAt: string;
     expiresAt?: string; // Para reservas en HOLD
 }
 
@@ -119,11 +145,161 @@ export interface TravelBooking {
     eventSlotId: string;
     schoolId: string;
     modality: TravelMode;
-    countStudents: number;
-    countTeachers: number;
+    // Reserved counts
+    qtyReservedStudents: number;
+    qtyReservedAdults: number;
+    // Attended counts
+    qtyAttendedStudents?: number;
+    qtyAttendedAdults?: number;
+
     status: BookingStatus;
-    totalPrice: number;
+    attendanceStatus: AttendanceStatus;
+    totalPrice: number; // For travel, it's usually fixed by modality
     notes?: string;
     createdAt: string;
+    updatedAt: string;
     expiresAt?: string; // Para reservas temporales
+}
+
+// REPORTS & SUMMARIES
+export interface DailySummary {
+    id: string; // daily_YYYY-MM-DD_type_id
+    date: string;
+    type: EventType;
+    seasonId: string;
+    workId: string;
+    venueId?: string;
+    schoolId?: string;
+    shiftType: ShiftType;
+    attendance: {
+        reservedStudents: number;
+        reservedAdults: number;
+        attendedStudents: number;
+        attendedAdults: number;
+    };
+    revenue: {
+        expected: number;
+        final: number;
+        currency: "ARS";
+        breakdown?: {
+            ticketsStudents: number;
+            ticketsAdults: number;
+            fixedTravel: number;
+        };
+    };
+    costs: {
+        staffTotal: number;
+        actorsTotal: number;
+        assistantsTotal: number;
+        otherCosts?: number;
+    };
+    margin: {
+        gross: number;
+    };
+    status: "OPEN" | "CLOSED";
+    closedAt?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface MonthlySummary {
+    id: string; // month_YYYY-MM
+    month: string; // YYYY-MM
+    revenueTotal: number;
+    costsTotal: number;
+    marginTotal: number;
+    attendanceTotal: number;
+    typeBreakdown: {
+        theater: number;
+        travel: number;
+    };
+    updatedAt: string;
+}
+
+export interface SeasonSummary {
+    id: string; // season_id
+    seasonId: string;
+    revenueTotal: number;
+    marginTotal: number;
+    attendanceTotal: number;
+    topWorks: { workId: string; title: string; count: number }[];
+    topVenues: { venueId: string; name: string; count: number }[];
+    attendanceRatio: number; // attended / reserved
+    updatedAt: string;
+}
+
+// STAFF & PAYOUTS
+export enum RoleType {
+    ACTOR = "actor",
+    ASSISTANT = "assistant",
+    STAFF = "staff"
+}
+
+export enum ShiftType {
+    HALF_DAY_MORNING = "half_day_morning",
+    HALF_DAY_AFTERNOON = "half_day_afternoon",
+    HALF_DAY_MIXED = "half_day_mixed",
+    FULL_DAY = "full_day"
+}
+
+export enum PayoutStatus {
+    PENDING = "pending",
+    APPROVED = "approved",
+    PAID = "paid"
+}
+
+export interface Person {
+    id: string;
+    firstName: string;
+    lastName: string;
+    displayName: string;
+    roleTypes: RoleType[];
+    phone?: string;
+    email?: string;
+    notes?: string;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface WorkCast {
+    id: string;
+    workId: string;
+    personId: string;
+    roleType: RoleType;
+    characterName?: string;
+    isPrimary: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface PersonRate {
+    id: string;
+    personId: string;
+    roleType: RoleType;
+    shiftType: ShiftType;
+    amount: number;
+    currency: "ARS";
+    workId?: string;
+    priority: number;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface Payout {
+    id: string;
+    eventDayId: string;
+    date: string;
+    workId: string;
+    personId: string;
+    roleType: RoleType;
+    shiftType: ShiftType;
+    units: number;
+    amount: number;
+    currency: "ARS";
+    status: PayoutStatus;
+    notes?: string;
+    createdAt: string;
+    updatedAt: string;
 }

@@ -1,7 +1,8 @@
 "use server";
 
+import * as admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
-import { Venue, School, Work, Season, EventDay, EventSlot, EventType, TheaterBooking, TravelBooking, BookingStatus, SlotTemplate } from "@/types";
+import { Venue, School, Work, Season, EventDay, EventSlot, EventType, TheaterBooking, TravelBooking, BookingStatus, SlotTemplate, Person, WorkCast, PersonRate, Payout, RoleType, ShiftType, PayoutStatus, AttendanceStatus, BillingPolicy, DailySummary, MonthlySummary, SeasonSummary } from "@/types";
 import { revalidatePath } from "next/cache";
 import { buildSearchTokens, serializeFirestore } from "./utils";
 import { addHours } from "date-fns";
@@ -446,7 +447,7 @@ export async function getSlotOccupancy(eventSlotId: string): Promise<number> {
         return bookingsSnapshot.docs.reduce((acc, doc) => {
             const data = doc.data() as TheaterBooking;
             if (data.status === BookingStatus.CONFIRMED || data.status === BookingStatus.HOLD || data.status === BookingStatus.PENDING) {
-                return acc + data.countStudents;
+                return acc + (data.qtyReservedStudents || 0);
             }
             return acc;
         }, 0);
@@ -456,7 +457,7 @@ export async function getSlotOccupancy(eventSlotId: string): Promise<number> {
     }
 }
 
-export async function addTheaterBooking(booking: Omit<TheaterBooking, "id" | "createdAt" | "status">, isHold: boolean = true) {
+export async function addTheaterBooking(booking: Omit<TheaterBooking, "id" | "createdAt" | "status" | "updatedAt">, isHold: boolean = true) {
     try {
         const slotRef = adminDb.collection("event_slots").doc(booking.eventSlotId);
 
@@ -467,18 +468,20 @@ export async function addTheaterBooking(booking: Omit<TheaterBooking, "id" | "cr
             const slotData = slotDoc.data() as EventSlot;
             const currentOccupancy = await getSlotOccupancy(booking.eventSlotId);
 
-            if (currentOccupancy + booking.countStudents > slotData.totalCapacity) {
+            if (currentOccupancy + booking.qtyReservedStudents > slotData.totalCapacity) {
                 throw new Error(`Capacidad excedida. Disponible: ${slotData.totalCapacity - currentOccupancy}`);
             }
 
             const bookingRef = adminDb.collection("theater_bookings").doc();
-            const now = new Date();
-            const expiresAt = isHold ? addHours(now, 72).toISOString() : undefined;
+            const now = new Date().toISOString();
+            const expiresAt = isHold ? addHours(new Date(), 72).toISOString() : undefined;
 
             const newBooking: Omit<TheaterBooking, "id"> = {
                 ...booking,
-                createdAt: now.toISOString(),
+                createdAt: now,
+                updatedAt: now,
                 status: isHold ? BookingStatus.HOLD : BookingStatus.PENDING,
+                attendanceStatus: AttendanceStatus.PENDING,
                 expiresAt,
             };
 
@@ -486,7 +489,7 @@ export async function addTheaterBooking(booking: Omit<TheaterBooking, "id" | "cr
 
             // Update available capacity in slot
             transaction.update(slotRef, {
-                availableCapacity: slotData.totalCapacity - (currentOccupancy + booking.countStudents)
+                availableCapacity: slotData.totalCapacity - (currentOccupancy + booking.qtyReservedStudents)
             });
 
             return { id: bookingRef.id };
@@ -500,12 +503,15 @@ export async function addTheaterBooking(booking: Omit<TheaterBooking, "id" | "cr
     }
 }
 
-export async function addTravelBooking(booking: Omit<TravelBooking, "id" | "createdAt" | "status">) {
+export async function addTravelBooking(booking: Omit<TravelBooking, "id" | "createdAt" | "status" | "updatedAt">) {
     try {
+        const now = new Date().toISOString();
         const bookingRef = await adminDb.collection("travel_bookings").add({
             ...booking,
-            createdAt: new Date().toISOString(),
+            createdAt: now,
+            updatedAt: now,
             status: BookingStatus.PENDING,
+            attendanceStatus: AttendanceStatus.PENDING,
         });
 
         revalidatePath("/reservas");
@@ -588,7 +594,7 @@ export async function deleteBooking(id: string, type: 'theater' | 'travel') {
                 if (slotDoc.exists) {
                     const slotData = slotDoc.data() as EventSlot;
                     transaction.update(slotRef, {
-                        availableCapacity: slotData.availableCapacity + data.countStudents
+                        availableCapacity: (slotData.availableCapacity || 0) + (data.qtyReservedStudents || 0)
                     });
                 }
 
@@ -666,6 +672,605 @@ export async function searchSchools(query: string): Promise<School[]> {
         return snapshot.docs.map(doc => serializeFirestore<School>({ id: doc.id, ...doc.data() }));
     } catch (error) {
         console.error("Error searching schools:", error);
+        return [];
+    }
+}
+
+// PEOPLE (ACTORS & ASSISTANTS)
+export async function getPeople(): Promise<Person[]> {
+    try {
+        const snapshot = await adminDb.collection("people")
+            .orderBy("lastName", "asc")
+            .get();
+        return snapshot.docs.map(doc => serializeFirestore<Person>({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+        console.error("Error fetching people:", error);
+        return [];
+    }
+}
+
+export async function getPersonById(id: string): Promise<Person | null> {
+    if (!id) return null;
+    try {
+        const doc = await adminDb.collection("people").doc(id).get();
+        if (!doc.exists) return null;
+        return serializeFirestore<Person>({ id: doc.id, ...doc.data() });
+    } catch (error) {
+        console.error("Error fetching person:", error);
+        return null;
+    }
+}
+
+export async function addPerson(person: Omit<Person, "id" | "createdAt" | "updatedAt" | "displayName">) {
+    try {
+        const now = new Date().toISOString();
+        const data = {
+            ...person,
+            displayName: `${person.firstName} ${person.lastName}`,
+            createdAt: now,
+            updatedAt: now,
+        };
+        const docRef = await adminDb.collection("people").add(data);
+        revalidatePath("/staff");
+        return { success: true, id: docRef.id };
+    } catch (error: unknown) {
+        console.error("Error adding person:", error);
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+    }
+}
+
+export async function updatePerson(id: string, person: Partial<Omit<Person, "id" | "createdAt" | "updatedAt">>) {
+    try {
+        const now = new Date().toISOString();
+        const updateData: Record<string, unknown> = {
+            ...person,
+            updatedAt: now,
+        };
+        if (person.firstName || person.lastName) {
+            const current = await getPersonById(id);
+            if (current) {
+                updateData.displayName = `${person.firstName || current.firstName} ${person.lastName || current.lastName}`;
+            }
+        }
+        await adminDb.collection("people").doc(id).update(updateData);
+        revalidatePath("/staff");
+        return { success: true };
+    } catch (error: unknown) {
+        console.error("Error updating person:", error);
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+    }
+}
+
+export async function deletePerson(id: string) {
+    try {
+        await adminDb.collection("people").doc(id).delete();
+        revalidatePath("/staff");
+        return { success: true };
+    } catch (error: unknown) {
+        console.error("Error deleting person:", error);
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+    }
+}
+
+// WORK CAST (RELATION BETWEEN WORK & PEOPLE)
+export async function getCastByWork(workId: string): Promise<(WorkCast & { person: Person | null })[]> {
+    if (!workId) return [];
+    try {
+        const snapshot = await adminDb.collection("workCast")
+            .where("workId", "==", workId)
+            .get();
+
+        const castItems = await Promise.all(snapshot.docs.map(async (doc) => {
+            const data = serializeFirestore<WorkCast>({ id: doc.id, ...doc.data() });
+            const person = await getPersonById(data.personId);
+            return { ...data, person };
+        }));
+
+        return castItems;
+    } catch (error) {
+        console.error("Error fetching cast by work:", error);
+        return [];
+    }
+}
+
+export async function assignPersonToWork(castData: Omit<WorkCast, "id" | "createdAt" | "updatedAt">) {
+    try {
+        const now = new Date().toISOString();
+        const id = `work_${castData.workId}__person_${castData.personId}`;
+        const data = {
+            ...castData,
+            createdAt: now,
+            updatedAt: now,
+        };
+        await adminDb.collection("workCast").doc(id).set(data);
+        revalidatePath(`/obras/${castData.workId}`);
+        return { success: true, id };
+    } catch (error: unknown) {
+        console.error("Error assigning person to work:", error);
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+    }
+}
+
+export async function removePersonFromWork(workId: string, personId: string) {
+    try {
+        const id = `work_${workId}__person_${personId}`;
+        await adminDb.collection("workCast").doc(id).delete();
+        revalidatePath(`/obras/${workId}`);
+        return { success: true };
+    } catch (error: unknown) {
+        console.error("Error removing person from work:", error);
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+    }
+}
+
+export async function getCastByPerson(personId: string): Promise<(WorkCast & { work: Work | null })[]> {
+    if (!personId) return [];
+    try {
+        const snapshot = await adminDb.collection("workCast")
+            .where("personId", "==", personId)
+            .get();
+
+        const castItems = await Promise.all(snapshot.docs.map(async (doc) => {
+            const data = serializeFirestore<WorkCast>({ id: doc.id, ...doc.data() });
+            const work = await getWorkById(data.workId);
+            return { ...data, work };
+        }));
+
+        return castItems;
+    } catch (error) {
+        console.error("Error fetching cast by person:", error);
+        return [];
+    }
+}
+
+// PERSON RATES
+export async function getPersonRates(personId: string): Promise<PersonRate[]> {
+    if (!personId) return [];
+    try {
+        const snapshot = await adminDb.collection("personRates")
+            .where("personId", "==", personId)
+            .get();
+        return snapshot.docs.map(doc => serializeFirestore<PersonRate>({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+        console.error("Error fetching person rates:", error);
+        return [];
+    }
+}
+
+export async function upsertPersonRate(rate: Omit<PersonRate, "id" | "createdAt" | "updatedAt">) {
+    try {
+        const now = new Date().toISOString();
+        const id = `rate_${rate.personId}_${rate.roleType}_${rate.shiftType}${rate.workId ? `_${rate.workId}` : ""}`;
+        const data = {
+            ...rate,
+            createdAt: now,
+            updatedAt: now,
+        };
+        await adminDb.collection("personRates").doc(id).set(data);
+        revalidatePath("/staff");
+        return { success: true, id };
+    } catch (error: unknown) {
+        console.error("Error upserting person rate:", error);
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+    }
+}
+
+/**
+ * Resuelve qué tipo de bloque de pago corresponde a una jornada.
+ */
+export async function resolveShiftType(eventDay: EventDay, slots: EventSlot[]): Promise<ShiftType> {
+    if (eventDay.type === EventType.TRAVEL) {
+        // En Viajera usualmente hay un solo slot o la modalidad define el bloque.
+        // Simulamos la lógica basada en cantidad de slots por ahora (Placeholder para travelModality)
+        if (slots.length >= 4) return ShiftType.FULL_DAY;
+        if (slots.length >= 2) return ShiftType.HALF_DAY_MORNING; // Simplificado
+        return ShiftType.HALF_DAY_MORNING;
+    } else {
+        // Lógica de Teatro: Basada en slots del día
+        const morningSlots = slots.filter(s => parseInt(s.startTime.split(':')[0]) < 13);
+        const afternoonSlots = slots.filter(s => parseInt(s.startTime.split(':')[0]) >= 13);
+
+        if (slots.length >= 3) return ShiftType.FULL_DAY; // Tu recomendación: 3 slots = FULL_DAY
+        if (morningSlots.length > 0 && afternoonSlots.length > 0) return ShiftType.HALF_DAY_MIXED;
+        if (afternoonSlots.length > 0) return ShiftType.HALF_DAY_AFTERNOON;
+        return ShiftType.HALF_DAY_MORNING;
+    }
+}
+
+/**
+ * Resuelve la tarifa aplicable a una persona para un bloque y obra específicos.
+ */
+export async function resolvePersonRate(personId: string, roleType: RoleType, shiftType: ShiftType, workId: string): Promise<number> {
+    try {
+        const rates = await getPersonRates(personId);
+
+        // Filtrar por rol y bloque
+        const matchingRates = rates.filter(r => r.roleType === roleType && r.shiftType === shiftType && r.isActive);
+
+        if (matchingRates.length === 0) return 0;
+
+        // Prioridad 1: Override por Obra específica
+        const workSpecific = matchingRates.find(r => r.workId === workId);
+        if (workSpecific) return workSpecific.amount;
+
+        // Prioridad 2: Tarifa general (sin workId)
+        const general = matchingRates.find(r => !r.workId);
+        if (general) return general.amount;
+
+        // Prioridad 3: El que tenga mayor prioridad numérica
+        return matchingRates.sort((a, b) => b.priority - a.priority)[0].amount;
+    } catch (error) {
+        console.error("Error resolving person rate:", error);
+        return 0;
+    }
+}
+
+// PAYOUTS (LIQUIDACIONES)
+export async function getPayouts(filters?: { personId?: string, status?: PayoutStatus, startDate?: string, endDate?: string }): Promise<(Payout & { person: Person | null, work: Work | null })[]> {
+    try {
+        let query: admin.firestore.Query = adminDb.collection("payouts");
+
+        if (filters?.personId) query = query.where("personId", "==", filters.personId);
+        if (filters?.status) query = query.where("status", "==", filters.status);
+        if (filters?.startDate) query = query.where("date", ">=", filters.startDate);
+        if (filters?.endDate) query = query.where("date", "<=", filters.endDate);
+
+        const snapshot = await query.orderBy("date", "desc").get();
+
+        const payouts = await Promise.all(snapshot.docs.map(async (doc: admin.firestore.QueryDocumentSnapshot) => {
+            const data = serializeFirestore<Payout>({ id: doc.id, ...doc.data() });
+            const [person, work] = await Promise.all([
+                getPersonById(data.personId),
+                getWorkById(data.workId)
+            ]);
+            return { ...data, person, work };
+        }));
+
+        return payouts;
+    } catch (error) {
+        console.error("Error fetching payouts:", error);
+        return [];
+    }
+}
+
+/**
+ * Genera automáticamente las liquidaciones para una jornada específica.
+ * Idempotente: Si ya existe un payout aprobado/pagado para esa persona ese día, no lo pisa.
+ */
+export async function generatePayoutsForDay(eventDayId: string) {
+    try {
+        const eventDay = await getEventDayById(eventDayId);
+        if (!eventDay) throw new Error("Jornada no encontrada");
+
+        const slots = await getSlotsByEventDay(eventDayId);
+        if (slots.length === 0) return { success: true, message: "Sin slots, nada que liquidar" };
+
+        const workId = slots[0].workId; // Asumimos una obra por día por ahora
+        const shiftType = await resolveShiftType(eventDay, slots);
+        const cast = await getCastByWork(workId);
+
+        if (cast.length === 0) return { success: true, message: "Obra sin elenco asignado" };
+
+        const batch = adminDb.batch();
+        const now = new Date().toISOString();
+
+        for (const castMember of cast) {
+            const personId = castMember.personId;
+            const roleType = castMember.roleType;
+            const payoutId = `payout_${eventDayId}__${personId}`;
+
+            // Verificar si ya existe un payout procesado
+            const existingRef = adminDb.collection("payouts").doc(payoutId);
+            const existingDoc = await existingRef.get();
+
+            if (existingDoc.exists) {
+                const existingData = existingDoc.data() as Payout;
+                if (existingData.status !== PayoutStatus.PENDING) continue; // No tocar si ya está aprobado/pagado
+            }
+
+            const amount = await resolvePersonRate(personId, roleType, shiftType, workId);
+
+            const payoutData: Payout = {
+                id: payoutId,
+                eventDayId,
+                date: eventDay.date,
+                workId,
+                personId,
+                roleType,
+                shiftType,
+                units: 1,
+                amount,
+                currency: "ARS",
+                status: PayoutStatus.PENDING,
+                createdAt: now,
+                updatedAt: now,
+            };
+
+            batch.set(existingRef, payoutData);
+        }
+
+        await batch.commit();
+        revalidatePath("/liquidaciones");
+        return { success: true };
+    } catch (error: unknown) {
+        console.error("Error generating payouts:", error);
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+    }
+}
+
+export async function updatePayoutStatus(id: string, status: PayoutStatus, notes?: string) {
+    try {
+        const now = new Date().toISOString();
+        const updateData: Partial<Payout> = {
+            status,
+            updatedAt: now
+        };
+        if (notes !== undefined) updateData.notes = notes;
+
+        await adminDb.collection("payouts").doc(id).update(updateData);
+        revalidatePath("/liquidaciones");
+        return { success: true };
+    } catch (error: unknown) {
+        console.error("Error updating payout status:", error);
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+    }
+}
+
+// --- REPORTING & CLOSEOUT ACTIONS ---
+
+/**
+ * Actualiza la asistencia de una reserva de teatro y recalcula el monto final.
+ */
+export async function updateTheaterBookingAttendance(
+    id: string,
+    attendedData: { students: number; adults: number },
+    policy?: BillingPolicy
+) {
+    try {
+        const bookingRef = adminDb.collection("theater_bookings").doc(id);
+        const doc = await bookingRef.get();
+        if (!doc.exists) throw new Error("Reserva no encontrada");
+
+        const data = doc.data() as TheaterBooking;
+        const currentPolicy = policy || data.billingPolicy || BillingPolicy.RESERVED;
+
+        let totalFinal = 0;
+        if (currentPolicy === BillingPolicy.RESERVED) {
+            totalFinal = (data.qtyReservedStudents * data.unitPriceStudent) + (data.qtyReservedAdults * data.unitPriceAdult);
+        } else if (currentPolicy === BillingPolicy.ATTENDED) {
+            totalFinal = (attendedData.students * data.unitPriceStudent) + (attendedData.adults * data.unitPriceAdult);
+        } else {
+            // CUSTOM: Por ahora mismo que attended
+            totalFinal = (attendedData.students * data.unitPriceStudent) + (attendedData.adults * data.unitPriceAdult);
+        }
+
+        await bookingRef.update({
+            qtyAttendedStudents: attendedData.students,
+            qtyAttendedAdults: attendedData.adults,
+            billingPolicy: currentPolicy,
+            totalFinal,
+            attendanceStatus: AttendanceStatus.FINAL,
+            updatedAt: new Date().toISOString()
+        });
+
+        revalidatePath("/reservas");
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating theater attendance:", error);
+        return { success: false, error: (error as Error).message };
+    }
+}
+
+/**
+ * Actualiza la asistencia de una reserva de viajera.
+ */
+export async function updateTravelBookingAttendance(
+    id: string,
+    attendedData: { students: number; adults: number }
+) {
+    try {
+        await adminDb.collection("travel_bookings").doc(id).update({
+            qtyAttendedStudents: attendedData.students,
+            qtyAttendedAdults: attendedData.adults,
+            attendanceStatus: AttendanceStatus.FINAL,
+            updatedAt: new Date().toISOString()
+        });
+
+        revalidatePath("/reservas");
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating travel attendance:", error);
+        return { success: false, error: (error as Error).message };
+    }
+}
+
+/**
+ * Cierre de jornada: Marca el día como CLOSED y genera los reportes/snapshots.
+ */
+export async function closeEventDay(eventDayId: string) {
+    try {
+        const dayRef = adminDb.collection("event_days").doc(eventDayId);
+        const dayDoc = await dayRef.get();
+        if (!dayDoc.exists) throw new Error("Jornada no encontrada");
+
+        const dayData = dayDoc.data() as EventDay;
+        if (dayData.status === "CLOSED") return { success: true, message: "Ya está cerrada" };
+
+        // 1. Generar resumen diario (Snapshot)
+        const summaryResult = await generateDailySummary(eventDayId);
+        if (!summaryResult.success) throw new Error(summaryResult.error);
+
+        // 2. Marcar como cerrado
+        const now = new Date().toISOString();
+        await dayRef.update({
+            status: "CLOSED",
+            closedAt: now,
+            updatedAt: now
+        });
+
+        // 3. Actualizar agregados (Mes, Temporada)
+        if (summaryResult.summary) {
+            await applyDailySummaryToAggregates(summaryResult.summary);
+        }
+
+        revalidatePath("/calendario");
+        revalidatePath("/reportes");
+        return { success: true };
+    } catch (error) {
+        console.error("Error closing event day:", error);
+        return { success: false, error: (error as Error).message };
+    }
+}
+
+/**
+ * Genera el snapshot DailySummary leyendo todas las fuentes de datos del día.
+ */
+async function generateDailySummary(eventDayId: string): Promise<{ success: boolean; summary?: DailySummary; error?: string }> {
+    try {
+        const day = await getEventDayById(eventDayId);
+        if (!day) throw new Error("Day not found");
+
+        const slots = await getSlotsByEventDay(eventDayId);
+        const now = new Date().toISOString();
+
+        // Agregadores
+        let reservedStudents = 0, reservedAdults = 0;
+        let attendedStudents = 0, attendedAdults = 0;
+        let expectedRev = 0, finalRev = 0;
+        let ticketsStudents = 0, ticketsAdults = 0, fixedTravel = 0;
+
+        // IDs para el resumen (usaremos el primero que encontremos si es necesario)
+        let firstWorkId = "";
+
+        for (const slot of slots) {
+            if (!firstWorkId) firstWorkId = slot.workId;
+
+            const [theaterBookings, travelBookings] = await Promise.all([
+                getTheaterBookingsBySlot(slot.id),
+                getTravelBookingsBySlot(slot.id)
+            ]);
+
+            theaterBookings.forEach(b => {
+                if (b.status === BookingStatus.CANCELLED) return;
+                reservedStudents += b.qtyReservedStudents || 0;
+                reservedAdults += b.qtyReservedAdults || 0;
+                attendedStudents += b.qtyAttendedStudents || (b.qtyReservedStudents || 0);
+                attendedAdults += b.qtyAttendedAdults || (b.qtyReservedAdults || 0);
+
+                expectedRev += b.totalExpected || 0;
+                finalRev += b.totalFinal || b.totalExpected || 0;
+
+                ticketsStudents += (b.qtyAttendedStudents || b.qtyReservedStudents || 0) * (b.unitPriceStudent || 0);
+                ticketsAdults += (b.qtyAttendedAdults || b.qtyReservedAdults || 0) * (b.unitPriceAdult || 0);
+            });
+
+            travelBookings.forEach(b => {
+                if (b.status === BookingStatus.CANCELLED) return;
+                reservedStudents += b.qtyReservedStudents || 0;
+                reservedAdults += b.qtyReservedAdults || 0;
+                attendedStudents += b.qtyAttendedStudents || (b.qtyReservedStudents || 0);
+                attendedAdults += b.qtyAttendedAdults || (b.qtyReservedAdults || 0);
+
+                expectedRev += b.totalPrice || 0;
+                finalRev += b.totalPrice || 0;
+                fixedTravel += b.totalPrice || 0;
+            });
+        }
+
+        // Costos (Payouts)
+        const dayPayouts = await getPayouts({ startDate: day.date, endDate: day.date });
+        const staffTotal = dayPayouts.reduce((acc, p) => acc + p.amount, 0);
+        const actorsTotal = dayPayouts.filter(p => p.roleType === RoleType.ACTOR).reduce((acc, p) => acc + p.amount, 0);
+        const assistantsTotal = dayPayouts.filter(p => p.roleType === RoleType.ASSISTANT).reduce((acc, p) => acc + p.amount, 0);
+
+        const summaryId = `daily_${day.date}_${day.type}_${eventDayId}`;
+        const summary: DailySummary = {
+            id: summaryId,
+            date: day.date,
+            type: day.type,
+            seasonId: day.seasonId,
+            workId: firstWorkId,
+            venueId: day.type === EventType.THEATER ? day.locationId : undefined,
+            schoolId: day.type === EventType.TRAVEL ? day.locationId : undefined,
+            shiftType: await resolveShiftType(day, slots),
+            attendance: { reservedStudents, reservedAdults, attendedStudents, attendedAdults },
+            revenue: {
+                expected: expectedRev,
+                final: finalRev,
+                currency: "ARS",
+                breakdown: { ticketsStudents, ticketsAdults, fixedTravel }
+            },
+            costs: { staffTotal, actorsTotal, assistantsTotal },
+            margin: { gross: finalRev - staffTotal },
+            status: "CLOSED",
+            closedAt: now,
+            createdAt: now,
+            updatedAt: now
+        };
+
+        await adminDb.collection("daily_summaries").doc(summaryId).set(summary);
+        return { success: true, summary };
+    } catch (error) {
+        console.error("Error generating daily summary:", error);
+        return { success: false, error: (error as Error).message };
+    }
+}
+
+/**
+ * Actualiza los agregados mensuales y de temporada basándose en un resumen diario.
+ */
+async function applyDailySummaryToAggregates(summary: DailySummary) {
+    const monthId = `month_${summary.date.substring(0, 7)}`;
+    const seasonId = `season_${summary.seasonId}`;
+
+    const now = new Date().toISOString();
+
+    // 1. Monthly Summary
+    const monthRef = adminDb.collection("monthly_summaries").doc(monthId);
+    await monthRef.set({
+        month: summary.date.substring(0, 7),
+        revenueTotal: admin.firestore.FieldValue.increment(summary.revenue.final),
+        costsTotal: admin.firestore.FieldValue.increment(summary.costs.staffTotal),
+        marginTotal: admin.firestore.FieldValue.increment(summary.margin.gross),
+        attendanceTotal: admin.firestore.FieldValue.increment(summary.attendance.attendedStudents),
+        typeBreakdown: {
+            theater: admin.firestore.FieldValue.increment(summary.type === EventType.THEATER ? summary.revenue.final : 0),
+            travel: admin.firestore.FieldValue.increment(summary.type === EventType.TRAVEL ? summary.revenue.final : 0),
+        },
+        updatedAt: now
+    }, { merge: true });
+
+    // 2. Season Summary
+    const seasonRef = adminDb.collection("season_summaries").doc(seasonId);
+    await seasonRef.set({
+        seasonId: summary.seasonId,
+        revenueTotal: admin.firestore.FieldValue.increment(summary.revenue.final),
+        marginTotal: admin.firestore.FieldValue.increment(summary.margin.gross),
+        attendanceTotal: admin.firestore.FieldValue.increment(summary.attendance.attendedStudents),
+        updatedAt: now
+    }, { merge: true });
+}
+
+export async function getMonthlySummaries() {
+    try {
+        const snapshot = await adminDb.collection("monthly_summaries").orderBy("month", "desc").get();
+        return snapshot.docs.map(doc => serializeFirestore<MonthlySummary>({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+        console.error("Error fetching monthly summaries:", error);
+        return [];
+    }
+}
+
+export async function getDailySummaries(filters?: { startDate?: string, endDate?: string }) {
+    try {
+        let query: admin.firestore.Query = adminDb.collection("daily_summaries");
+        if (filters?.startDate) query = query.where("date", ">=", filters.startDate);
+        if (filters?.endDate) query = query.where("date", "<=", filters.endDate);
+
+        const snapshot = await query.orderBy("date", "desc").get();
+        return snapshot.docs.map(doc => serializeFirestore<DailySummary>({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+        console.error("Error fetching daily summaries:", error);
         return [];
     }
 }
