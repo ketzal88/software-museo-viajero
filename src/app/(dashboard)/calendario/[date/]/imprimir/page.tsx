@@ -28,7 +28,7 @@ export default async function PrintPage({ params }: PrintPageProps) {
 
         const slotsWithBookings = await Promise.all(slots.map(async (slot) => {
             const work = await getWorkById(slot.workId);
-            let bookings: (ReturnType<typeof getTheaterBookingsBySlot> extends Promise<infer T> ? T : any)[] = [];
+            let bookings: any = [];
 
             if (event.type === EventType.THEATER) {
                 bookings = await getTheaterBookingsBySlot(slot.id);
