@@ -48,7 +48,7 @@ export interface Venue {
     contactName?: string;
     phone?: string;
     notes?: string;
-    defaultSlotTemplate?: string[]; // Simplified from SlotTemplate
+    defaultSlotTemplate?: SlotTemplate[]; // Rich slot info
     isActive?: boolean;
 }
 

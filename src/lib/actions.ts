@@ -3,7 +3,7 @@
 import { adminDb } from "@/lib/firebaseAdmin";
 import { Venue, School, Work, Season, EventDay, EventSlot, EventType, TheaterBooking, TravelBooking, BookingStatus } from "@/types";
 import { revalidatePath } from "next/cache";
-import { buildSearchTokens } from "./utils";
+import { buildSearchTokens, serializeFirestore } from "./utils";
 import { addHours } from "date-fns";
 
 export async function getTestCollection() {
@@ -15,10 +15,10 @@ export async function getTestCollection() {
             empty: snapshot.empty
         };
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (error: unknown) {
         return {
             status: "error",
-            message: error.message || "Failed to connect to Firestore"
+            message: error instanceof Error ? error.message : "Failed to connect to Firestore"
         };
     }
 }
@@ -27,7 +27,7 @@ export async function getTestCollection() {
 export async function getVenues(): Promise<Venue[]> {
     try {
         const snapshot = await adminDb.collection("venues").get();
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Venue));
+        return snapshot.docs.map(doc => serializeFirestore<Venue>({ id: doc.id, ...doc.data() }));
     } catch (error) {
         console.error("Error fetching venues:", error);
         return [];
@@ -39,7 +39,7 @@ export async function getVenueById(id: string): Promise<Venue | null> {
     try {
         const doc = await adminDb.collection("venues").doc(id).get();
         if (!doc.exists) return null;
-        return { id: doc.id, ...doc.data() } as Venue;
+        return serializeFirestore<Venue>({ id: doc.id, ...doc.data() });
     } catch (error) {
         console.error("Error fetching venue:", error);
         return null;
@@ -51,9 +51,9 @@ export async function addVenue(venue: Omit<Venue, "id">) {
         const docRef = await adminDb.collection("venues").add(venue);
         revalidatePath("/teatros");
         return { success: true, id: docRef.id };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error adding venue:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
     }
 }
 
@@ -62,9 +62,9 @@ export async function updateVenue(id: string, venue: Partial<Venue>) {
         await adminDb.collection("venues").doc(id).update(venue);
         revalidatePath("/teatros");
         return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error updating venue:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
     }
 }
 
@@ -73,9 +73,9 @@ export async function deleteVenue(id: string) {
         await adminDb.collection("venues").doc(id).delete();
         revalidatePath("/teatros");
         return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error deleting venue:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
     }
 }
 
@@ -83,7 +83,7 @@ export async function deleteVenue(id: string) {
 export async function getSchools(): Promise<School[]> {
     try {
         const snapshot = await adminDb.collection("schools").orderBy("name").get();
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as School));
+        return snapshot.docs.map(doc => serializeFirestore<School>({ id: doc.id, ...doc.data() }));
     } catch (error) {
         console.error("Error fetching schools:", error);
         return [];
@@ -95,7 +95,7 @@ export async function getSchoolById(id: string): Promise<School | null> {
     try {
         const doc = await adminDb.collection("schools").doc(id).get();
         if (!doc.exists) return null;
-        return { id: doc.id, ...doc.data() } as School;
+        return serializeFirestore<School>({ id: doc.id, ...doc.data() });
     } catch (error) {
         console.error("Error fetching school:", error);
         return null;
@@ -118,9 +118,9 @@ export async function addSchool(school: Omit<School, "id" | "searchTokens" | "di
         const docRef = await adminDb.collection("schools").add(data);
         revalidatePath("/escuelas");
         return { success: true, id: docRef.id };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error adding school:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
     }
 }
 
@@ -147,9 +147,9 @@ export async function updateSchool(id: string, school: Partial<School>) {
         await adminDb.collection("schools").doc(id).update(updateData);
         revalidatePath("/escuelas");
         return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error updating school:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
     }
 }
 
@@ -158,9 +158,9 @@ export async function deleteSchool(id: string) {
         await adminDb.collection("schools").doc(id).delete();
         revalidatePath("/escuelas");
         return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error deleting school:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
     }
 }
 
@@ -168,7 +168,7 @@ export async function deleteSchool(id: string) {
 export async function getWorks(): Promise<Work[]> {
     try {
         const snapshot = await adminDb.collection("works").orderBy("title").get();
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Work));
+        return snapshot.docs.map(doc => serializeFirestore<Work>({ id: doc.id, ...doc.data() }));
     } catch (error) {
         console.error("Error fetching works:", error);
         return [];
@@ -180,7 +180,7 @@ export async function getWorkById(id: string): Promise<Work | null> {
     try {
         const doc = await adminDb.collection("works").doc(id).get();
         if (!doc.exists) return null;
-        return { id: doc.id, ...doc.data() } as Work;
+        return serializeFirestore<Work>({ id: doc.id, ...doc.data() });
     } catch (error) {
         console.error("Error fetching work:", error);
         return null;
@@ -192,9 +192,9 @@ export async function addWork(work: Omit<Work, "id">) {
         const docRef = await adminDb.collection("works").add(work);
         revalidatePath("/obras");
         return { success: true, id: docRef.id };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error adding work:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
     }
 }
 
@@ -203,9 +203,9 @@ export async function updateWork(id: string, work: Partial<Work>) {
         await adminDb.collection("works").doc(id).update(work);
         revalidatePath("/obras");
         return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error updating work:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
     }
 }
 
@@ -214,9 +214,9 @@ export async function deleteWork(id: string) {
         await adminDb.collection("works").doc(id).delete();
         revalidatePath("/obras");
         return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error deleting work:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
     }
 }
 
@@ -224,7 +224,7 @@ export async function deleteWork(id: string) {
 export async function getSeasons(): Promise<Season[]> {
     try {
         const snapshot = await adminDb.collection("seasons").orderBy("startDate", "desc").get();
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Season));
+        return snapshot.docs.map(doc => serializeFirestore<Season>({ id: doc.id, ...doc.data() }));
     } catch (error) {
         console.error("Error fetching seasons:", error);
         return [];
@@ -236,7 +236,7 @@ export async function getSeasonById(id: string): Promise<Season | null> {
     try {
         const doc = await adminDb.collection("seasons").doc(id).get();
         if (!doc.exists) return null;
-        return { id: doc.id, ...doc.data() } as Season;
+        return serializeFirestore<Season>({ id: doc.id, ...doc.data() });
     } catch (error) {
         console.error("Error fetching season:", error);
         return null;
@@ -248,9 +248,9 @@ export async function addSeason(season: Omit<Season, "id">) {
         const docRef = await adminDb.collection("seasons").add(season);
         revalidatePath("/temporadas");
         return { success: true, id: docRef.id };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error adding season:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
     }
 }
 
@@ -259,9 +259,9 @@ export async function updateSeason(id: string, season: Partial<Season>) {
         await adminDb.collection("seasons").doc(id).update(season);
         revalidatePath("/temporadas");
         return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error updating season:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
     }
 }
 
@@ -270,9 +270,9 @@ export async function deleteSeason(id: string) {
         await adminDb.collection("seasons").doc(id).delete();
         revalidatePath("/temporadas");
         return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error deleting season:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
     }
 }
 
@@ -280,7 +280,7 @@ export async function deleteSeason(id: string) {
 export async function getEventDays(): Promise<EventDay[]> {
     try {
         const snapshot = await adminDb.collection("event_days").orderBy("date", "asc").get();
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as EventDay));
+        return snapshot.docs.map(doc => serializeFirestore<EventDay>({ id: doc.id, ...doc.data() }));
     } catch (error) {
         console.error("Error fetching event days:", error);
         return [];
@@ -293,7 +293,7 @@ export async function getEventDaysByDate(date: string): Promise<EventDay[]> {
         const snapshot = await adminDb.collection("event_days")
             .where("date", "==", date)
             .get();
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as EventDay));
+        return snapshot.docs.map(doc => serializeFirestore<EventDay>({ id: doc.id, ...doc.data() }));
     } catch (error) {
         console.error("Error fetching event days by date:", error);
         return [];
@@ -305,7 +305,7 @@ export async function getEventDayById(id: string): Promise<EventDay | null> {
     try {
         const doc = await adminDb.collection("event_days").doc(id).get();
         if (!doc.exists) return null;
-        return { id: doc.id, ...doc.data() } as EventDay;
+        return serializeFirestore<EventDay>({ id: doc.id, ...doc.data() });
     } catch (error) {
         console.error("Error fetching event day:", error);
         return null;
@@ -318,7 +318,7 @@ export async function getSlotsByEventDay(eventDayId: string): Promise<EventSlot[
         const snapshot = await adminDb.collection("event_slots")
             .where("eventDayId", "==", eventDayId)
             .get();
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as EventSlot));
+        return snapshot.docs.map(doc => serializeFirestore<EventSlot>({ id: doc.id, ...doc.data() }));
     } catch (error) {
         console.error("Error fetching slots:", error);
         return [];
@@ -330,7 +330,7 @@ export async function getSlotDetails(slotId: string) {
     try {
         const slotDoc = await adminDb.collection("event_slots").doc(slotId).get();
         if (!slotDoc.exists) return null;
-        const slot = { id: slotDoc.id, ...slotDoc.data() } as EventSlot;
+        const slot = serializeFirestore<EventSlot>({ id: slotDoc.id, ...slotDoc.data() });
 
         const [work, eventDay] = await Promise.all([
             getWorkById(slot.workId),
@@ -356,15 +356,25 @@ export async function addEventDay(
         // 2. If it's Theater, auto-generate slots
         if (eventDay.type === EventType.THEATER) {
             const venue = await getVenueById(eventDay.locationId);
-            if (venue && venue.defaultSlotTemplate) {
+            if (venue && venue.defaultSlotTemplate && venue.defaultSlotTemplate.length > 0) {
                 const batch = adminDb.batch();
-                venue.defaultSlotTemplate.forEach(template => {
+                // Handle both string array and SlotTemplate object formats
+                venue.defaultSlotTemplate.forEach((template, index) => {
                     const slotRef = adminDb.collection("event_slots").doc();
+                    // If template is a string (time), create a 2-hour slot
+                    const startTime = typeof template === 'string' ? template : template;
+                    const endHour = typeof template === 'string' ?
+                        (parseInt(template.split(':')[0]) + 2).toString().padStart(2, '0') :
+                        template;
+                    const endTime = typeof template === 'string' ?
+                        `${endHour}:${template.split(':')[1]}` :
+                        template;
+
                     const slotData: Omit<EventSlot, "id"> = {
                         eventDayId,
                         workId,
-                        startTime: template.startTime,
-                        endTime: template.endTime,
+                        startTime,
+                        endTime,
                         totalCapacity: venue.defaultCapacity,
                         availableCapacity: venue.defaultCapacity,
                     };
@@ -389,9 +399,9 @@ export async function addEventDay(
 
         revalidatePath("/calendario");
         return { success: true, id: eventDayId };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error adding event day:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
     }
 }
 
@@ -414,9 +424,9 @@ export async function deleteEventDay(id: string) {
         await batch.commit();
         revalidatePath("/calendario");
         return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error deleting event day:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
     }
 }
 
@@ -478,9 +488,9 @@ export async function addTheaterBooking(booking: Omit<TheaterBooking, "id" | "cr
 
         revalidatePath("/reservas");
         return { success: true, id: result.id };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error creating theater booking:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
     }
 }
 
@@ -494,9 +504,9 @@ export async function addTravelBooking(booking: Omit<TravelBooking, "id" | "crea
 
         revalidatePath("/reservas");
         return { success: true, id: bookingRef.id };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error creating travel booking:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
     }
 }
 
@@ -514,14 +524,14 @@ export async function getInboxItems() {
         ]);
 
         const theaterItems = await Promise.all(theaterSnap.docs.map(async (doc) => {
-            const data = { id: doc.id, ...doc.data() } as TheaterBooking;
+            const data = serializeFirestore<TheaterBooking>({ id: doc.id, ...doc.data() });
             const school = await getSchoolById(data.schoolId);
             const slotDetails = await getSlotDetails(data.eventSlotId);
             return { ...data, school, slotDetails, type: 'theater' as const };
         }));
 
         const travelItems = await Promise.all(travelSnap.docs.map(async (doc) => {
-            const data = { id: doc.id, ...doc.data() } as TravelBooking;
+            const data = serializeFirestore<TravelBooking>({ id: doc.id, ...doc.data() });
             const school = await getSchoolById(data.schoolId);
             const slotDetails = await getSlotDetails(data.eventSlotId);
             return { ...data, school, slotDetails, type: 'travel' as const };
@@ -539,7 +549,7 @@ export async function getInboxItems() {
 export async function updateBookingStatus(id: string, type: 'theater' | 'travel', status: BookingStatus) {
     try {
         const collection = type === 'theater' ? "theater_bookings" : "travel_bookings";
-        const updateData: any = { status };
+        const updateData: Record<string, unknown> = { status };
 
         // If confirming, remove expiration
         if (status === BookingStatus.CONFIRMED) {
@@ -550,9 +560,9 @@ export async function updateBookingStatus(id: string, type: 'theater' | 'travel'
         revalidatePath("/inbox");
         revalidatePath("/reservas");
         return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error updating booking status:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
     }
 }
 
@@ -585,9 +595,9 @@ export async function deleteBooking(id: string, type: 'theater' | 'travel') {
         revalidatePath("/inbox");
         revalidatePath("/reservas");
         return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error deleting booking:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
     }
 }
 
@@ -601,7 +611,7 @@ export async function getTheaterBookingsBySlot(eventSlotId: string) {
             .get();
 
         const bookings = snapshot.docs
-            .map(doc => ({ id: doc.id, ...doc.data() } as TheaterBooking))
+            .map(doc => serializeFirestore<TheaterBooking>({ id: doc.id, ...doc.data() }))
             .filter(b => b.status !== BookingStatus.CANCELLED);
 
         const bookingsWithSchools = await Promise.all(bookings.map(async (booking) => {
@@ -624,7 +634,7 @@ export async function getTravelBookingsBySlot(eventSlotId: string) {
             .get();
 
         const bookings = snapshot.docs
-            .map(doc => ({ id: doc.id, ...doc.data() } as TravelBooking))
+            .map(doc => serializeFirestore<TravelBooking>({ id: doc.id, ...doc.data() }))
             .filter(b => b.status !== BookingStatus.CANCELLED);
 
         const bookingsWithSchools = await Promise.all(bookings.map(async (booking) => {
@@ -647,7 +657,7 @@ export async function searchSchools(query: string): Promise<School[]> {
             .where("searchTokens", "array-contains", token)
             .limit(10)
             .get();
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as School));
+        return snapshot.docs.map(doc => serializeFirestore<School>({ id: doc.id, ...doc.data() }));
     } catch (error) {
         console.error("Error searching schools:", error);
         return [];

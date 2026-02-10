@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BookingStatus, TheaterBooking, TravelBooking, School } from "@/types";
+import { BookingStatus, TheaterBooking, TravelBooking, School, EventSlot, Work, EventDay } from "@/types";
 import { updateBookingStatus, deleteBooking } from "@/lib/actions";
 import {
     Clock,
@@ -17,13 +17,19 @@ import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { generateWhatsAppMessage, generateEmailDraft } from "@/lib/communication";
 import { Copy, Share2 } from "lucide-react";
+import { toast } from "sonner";
+
+interface SlotDetails {
+    slot: EventSlot | null;
+    work: Work | null;
+    eventDay: EventDay | null;
+}
 
 interface InboxItem extends Partial<TheaterBooking & TravelBooking> {
     id: string;
     type: 'theater' | 'travel';
     school: School | null;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    slotDetails: any;
+    slotDetails: SlotDetails | null;
 }
 
 interface InboxListProps {
@@ -37,14 +43,30 @@ export function InboxList({ items }: InboxListProps) {
         setLoadingId(id);
         try {
             if (action === 'confirm') {
-                await updateBookingStatus(id, type, BookingStatus.CONFIRMED);
+                const result = await updateBookingStatus(id, type, BookingStatus.CONFIRMED);
+                if (result.success) {
+                    toast.success("Reserva confirmada correctamente");
+                    window.location.reload();
+                } else {
+                    toast.error(result.error || "Error al confirmar la reserva");
+                }
             } else {
                 if (confirm("¿Estás seguro de que deseas cancelar esta reserva?")) {
-                    await deleteBooking(id, type);
+                    const result = await deleteBooking(id, type);
+                    if (result.success) {
+                        toast.success("Reserva cancelada correctamente");
+                        window.location.reload();
+                    } else {
+                        toast.error(result.error || "Error al cancelar la reserva");
+                    }
+                } else {
+                    setLoadingId(null);
+                    return;
                 }
             }
         } catch (error) {
             console.error("Action error:", error);
+            toast.error("Error inesperado al procesar la acción");
         } finally {
             setLoadingId(null);
         }
@@ -139,7 +161,7 @@ export function InboxList({ items }: InboxListProps) {
                                     </div>
                                     <div className="flex items-center gap-1 text-muted-foreground text-xs">
                                         <Clock className="h-3 w-3" />
-                                        {item.slotDetails?.slot?.startTime}hs
+                                        {item.slotDetails?.slot?.startTime || "N/D"}hs
                                     </div>
                                     <div className="flex items-center gap-1 text-muted-foreground text-xs">
                                         <Users className="h-3 w-3" />
@@ -163,11 +185,14 @@ export function InboxList({ items }: InboxListProps) {
                                     <div className="absolute left-0 bottom-full mb-2 hidden group-hover/mail:flex flex-col gap-1 bg-white dark:bg-gray-800 p-2 rounded-lg shadow-lg border z-10 w-40">
                                         <button
                                             onClick={() => {
+                                                if (!item.school || !item.slotDetails || !item.slotDetails.work || !item.slotDetails.eventDay || !item.slotDetails.slot) {
+                                                    toast.error("Datos incompletos para generar el mensaje. Verifique que la obra, el día y el slot existan.");
+                                                    return;
+                                                }
                                                 const msg = generateWhatsAppMessage(
-                                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                                     item as any,
                                                     item.type,
-                                                    item.school!,
+                                                    item.school,
                                                     item.slotDetails.work,
                                                     item.slotDetails.eventDay,
                                                     item.slotDetails.slot
@@ -180,11 +205,14 @@ export function InboxList({ items }: InboxListProps) {
                                         </button>
                                         <button
                                             onClick={() => {
+                                                if (!item.school || !item.slotDetails || !item.slotDetails.work || !item.slotDetails.eventDay || !item.slotDetails.slot) {
+                                                    toast.error("Datos incompletos para generar el borrador. Verifique que la obra, el día y el slot existan.");
+                                                    return;
+                                                }
                                                 const draft = generateEmailDraft(
-                                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                                     item as any,
                                                     item.type,
-                                                    item.school!,
+                                                    item.school,
                                                     item.slotDetails.work,
                                                     item.slotDetails.eventDay,
                                                     item.slotDetails.slot

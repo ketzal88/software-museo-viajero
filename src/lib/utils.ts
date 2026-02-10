@@ -42,3 +42,28 @@ export function buildSearchTokens(input: string): string[] {
 
     return Array.from(tokens);
 }
+
+export function serializeFirestore<T>(data: any): T {
+    if (!data) return data;
+
+    // Handle Timestamps
+    if (typeof data.toDate === 'function') {
+        return data.toDate().toISOString() as any;
+    }
+
+    // Handle Arrays
+    if (Array.isArray(data)) {
+        return data.map(item => serializeFirestore(item)) as any;
+    }
+
+    // Handle Objects
+    if (typeof data === 'object' && data !== null) {
+        const serialized: any = {};
+        for (const key in data) {
+            serialized[key] = serializeFirestore(data[key]);
+        }
+        return serialized;
+    }
+
+    return data;
+}

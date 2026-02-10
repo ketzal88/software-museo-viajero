@@ -34,8 +34,10 @@ export default function LoginPage() {
         setError(null);
         try {
             await signInWithEmailAndPassword(auth, email, password);
+            // Set cookie for middleware
+            document.cookie = "session=true; path=/; max-age=86400; SameSite=Lax";
             router.push("/");
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Login error:", err);
             setError("Credenciales inválidas. Por favor intenta de nuevo.");
         } finally {
@@ -49,8 +51,10 @@ export default function LoginPage() {
         try {
             const provider = new GoogleAuthProvider();
             await signInWithPopup(auth, provider);
+            // Set cookie for middleware
+            document.cookie = "session=true; path=/; max-age=86400; SameSite=Lax";
             router.push("/");
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Google login error:", err);
             setError("Error al iniciar sesión con Google.");
         } finally {

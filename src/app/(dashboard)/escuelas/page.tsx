@@ -2,10 +2,15 @@ import { getSchools } from "@/lib/actions";
 import { SchoolList } from "@/features/schools/components/SchoolList";
 import Link from "next/link";
 import { Plus, GraduationCap } from "lucide-react";
+import { Suspense } from "react";
+import { SchoolListSkeleton } from "@/components/Skeletons";
 
-export default async function EscuelasPage() {
+async function SchoolListWrapper() {
     const schools = await getSchools();
+    return <SchoolList schools={schools} />;
+}
 
+export default function EscuelasPage() {
     return (
         <div className="flex flex-col gap-8 p-8">
             <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -26,7 +31,9 @@ export default async function EscuelasPage() {
                 </Link>
             </header>
 
-            <SchoolList schools={schools} />
+            <Suspense fallback={<SchoolListSkeleton />}>
+                <SchoolListWrapper />
+            </Suspense>
         </div>
     );
 }

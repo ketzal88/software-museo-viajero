@@ -6,6 +6,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function DashboardLayout({
     children,
@@ -34,12 +35,14 @@ export default function DashboardLayout({
     }
 
     return (
-        <div className="relative flex min-h-screen">
-            <Sidebar />
-            <main className="flex-1 pb-16 md:pb-0 md:pl-64">
-                {children}
-            </main>
-            <BottomNav />
-        </div>
+        <ErrorBoundary>
+            <div className="relative flex min-h-screen">
+                <Sidebar />
+                <main className="flex-1 pb-16 md:pb-0 md:pl-64">
+                    {children}
+                </main>
+                <BottomNav />
+            </div>
+        </ErrorBoundary>
     );
 }

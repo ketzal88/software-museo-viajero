@@ -2,10 +2,15 @@ import { getVenues } from "@/lib/actions";
 import { VenueList } from "@/features/venues/components/VenueList";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { Suspense } from "react";
+import { VenueListSkeleton } from "@/components/Skeletons";
 
-export default async function TeatrosPage() {
+async function VenueListWrapper() {
     const venues = await getVenues();
+    return <VenueList venues={venues} />;
+}
 
+export default function TeatrosPage() {
     return (
         <div className="flex flex-col gap-8 p-8">
             <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -21,7 +26,9 @@ export default async function TeatrosPage() {
                 </Link>
             </header>
 
-            <VenueList venues={venues} />
+            <Suspense fallback={<VenueListSkeleton />}>
+                <VenueListWrapper />
+            </Suspense>
         </div>
     );
 }

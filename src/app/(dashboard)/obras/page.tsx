@@ -2,10 +2,15 @@ import { getWorks } from "@/lib/actions";
 import { WorkList } from "@/features/works/components/WorkList";
 import Link from "next/link";
 import { Plus, Theater } from "lucide-react";
+import { Suspense } from "react";
+import { WorkListSkeleton } from "@/components/Skeletons";
 
-export default async function ObrasPage() {
+async function WorkListWrapper() {
     const works = await getWorks();
+    return <WorkList works={works} />;
+}
 
+export default function ObrasPage() {
     return (
         <div className="flex flex-col gap-8 p-8">
             <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -26,7 +31,9 @@ export default async function ObrasPage() {
                 </Link>
             </header>
 
-            <WorkList works={works} />
+            <Suspense fallback={<WorkListSkeleton />}>
+                <WorkListWrapper />
+            </Suspense>
         </div>
     );
 }

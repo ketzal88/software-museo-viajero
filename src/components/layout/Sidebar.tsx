@@ -17,6 +17,8 @@ export function Sidebar() {
     const handleLogout = async () => {
         try {
             await signOut(auth);
+            // Clear cookie
+            document.cookie = "session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
             router.push("/login");
         } catch (error) {
             console.error("Logout error:", error);
