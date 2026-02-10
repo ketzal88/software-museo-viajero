@@ -61,7 +61,7 @@ export default async function InboxPage() {
             </div>
 
             {/* Content */}
-            <InboxList items={items as any} />
+            <InboxList items={items} />
         </div>
     );
 }

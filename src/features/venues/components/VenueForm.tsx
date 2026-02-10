@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Venue, SlotTemplate } from "@/types";
+import { Venue } from "@/types";
 import { addVenue, updateVenue } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { MapPin, Users, Phone, User, FileText, Plus, Trash2, Clock } from "lucide-react";
@@ -26,7 +26,6 @@ export function VenueForm({ initialData }: VenueFormProps) {
         handleSubmit,
         control,
         formState: { errors },
-        watch,
     } = useForm<VenueFormData>({
         resolver: zodResolver(venueSchema),
         defaultValues: {

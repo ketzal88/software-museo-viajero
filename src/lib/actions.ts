@@ -1,7 +1,7 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
-import { Venue, School, Work, Season, EventDay, EventSlot, EventType, TheaterBooking, TravelBooking, BookingStatus } from "@/types";
+import { Venue, School, Work, Season, EventDay, EventSlot, EventType, TheaterBooking, TravelBooking, BookingStatus, SlotTemplate } from "@/types";
 import { revalidatePath } from "next/cache";
 import { buildSearchTokens, serializeFirestore } from "./utils";
 import { addHours } from "date-fns";
@@ -126,7 +126,7 @@ export async function addSchool(school: Omit<School, "id" | "searchTokens" | "di
 
 export async function updateSchool(id: string, school: Partial<School>) {
     try {
-        let updateData = { ...school };
+        const updateData = { ...school } as Partial<School>;
         if (school.name || school.district) {
             const current = await getSchoolById(id);
             if (current) {
@@ -359,16 +359,22 @@ export async function addEventDay(
             if (venue && venue.defaultSlotTemplate && venue.defaultSlotTemplate.length > 0) {
                 const batch = adminDb.batch();
                 // Handle both string array and SlotTemplate object formats
-                venue.defaultSlotTemplate.forEach((template, index) => {
+                venue.defaultSlotTemplate.forEach((template) => {
                     const slotRef = adminDb.collection("event_slots").doc();
-                    // If template is a string (time), create a 2-hour slot
-                    const startTime = typeof template === 'string' ? template : template;
-                    const endHour = typeof template === 'string' ?
-                        (parseInt(template.split(':')[0]) + 2).toString().padStart(2, '0') :
-                        template;
-                    const endTime = typeof template === 'string' ?
-                        `${endHour}:${template.split(':')[1]}` :
-                        template;
+
+                    let startTime: string;
+                    let endTime: string;
+
+                    if (typeof (template as unknown) === 'string') {
+                        const timeStr = template as unknown as string;
+                        startTime = timeStr;
+                        const endHour = (parseInt(timeStr.split(':')[0]) + 2).toString().padStart(2, '0');
+                        endTime = `${endHour}:${timeStr.split(':')[1]}`;
+                    } else {
+                        const t = template as SlotTemplate;
+                        startTime = t.startTime;
+                        endTime = t.endTime;
+                    }
 
                     const slotData: Omit<EventSlot, "id"> = {
                         eventDayId,

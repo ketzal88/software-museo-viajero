@@ -5,8 +5,7 @@ import { Landmark, Eye, EyeOff, Loader2 } from "lucide-react";
 import {
     signInWithEmailAndPassword,
     signInWithPopup,
-    GoogleAuthProvider,
-    onAuthStateChanged
+    GoogleAuthProvider
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
@@ -36,6 +35,7 @@ export default function LoginPage() {
             await signInWithEmailAndPassword(auth, email, password);
             // Set cookie for middleware
             document.cookie = "session=true; path=/; max-age=86400; SameSite=Lax";
+            document.cookie = `login_at=${Date.now()}; path=/; max-age=86400; SameSite=Lax`;
             router.push("/");
         } catch (err: unknown) {
             console.error("Login error:", err);
@@ -53,6 +53,7 @@ export default function LoginPage() {
             await signInWithPopup(auth, provider);
             // Set cookie for middleware
             document.cookie = "session=true; path=/; max-age=86400; SameSite=Lax";
+            document.cookie = `login_at=${Date.now()}; path=/; max-age=86400; SameSite=Lax`;
             router.push("/");
         } catch (err: unknown) {
             console.error("Google login error:", err);

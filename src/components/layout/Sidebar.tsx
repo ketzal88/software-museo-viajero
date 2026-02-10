@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import NextImage from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { NAV_LINKS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,7 @@ export function Sidebar() {
             await signOut(auth);
             // Clear cookie
             document.cookie = "session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            document.cookie = "login_at=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
             router.push("/login");
         } catch (error) {
             console.error("Logout error:", error);
@@ -78,7 +80,7 @@ export function Sidebar() {
                 <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
                     <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-primary overflow-hidden">
                         {user?.photoURL ? (
-                            <img src={user.photoURL} alt={user.displayName || "User"} className="h-full w-full object-cover" />
+                            <NextImage src={user.photoURL} alt={user.displayName || "User"} width={32} height={32} className="h-full w-full object-cover" />
                         ) : (
                             <User className="h-4 w-4" />
                         )}

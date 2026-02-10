@@ -10,7 +10,6 @@ import { Users, Info, Ticket, Check, ShieldCheck, Clock } from "lucide-react";
 import { SchoolAutocomplete } from "@/features/schools/components/SchoolAutocomplete";
 import { cn } from "@/lib/utils";
 import { theaterBookingSchema } from "@/lib/validations";
-import * as z from "zod";
 import { toast } from "sonner";
 
 interface TheaterBookingFormValues {

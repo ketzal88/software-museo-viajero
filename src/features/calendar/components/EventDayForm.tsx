@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 import { Calendar, MapPin, Theater, Layers, Info, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { eventDaySchema } from "@/lib/validations";
-import * as z from "zod";
 import { toast } from "sonner";
 
 interface EventDayFormValues {
@@ -35,7 +34,6 @@ export function EventDayForm() {
         handleSubmit,
         setValue,
         watch,
-        reset,
         formState: { errors },
     } = useForm<EventDayFormValues>({
         resolver: zodResolver(eventDaySchema),

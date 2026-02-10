@@ -3,7 +3,19 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
     const session = request.cookies.get('session');
+    const loginAt = request.cookies.get('login_at')?.value;
     const { pathname } = request.nextUrl;
+
+    // session timeout (8 hours)
+    if (session && loginAt) {
+        const eightHoursInMs = 8 * 60 * 60 * 1000;
+        if (Date.now() - parseInt(loginAt) > eightHoursInMs) {
+            const response = NextResponse.redirect(new URL('/login', request.url));
+            response.cookies.delete('session');
+            response.cookies.delete('login_at');
+            return response;
+        }
+    }
 
     // Redirect to login if no session cookie and trying to access protected route
     if (!session && pathname !== '/login' && !pathname.startsWith('/_next') && !pathname.includes('.')) {

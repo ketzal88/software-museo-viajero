@@ -10,7 +10,6 @@ import { Users, Ticket, Check, MapPin, Truck, Sparkles } from "lucide-react";
 import { SchoolAutocomplete } from "@/features/schools/components/SchoolAutocomplete";
 import { cn, TRAVEL_PRICES, recommendTravelModality } from "@/lib/utils";
 import { travelBookingSchema } from "@/lib/validations";
-import * as z from "zod";
 import { toast } from "sonner";
 
 interface TravelBookingFormValues {
@@ -52,7 +51,6 @@ export function TravelBookingForm({ slot, work }: TravelBookingFormProps) {
 
     const countStudents = watch("countStudents");
     const modality = watch("modality");
-    const totalPrice = watch("totalPrice");
 
     // Auto-recommendation and auto-pricing
     useEffect(() => {

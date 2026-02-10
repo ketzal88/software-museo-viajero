@@ -10,7 +10,6 @@ import { Calendar, Type, CheckCircle2, XCircle, Theater, Check } from "lucide-re
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { seasonSchema } from "@/lib/validations";
-import * as z from "zod";
 
 interface SeasonFormValues {
     name: string;

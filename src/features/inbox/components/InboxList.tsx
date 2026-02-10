@@ -190,7 +190,7 @@ export function InboxList({ items }: InboxListProps) {
                                                     return;
                                                 }
                                                 const msg = generateWhatsAppMessage(
-                                                    item as any,
+                                                    item as unknown as (TheaterBooking & TravelBooking),
                                                     item.type,
                                                     item.school,
                                                     item.slotDetails.work,
@@ -210,7 +210,7 @@ export function InboxList({ items }: InboxListProps) {
                                                     return;
                                                 }
                                                 const draft = generateEmailDraft(
-                                                    item as any,
+                                                    item as unknown as (TheaterBooking & TravelBooking),
                                                     item.type,
                                                     item.school,
                                                     item.slotDetails.work,
