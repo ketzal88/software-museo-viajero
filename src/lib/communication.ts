@@ -13,6 +13,9 @@ export function generateWhatsAppMessage(
     const dateStr = eventDay.date;
     const timeStr = slot.startTime;
 
+    const students = booking.qtyReservedStudents;
+    const total = 'totalPrice' in booking ? booking.totalPrice : booking.totalExpected;
+
     let message = `¡Hola! 👋 Te escribo desde el *Museo Viajero*.\n\n`;
     message += `Estamos procesando la reserva para la escuela *${school.name}*.\n\n`;
     message += `📅 *Fecha:* ${dateStr}\n`;
@@ -21,16 +24,16 @@ export function generateWhatsAppMessage(
 
     if (isTheater) {
         message += `📍 *Ubicación:* Teatro (Función en sede)\n`;
-        message += `👥 *Alumnos:* ${booking.countStudents}\n`;
+        message += `👥 *Alumnos:* ${students}\n`;
     } else {
         const b = booking as TravelBooking;
         const modality = TRAVEL_PRICES[b.modality]?.label || b.modality;
         message += `📍 *Ubicación:* En la Escuela (Función Viajera)\n`;
         message += `📦 *Modalidad:* ${modality}\n`;
-        message += `👥 *Alumnos:* ${booking.countStudents}\n`;
+        message += `👥 *Alumnos:* ${students}\n`;
     }
 
-    message += `\n💰 *Total:* $${booking.totalPrice.toLocaleString('es-AR')}\n\n`;
+    message += `\n💰 *Total:* $${total.toLocaleString('es-AR')}\n\n`;
 
     if (booking.status === 'hold') {
         message += `⚠️ Recordá que esta reserva está en *HOLD* (temporal). Para confirmarla definitivamente, necesitamos el comprobante de pago/seña.\n\n`;
@@ -67,8 +70,11 @@ export function generateEmailDraft(
         body += `Lugar: Función en la Escuela (Museo Viajero)\n`;
     }
 
-    body += `Cantidad de alumnos: ${booking.countStudents}\n`;
-    body += `Costo total: $${booking.totalPrice.toLocaleString('es-AR')}\n\n`;
+    const students = booking.qtyReservedStudents;
+    const total = 'totalPrice' in booking ? booking.totalPrice : booking.totalExpected;
+
+    body += `Cantidad de alumnos: ${students}\n`;
+    body += `Costo total: $${total.toLocaleString('es-AR')}\n\n`;
 
     if (booking.status === 'hold') {
         body += `IMPORTANTE: Su reserva se encuentra actualmente en estado TEMPORAL (HOLD). La misma tiene una duración de 72hs hábiles. Para confirmar la misma, por favor envíenos el comprobante de la seña correspondiente.\n\n`;

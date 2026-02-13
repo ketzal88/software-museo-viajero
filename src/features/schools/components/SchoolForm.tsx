@@ -11,7 +11,16 @@ import { toast } from "sonner";
 import { schoolSchema } from "@/lib/validations";
 import * as z from "zod";
 
-type SchoolFormData = z.infer<typeof schoolSchema>;
+interface SchoolFormData {
+    name: string;
+    district: string;
+    address: string;
+    email: string;
+    phone: string;
+    isPrivate?: boolean;
+    contactName: string;
+    notes?: string;
+}
 
 interface SchoolFormProps {
     initialData?: School;
@@ -42,9 +51,14 @@ export function SchoolForm({ initialData }: SchoolFormProps) {
     const onSubmit = async (data: SchoolFormData) => {
         setLoading(true);
         try {
+            const payload = {
+                ...data,
+                isPrivate: data.isPrivate ?? false,
+            };
+
             const result = initialData?.id
-                ? await updateSchool(initialData.id, data)
-                : await addSchool(data);
+                ? await updateSchool(initialData.id, payload as any)
+                : await addSchool(payload as any);
 
             if (result.success) {
                 toast.success(initialData ? "Escuela actualizada correctamente" : "Escuela creada correctamente");
