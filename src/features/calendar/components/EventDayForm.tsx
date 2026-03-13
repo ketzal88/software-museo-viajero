@@ -105,7 +105,7 @@ export function EventDayForm() {
     };
 
     if (fetchingData) {
-        return <div className="p-8 text-center text-muted-foreground animate-pulse">Cargando opciones...</div>;
+        return <div className="p-8 text-center text-gray-500">Cargando opciones...</div>;
     }
 
     return (
@@ -113,26 +113,32 @@ export function EventDayForm() {
             <div className="grid gap-6 md:grid-cols-2">
                 {/* FECHA */}
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold">Fecha de la Jornada</label>
+                    <label className="text-sm font-display font-medium text-primary">Fecha de la Jornada</label>
                     <div className="relative">
-                        <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Calendar className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <input
                             type="date"
                             {...register("date")}
-                            className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.date ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                            className={cn(
+                                "w-full border px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors",
+                                errors.date ? "border-accent" : "border-gray-300"
+                            )}
                         />
                     </div>
-                    {errors.date && <p className="text-xs text-red-500 font-medium">{errors.date.message}</p>}
+                    {errors.date && <p className="text-xs text-accent font-sans mt-1">{errors.date.message}</p>}
                 </div>
 
                 {/* TEMPORADA */}
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold">Temporada</label>
+                    <label className="text-sm font-display font-medium text-primary">Temporada</label>
                     <div className="relative">
-                        <Layers className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Layers className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <select
                             {...register("seasonId")}
-                            className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all appearance-none ${errors.seasonId ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                            className={cn(
+                                "w-full border px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors appearance-none",
+                                errors.seasonId ? "border-accent" : "border-gray-300"
+                            )}
                         >
                             <option value="" disabled>Selecciona temporada...</option>
                             {seasons.map(s => (
@@ -144,20 +150,20 @@ export function EventDayForm() {
 
                 {/* TIPO DE EVENTO */}
                 <div className="md:col-span-2 space-y-4">
-                    <label className="text-sm font-semibold">Tipo de Función</label>
+                    <label className="text-sm font-display font-medium text-primary">Tipo de Función</label>
                     <div className="grid grid-cols-2 gap-4">
                         <button
                             type="button"
                             onClick={() => setValue("type", EventType.THEATER)}
                             className={cn(
-                                "flex items-center justify-center gap-3 p-5 rounded-2xl border transition-all relative overflow-hidden",
+                                "flex items-center justify-center gap-3 p-5 border transition-all relative overflow-hidden",
                                 type === EventType.THEATER
-                                    ? "bg-primary/5 border-primary text-primary shadow-sm"
-                                    : "bg-card hover:bg-slate-50 border-slate-200 text-slate-600"
+                                    ? "border-primary text-primary bg-gray-50"
+                                    : "border-gray-300 hover:border-primary/20 text-gray-600"
                             )}
                         >
                             <Theater className="h-5 w-5" />
-                            <span className="font-bold">Teatro (Sede)</span>
+                            <span className="font-display font-bold">Teatro (Sede)</span>
                             {type === EventType.THEATER && (
                                 <Check className="absolute top-2 right-2 h-4 w-4" />
                             )}
@@ -166,14 +172,14 @@ export function EventDayForm() {
                             type="button"
                             onClick={() => setValue("type", EventType.TRAVEL)}
                             className={cn(
-                                "flex items-center justify-center gap-3 p-5 rounded-2xl border transition-all relative overflow-hidden",
+                                "flex items-center justify-center gap-3 p-5 border transition-all relative overflow-hidden",
                                 type === EventType.TRAVEL
-                                    ? "bg-primary/5 border-primary text-primary shadow-sm"
-                                    : "bg-card hover:bg-slate-50 border-slate-200 text-slate-600"
+                                    ? "border-primary text-primary bg-gray-50"
+                                    : "border-gray-300 hover:border-primary/20 text-gray-600"
                             )}
                         >
                             <MapPin className="h-5 w-5" />
-                            <span className="font-bold">Viajera (Escuela)</span>
+                            <span className="font-display font-bold">Viajera (Escuela)</span>
                             {type === EventType.TRAVEL && (
                                 <Check className="absolute top-2 right-2 h-4 w-4" />
                             )}
@@ -183,13 +189,16 @@ export function EventDayForm() {
 
                 {/* LUGAR (Solo para Teatro) */}
                 {type === EventType.THEATER && (
-                    <div className="md:col-span-2 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                        <label className="text-sm font-semibold">Teatro / Centro Cultural</label>
+                    <div className="md:col-span-2 space-y-2">
+                        <label className="text-sm font-display font-medium text-primary">Teatro / Centro Cultural</label>
                         <div className="relative">
-                            <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                             <select
                                 {...register("locationId")}
-                                className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all appearance-none ${errors.locationId ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                                className={cn(
+                                    "w-full border px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors appearance-none",
+                                    errors.locationId ? "border-accent" : "border-gray-300"
+                                )}
                             >
                                 <option value="" disabled>Selecciona un teatro...</option>
                                 {venues.map(v => (
@@ -197,21 +206,24 @@ export function EventDayForm() {
                                 ))}
                             </select>
                         </div>
-                        <div className="flex items-center gap-2 p-3 rounded-lg bg-slate-50 text-[11px] text-muted-foreground mt-2 border border-slate-100">
-                            <Info className="h-4 w-4 text-primary" />
-                            <span>Se generarán automáticamente los slots configurados en el teatro para este día.</span>
+                        <div className="flex items-center gap-2 p-3 bg-gray-50 text-[11px] text-gray-500 mt-2 border border-gray-300">
+                            <Info className="h-4 w-4 text-gray-500" />
+                            <span className="font-sans">Se generarán automáticamente los slots configurados en el teatro para este día.</span>
                         </div>
                     </div>
                 )}
 
                 {/* OBRA */}
                 <div className="md:col-span-2 space-y-2">
-                    <label className="text-sm font-semibold">Obra a Presentar</label>
+                    <label className="text-sm font-display font-medium text-primary">Obra a Presentar</label>
                     <div className="relative">
-                        <Theater className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Theater className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <select
                             {...register("workId")}
-                            className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all appearance-none ${errors.workId ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                            className={cn(
+                                "w-full border px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors appearance-none",
+                                errors.workId ? "border-accent" : "border-gray-300"
+                            )}
                         >
                             <option value="" disabled>Selecciona la obra...</option>
                             {works.map(w => (
@@ -222,18 +234,18 @@ export function EventDayForm() {
                 </div>
             </div>
 
-            <div className="flex justify-end gap-4 pt-6 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex justify-end gap-4 pt-6 border-t border-gray-300">
                 <button
                     type="button"
                     onClick={() => router.back()}
-                    className="px-6 py-2.5 text-sm font-bold border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
+                    className="border border-gray-300 px-6 py-3 text-sm font-display font-medium text-primary transition-all hover:border-primary/30"
                 >
                     Cancelar
                 </button>
                 <button
                     type="submit"
                     disabled={loading}
-                    className="px-10 py-2.5 bg-primary text-primary-foreground rounded-xl hover:opacity-90 disabled:opacity-50 text-sm font-bold shadow-lg shadow-primary/20 transition-all active:scale-95"
+                    className="bg-primary px-8 py-3 text-sm font-display font-medium text-white transition-all hover:bg-black uppercase tracking-wider disabled:opacity-50"
                 >
                     {loading ? "Generando..." : "Crear Jornada y Slots"}
                 </button>

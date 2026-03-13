@@ -4,30 +4,38 @@ import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-export default async function EditStaffPage({ params }: { params: { id: string } }) {
-    const person = await getPersonById(params.id);
-    if (!person) notFound();
+export const dynamic = "force-dynamic";
+
+interface EditarStaffPageProps {
+    params: Promise<{ id: string }>;
+}
+
+export default async function EditarStaffPage({ params }: EditarStaffPageProps) {
+    const { id } = await params;
+    const person = await getPersonById(id);
+
+    if (!person) {
+        notFound();
+    }
 
     return (
-        <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-8">
-            <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-8">
+            <header className="flex flex-col gap-2">
                 <Link
-                    href={`/staff/${params.id}`}
-                    className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
+                    href={`/staff/${id}`}
+                    className="flex items-center gap-2 text-sm text-gray-500 hover:text-primary transition-colors font-sans"
                 >
-                    <ChevronLeft className="h-5 w-5" />
+                    <ChevronLeft className="h-4 w-4" /> Volver a {person.displayName}
                 </Link>
-                <div>
-                    <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                        Editar Staff
-                    </h1>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1">
-                        Modifica la información de {person.displayName}.
-                    </p>
-                </div>
-            </div>
+                <h1 className="text-[54px] font-display font-bold tracking-[-2px] text-primary leading-tight">
+                    Editar Integrante
+                </h1>
+                <p className="text-gray-600 font-sans text-xl">Modificando datos de {person.displayName}.</p>
+            </header>
 
-            <StaffForm initialData={person} />
+            <div className="border border-gray-300 p-6 md:p-10">
+                <StaffForm initialData={person} />
+            </div>
         </div>
     );
 }

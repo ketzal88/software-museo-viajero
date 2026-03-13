@@ -70,7 +70,7 @@ export interface Season {
     startDate?: string; // ISO Date
     endDate?: string; // ISO Date
     isActive?: boolean;
-    worksIds?: string[];
+    workIds?: string[];
 }
 
 export interface SeasonWork {
@@ -330,3 +330,36 @@ export interface PricingRule {
     createdAt: string;
     updatedAt: string;
 }
+
+// Server Action result types
+export type ActionSuccess<T = void> = T extends void
+    ? { success: true }
+    : { success: true } & T;
+
+export type ActionError = {
+    success: false;
+    error: string;
+};
+
+export type ActionResult<T = void> = ActionSuccess<T> | ActionError;
+
+// Firestore collection names
+export const COLLECTIONS = {
+    VENUES: 'venues',
+    SCHOOLS: 'schools',
+    WORKS: 'works',
+    SEASONS: 'seasons',
+    EVENT_DAYS: 'event_days',
+    EVENT_SLOTS: 'event_slots',
+    THEATER_BOOKINGS: 'theater_bookings',
+    TRAVEL_BOOKINGS: 'travel_bookings',
+    PEOPLE: 'people',
+    WORK_CASTS: 'workCasts',
+    PERSON_RATES: 'personRates',
+    PAYOUTS: 'payouts',
+    PRICING_RULES: 'pricingRules',
+    DAILY_SUMMARIES: 'dailySummaries',
+    MONTHLY_SUMMARIES: 'monthlySummaries',
+    SEASON_SUMMARIES: 'seasonSummaries',
+    CONFIG: 'config',
+} as const;

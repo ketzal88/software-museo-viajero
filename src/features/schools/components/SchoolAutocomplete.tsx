@@ -50,22 +50,22 @@ export function SchoolAutocomplete({ onSelect, className, placeholder }: SchoolA
     return (
         <div ref={containerRef} className={cn("relative", className)}>
             <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <input
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     onFocus={() => query.length >= 2 && setIsOpen(true)}
                     placeholder={placeholder || "Buscar escuela por nombre o barrio..."}
-                    className="w-full rounded-lg border bg-background px-9 py-2 text-sm focus:ring-2 focus:ring-primary outline-none"
+                    className="w-full border border-gray-300 px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
                 />
                 {loading && (
-                    <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-muted-foreground" />
+                    <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-gray-400" />
                 )}
             </div>
 
             {isOpen && (
-                <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-xl border bg-popover shadow-xl animate-in fade-in zoom-in-95 duration-200">
+                <div className="absolute z-50 mt-1 w-full border border-gray-300 bg-white">
                     <div className="max-h-[300px] overflow-y-auto">
                         {results.length > 0 ? (
                             results.map((school) => (
@@ -76,17 +76,17 @@ export function SchoolAutocomplete({ onSelect, className, placeholder }: SchoolA
                                         setQuery("");
                                         setIsOpen(false);
                                     }}
-                                    className="flex w-full items-start gap-3 p-4 text-left hover:bg-accent transition-colors border-b last:border-0"
+                                    className="flex w-full items-start gap-3 p-4 text-left hover:bg-gray-50 transition-colors border-b border-gray-200 last:border-0"
                                 >
                                     <div className={cn(
-                                        "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
+                                        "flex h-10 w-10 shrink-0 items-center justify-center",
                                         school.isPrivate ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"
                                     )}>
                                         <Building2 className="h-5 w-5" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p className="font-bold text-sm truncate">{school.name}</p>
-                                        <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                                        <p className="font-display font-bold text-sm text-primary truncate">{school.name}</p>
+                                        <div className="flex items-center gap-1 text-xs text-gray-500 font-sans mt-0.5">
                                             <MapPin className="h-3 w-3" />
                                             <span className="truncate">{school.address} - {school.district}</span>
                                         </div>
@@ -95,14 +95,14 @@ export function SchoolAutocomplete({ onSelect, className, placeholder }: SchoolA
                             ))
                         ) : (
                             <div className="p-8 text-center">
-                                <p className="text-sm text-muted-foreground">No se encontraron escuelas con &quot;{query}&quot;</p>
+                                <p className="text-sm text-gray-500 font-sans">No se encontraron escuelas con &quot;{query}&quot;</p>
                             </div>
                         )}
                     </div>
-                    <div className="bg-muted/50 p-2 border-t">
+                    <div className="bg-gray-50 p-2 border-t border-gray-200">
                         <Link
                             href="/escuelas/nueva"
-                            className="flex items-center justify-center gap-2 rounded-lg bg-background border px-4 py-2 text-xs font-medium hover:bg-accent transition-colors"
+                            className="flex items-center justify-center gap-2 border border-gray-300 bg-white px-4 py-2 text-xs font-display font-medium text-primary hover:bg-gray-50 transition-colors"
                         >
                             <Plus className="h-3 w-3" /> Crear Nueva Escuela
                         </Link>

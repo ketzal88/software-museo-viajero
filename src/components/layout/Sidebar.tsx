@@ -5,7 +5,6 @@ import NextImage from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { NAV_LINKS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { LogOut, Settings, User } from "lucide-react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useAuth } from "@/providers/AuthProvider";
@@ -28,72 +27,79 @@ export function Sidebar() {
     };
 
     return (
-        <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r bg-white dark:bg-[#1a2632] border-slate-200 dark:border-slate-800 md:flex transition-colors shrink-0 z-50">
-            <div className="flex flex-col justify-center h-20 px-6 border-b border-slate-100 dark:border-slate-800/50">
-                <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-white shrink-0">
-                        <span className="font-bold text-lg">M</span>
+        <aside className="fixed left-0 top-0 hidden h-screen w-[260px] flex-col border-r bg-[#0A0A0A] border-gray-800 md:flex transition-colors shrink-0 z-50">
+            <div className="flex flex-col justify-center h-32 px-8">
+                <div className="flex items-center gap-3.5">
+                    <div className="h-8 w-8 bg-accent flex items-center justify-center text-white shrink-0">
+                        <span className="font-display font-bold text-lg tracking-[2px]">M</span>
                     </div>
                     <div className="flex flex-col">
-                        <h1 className="text-sm font-bold tracking-tight text-slate-900 dark:text-white leading-tight">Museo Viajero</h1>
-                        <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400">Management System</span>
+                        <h1 className="text-base font-display font-bold tracking-[2px] text-white leading-tight uppercase">Museo Viajero</h1>
+                        <span className="text-[10px] font-sans font-medium text-gray-500 uppercase tracking-wider">Management System</span>
                     </div>
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto py-6 px-3">
-                <nav className="space-y-1">
-                    {NAV_LINKS.map((link) => {
-                        const Icon = link.icon;
+            <div className="flex-1 overflow-y-auto pt-4 px-8">
+                <nav className="space-y-1.5">
+                    {NAV_LINKS.map((link, index) => {
                         const isActive = pathname.startsWith(link.href);
+                        const number = (index + 1).toString().padStart(2, '0');
 
                         return (
                             <Link
                                 key={link.href}
                                 href={link.href}
                                 className={cn(
-                                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                                    isActive
-                                        ? "bg-primary/10 text-primary shadow-sm"
-                                        : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200"
+                                    "flex items-center gap-4 py-3.5 transition-all duration-200 group",
+                                    isActive ? "text-white" : "text-gray-600 hover:text-gray-400"
                                 )}
                             >
-                                <Icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-slate-400 group-hover:text-slate-600")} />
-                                {link.label}
+                                <span className={cn(
+                                    "font-display text-[15px] w-6 shrink-0",
+                                    isActive ? "text-accent" : "text-gray-600"
+                                )}>
+                                    {number}
+                                </span>
+                                <span className={cn(
+                                    "font-display text-[15px] tracking-tight",
+                                    isActive ? "font-semibold" : "font-normal"
+                                )}>
+                                    {link.label}
+                                </span>
                             </Link>
                         );
                     })}
                 </nav>
             </div>
 
-            <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/20">
-                <nav className="space-y-1 mb-4">
+            <div className="p-8 space-y-7">
+                <nav className="space-y-1">
                     <Link
                         href="/ajustes"
-                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                        className="flex items-center gap-4 py-2 text-gray-600 hover:text-gray-400 font-display text-[15px] transition-all"
                     >
-                        <Settings className="h-4 w-4" />
-                        Configuración
+                        <span className="w-6 text-gray-600">--</span>
+                        <span>Configuración</span>
                     </Link>
                 </nav>
 
-                <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
-                    <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-primary overflow-hidden">
+                <div className="flex items-center gap-3 py-4 border-t border-gray-800">
+                    <div className="h-7 w-7 bg-accent flex items-center justify-center text-white overflow-hidden text-xs font-display font-semibold">
                         {user?.photoURL ? (
-                            <NextImage src={user.photoURL} alt={user.displayName || "User"} width={32} height={32} className="h-full w-full object-cover" />
+                            <NextImage src={user.photoURL} alt={user.displayName || "User"} width={28} height={28} className="h-full w-full object-cover" />
                         ) : (
-                            <User className="h-4 w-4" />
+                            user?.displayName?.charAt(0) || "U"
                         )}
                     </div>
                     <div className="flex flex-col min-w-0 flex-1">
-                        <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                        <span className="text-sm font-display font-medium text-white truncate">
                             {user?.displayName || "Operador"}
                         </span>
                         <button
                             onClick={handleLogout}
-                            className="flex items-center gap-1 text-[10px] text-slate-500 cursor-pointer hover:text-red-500 transition-colors border-none bg-transparent p-0 text-left outline-none"
+                            className="flex items-center gap-1 text-[11px] text-gray-600 cursor-pointer hover:text-accent transition-colors border-none bg-transparent p-0 text-left outline-none font-sans"
                         >
-                            <LogOut className="h-3 w-3" />
                             <span>Cerrar Sesión</span>
                         </button>
                     </div>

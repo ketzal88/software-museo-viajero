@@ -51,7 +51,7 @@ export function InboxList({ items }: InboxListProps) {
                     toast.error(result.error || "Error al confirmar la reserva");
                 }
             } else {
-                if (confirm("¿Estás seguro de que deseas cancelar esta reserva?")) {
+                if (confirm("Estas seguro de que deseas cancelar esta reserva?")) {
                     const result = await deleteBooking(id, type);
                     if (result.success) {
                         toast.success("Reserva cancelada correctamente");
@@ -66,7 +66,7 @@ export function InboxList({ items }: InboxListProps) {
             }
         } catch (error) {
             console.error("Action error:", error);
-            toast.error("Error inesperado al procesar la acción");
+            toast.error("Error inesperado al procesar la accion");
         } finally {
             setLoadingId(null);
         }
@@ -74,15 +74,15 @@ export function InboxList({ items }: InboxListProps) {
 
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text);
-        alert("¡Copiado al portapapeles!");
+        alert("Copiado al portapapeles!");
     };
 
     if (items.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-2xl text-muted-foreground bg-card">
+            <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-gray-300 text-gray-500">
                 <CheckCircle2 className="h-12 w-12 mb-4 opacity-20" />
-                <p className="font-medium text-lg">Tu bandeja de entrada está limpia</p>
-                <p className="text-sm">No hay reservas pendientes que requieran tu atención.</p>
+                <p className="font-display font-medium text-lg text-primary">Tu bandeja de entrada esta limpia</p>
+                <p className="text-sm font-sans text-gray-500">No hay reservas pendientes que requieran tu atencion.</p>
             </div>
         );
     }
@@ -102,69 +102,67 @@ export function InboxList({ items }: InboxListProps) {
                     <div
                         key={item.id}
                         className={cn(
-                            "flex flex-col bg-card rounded-xl border shadow-sm overflow-hidden hover:shadow-md transition-shadow",
-                            isUrgent ? "border-red-200 dark:border-red-900/30" : "border-gray-100 dark:border-gray-700"
+                            "flex flex-col border overflow-hidden hover:border-primary/20 transition-all",
+                            isUrgent ? "border-accent/30" : "border-gray-300"
                         )}
                     >
                         {/* Card Header */}
-                        <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700">
+                        <div className="flex items-center justify-between p-4 border-b border-gray-200">
                             <div className="flex items-center gap-2">
                                 <span className={cn(
-                                    "flex items-center justify-center px-2 py-1 rounded text-xs font-bold uppercase tracking-wider",
+                                    "flex items-center justify-center text-[11px] font-display font-bold uppercase tracking-widest px-2 py-0.5",
                                     item.type === 'theater'
-                                        ? "bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400"
-                                        : "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
+                                        ? "bg-orange-50 text-orange-600"
+                                        : "bg-blue-50 text-blue-600"
                                 )}>
                                     {item.type === 'theater' ? <Theater className="h-3 w-3 mr-1" /> : <Truck className="h-3 w-3 mr-1" />}
                                     {item.type === 'theater' ? "Teatro" : "Viaje"}
                                 </span>
                                 {isExpired && (
-                                    <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-full animate-pulse">VENCIDA</span>
+                                    <span className="text-[11px] font-display font-bold uppercase tracking-widest px-2 py-0.5 bg-accent text-white">VENCIDA</span>
                                 )}
                                 {isExpiringSoon && !isExpired && (
-                                    <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-full animate-pulse">VENCE HOY</span>
+                                    <span className="text-[11px] font-display font-bold uppercase tracking-widest px-2 py-0.5 bg-accent text-white">VENCE HOY</span>
                                 )}
                             </div>
 
                             {isHold && hoursToExpire !== null && !isExpired && (
                                 <div className={cn(
-                                    "flex items-center font-bold text-sm",
-                                    isUrgent ? "text-red-600 dark:text-red-400" : "text-muted-foreground"
+                                    "flex items-center font-display font-bold text-sm",
+                                    isUrgent ? "text-accent" : "text-gray-500"
                                 )}>
                                     <Clock className="h-3 w-3 mr-1" />
-                                    {/* Simple format for hours: assuming < 24h shows hours, otherwise days could be better but sticking to simple for now based on design */}
-                                    {hoursToExpire < 24 ? `${hoursToExpire}h` : `${Math.floor(hoursToExpire / 24)} días`}
+                                    {hoursToExpire < 24 ? `${hoursToExpire}h` : `${Math.floor(hoursToExpire / 24)} dias`}
                                 </div>
                             )}
                         </div>
 
                         {/* Card Content */}
                         <div className="p-4 flex gap-4">
-                            {/* Placeholder Image - Design has images, we'll use a generic colored box or placeholder pattern if no image */}
                             <div
-                                className="hidden sm:block w-32 h-24 bg-center bg-cover rounded-lg shrink-0 bg-muted"
+                                className="hidden sm:block w-32 h-24 bg-center bg-cover shrink-0 bg-gray-50"
                                 style={{ backgroundImage: `url('https://placehold.co/400x300/e2e8f0/94a3b8?text=${item.type === 'theater' ? 'Teatro' : 'Viaje'}')` }}
                             ></div>
 
                             <div className="flex flex-col grow min-w-0">
-                                <h3 className="text-lg font-bold truncate" title={item.slotDetails?.work?.title}>
-                                    {item.slotDetails?.work?.title || "Obra sin título"}
+                                <h3 className="text-lg font-display font-bold text-primary truncate" title={item.slotDetails?.work?.title}>
+                                    {item.slotDetails?.work?.title || "Obra sin titulo"}
                                 </h3>
-                                <p className="text-muted-foreground text-sm font-medium mb-2 truncate">
+                                <p className="text-gray-500 text-sm font-sans font-medium mb-2 truncate">
                                     {item.school?.name || "Sin Escuela"}
                                 </p>
 
                                 <div className="flex items-center gap-4 mt-auto">
-                                    <div className="flex items-center gap-1 text-muted-foreground text-xs">
-                                        <Calendar className="h-3 w-3" />
+                                    <div className="flex items-center gap-1 text-gray-500 text-xs font-sans">
+                                        <Calendar className="h-3 w-3 text-gray-400" />
                                         {item.slotDetails?.eventDay?.date ? format(parseISO(item.slotDetails.eventDay.date), "dd MMM", { locale: es }) : "N/D"}
                                     </div>
-                                    <div className="flex items-center gap-1 text-muted-foreground text-xs">
-                                        <Clock className="h-3 w-3" />
+                                    <div className="flex items-center gap-1 text-gray-500 text-xs font-sans">
+                                        <Clock className="h-3 w-3 text-gray-400" />
                                         {item.slotDetails?.slot?.startTime || "N/D"}hs
                                     </div>
-                                    <div className="flex items-center gap-1 text-muted-foreground text-xs">
-                                        <Users className="h-3 w-3" />
+                                    <div className="flex items-center gap-1 text-gray-500 text-xs font-sans">
+                                        <Users className="h-3 w-3 text-gray-400" />
                                         {item.qtyReservedStudents}
                                     </div>
                                 </div>
@@ -172,21 +170,20 @@ export function InboxList({ items }: InboxListProps) {
                         </div>
 
                         {/* Card Actions */}
-                        <div className="p-4 bg-muted/30 flex justify-between items-center border-t border-gray-100 dark:border-gray-700">
+                        <div className="p-4 bg-gray-50 flex justify-between items-center border-t border-gray-200">
                             <div className="flex gap-2">
                                 <div className="relative group/mail">
                                     <button
-                                        className="flex items-center justify-center h-9 w-9 rounded-lg bg-background border hover:text-primary transition-colors"
-                                        title="Opciones de comunicación"
+                                        className="flex items-center justify-center h-9 w-9 border border-gray-300 text-gray-500 hover:text-primary transition-colors"
+                                        title="Opciones de comunicacion"
                                     >
                                         <MessageSquare className="h-4 w-4" />
                                     </button>
-                                    {/* Hidden Tooltip/Menu for copy - Simplified for now, just copy WhatsApp on click or modify this later */}
-                                    <div className="absolute left-0 bottom-full mb-2 hidden group-hover/mail:flex flex-col gap-1 bg-white dark:bg-gray-800 p-2 rounded-lg shadow-lg border z-10 w-40">
+                                    <div className="absolute left-0 bottom-full mb-2 hidden group-hover/mail:flex flex-col gap-1 bg-white p-2 border border-gray-300 z-10 w-40">
                                         <button
                                             onClick={() => {
                                                 if (!item.school || !item.slotDetails || !item.slotDetails.work || !item.slotDetails.eventDay || !item.slotDetails.slot) {
-                                                    toast.error("Datos incompletos para generar el mensaje. Verifique que la obra, el día y el slot existan.");
+                                                    toast.error("Datos incompletos para generar el mensaje. Verifique que la obra, el dia y el slot existan.");
                                                     return;
                                                 }
                                                 const msg = generateWhatsAppMessage(
@@ -199,14 +196,14 @@ export function InboxList({ items }: InboxListProps) {
                                                 );
                                                 copyToClipboard(msg);
                                             }}
-                                            className="flex items-center gap-2 text-xs p-2 hover:bg-muted rounded text-left"
+                                            className="flex items-center gap-2 text-xs font-sans p-2 hover:bg-gray-50 text-left text-gray-600"
                                         >
-                                            <Share2 className="h-3 w-3" /> WhatsApp
+                                            <Share2 className="h-3 w-3 text-gray-400" /> WhatsApp
                                         </button>
                                         <button
                                             onClick={() => {
                                                 if (!item.school || !item.slotDetails || !item.slotDetails.work || !item.slotDetails.eventDay || !item.slotDetails.slot) {
-                                                    toast.error("Datos incompletos para generar el borrador. Verifique que la obra, el día y el slot existan.");
+                                                    toast.error("Datos incompletos para generar el borrador. Verifique que la obra, el dia y el slot existan.");
                                                     return;
                                                 }
                                                 const draft = generateEmailDraft(
@@ -219,9 +216,9 @@ export function InboxList({ items }: InboxListProps) {
                                                 );
                                                 copyToClipboard(`Asunto: ${draft.subject}\n\n${draft.body}`);
                                             }}
-                                            className="flex items-center gap-2 text-xs p-2 hover:bg-muted rounded text-left"
+                                            className="flex items-center gap-2 text-xs font-sans p-2 hover:bg-gray-50 text-left text-gray-600"
                                         >
-                                            <Copy className="h-3 w-3" /> Email
+                                            <Copy className="h-3 w-3 text-gray-400" /> Email
                                         </button>
                                     </div>
                                 </div>
@@ -229,7 +226,7 @@ export function InboxList({ items }: InboxListProps) {
                                 <button
                                     disabled={loadingId === item.id}
                                     onClick={() => handleAction(item.id, item.type, 'cancel')}
-                                    className="flex items-center justify-center h-9 px-4 rounded-lg bg-background border text-red-600 font-medium text-sm hover:bg-red-50 transition-colors"
+                                    className="flex items-center justify-center h-9 px-4 border border-accent/30 text-accent text-sm font-display font-medium hover:bg-accent/5 transition-colors"
                                 >
                                     Cancelar
                                 </button>
@@ -238,7 +235,7 @@ export function InboxList({ items }: InboxListProps) {
                             <button
                                 disabled={loadingId === item.id}
                                 onClick={() => handleAction(item.id, item.type, 'confirm')}
-                                className="flex items-center justify-center h-9 px-6 rounded-lg bg-primary text-primary-foreground font-bold text-sm shadow-sm hover:opacity-90 transition-all"
+                                className="flex items-center justify-center h-9 px-6 bg-primary text-sm font-display font-medium text-white transition-all hover:bg-black uppercase tracking-wider"
                             >
                                 Confirmar
                             </button>

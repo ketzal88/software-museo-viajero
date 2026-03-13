@@ -9,10 +9,10 @@ export function BottomNav() {
     const pathname = usePathname();
 
     return (
-        <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t bg-background px-4 pb-safe md:hidden">
-            {NAV_LINKS.map((link) => {
+        <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t border-gray-300 bg-white px-4 pb-safe md:hidden">
+            {NAV_LINKS.slice(0, 5).map((link) => {
                 const Icon = link.icon;
-                const isActive = pathname === link.href;
+                const isActive = pathname.startsWith(link.href);
 
                 return (
                     <Link
@@ -20,11 +20,11 @@ export function BottomNav() {
                         href={link.href}
                         className={cn(
                             "flex flex-col items-center gap-1 transition-colors",
-                            isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                            isActive ? "text-accent" : "text-gray-500 hover:text-gray-700"
                         )}
                     >
-                        <Icon className="h-6 w-6" />
-                        <span className="text-[10px] font-medium leading-none">
+                        <Icon className="h-5 w-5" />
+                        <span className="text-[10px] font-display font-medium leading-none">
                             {link.label}
                         </span>
                     </Link>

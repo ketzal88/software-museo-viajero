@@ -122,18 +122,18 @@ export function TheaterBookingForm({ slot, work }: TheaterBookingFormProps) {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="bg-primary/5 rounded-xl p-4 border border-primary/10 mb-6">
+            <div className="border border-gray-300 p-4 mb-6">
                 <div className="flex items-center gap-2 text-primary mb-1">
-                    <Info className="h-4 w-4" />
-                    <span className="text-xs font-bold uppercase tracking-tight">Información del Slot</span>
+                    <Info className="h-4 w-4 text-gray-400" />
+                    <span className="text-[11px] font-display font-bold uppercase tracking-widest text-gray-500">Información del Slot</span>
                 </div>
-                <p className="text-sm font-bold">{work.title}</p>
-                <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
-                    <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {slot.startTime} - {slot.endTime}</span>
-                    <span className="flex items-center gap-1"><Users className="h-3 w-3" /> Capacidad: {slot.totalCapacity}</span>
+                <p className="text-sm font-display font-bold text-primary">{work.title}</p>
+                <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
+                    <span className="flex items-center gap-1"><Clock className="h-3 w-3 text-gray-400" /> {slot.startTime} - {slot.endTime}</span>
+                    <span className="flex items-center gap-1"><Users className="h-3 w-3 text-gray-400" /> Capacidad: {slot.totalCapacity}</span>
                     <span className={cn(
                         "font-bold",
-                        availableSlots < 20 ? "text-red-600" : "text-green-600"
+                        availableSlots < 20 ? "text-accent" : "text-green-600"
                     )}>
                         Disponibles: {availableSlots}
                     </span>
@@ -142,7 +142,7 @@ export function TheaterBookingForm({ slot, work }: TheaterBookingFormProps) {
 
             <div className="space-y-4">
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold">Búsqueda de Escuela</label>
+                    <label className="text-sm font-display font-medium text-primary">Búsqueda de Escuela</label>
                     <SchoolAutocomplete
                         onSelect={(school) => {
                             setSelectedSchool(school);
@@ -150,16 +150,16 @@ export function TheaterBookingForm({ slot, work }: TheaterBookingFormProps) {
                         }}
                         placeholder="Escribe el nombre de la escuela..."
                     />
-                    {errors.schoolId && <p className="text-xs text-red-500 font-medium">{errors.schoolId.message}</p>}
+                    {errors.schoolId && <p className="text-xs text-accent font-sans mt-1">{errors.schoolId.message}</p>}
 
                     {selectedSchool && (
-                        <div className="flex items-center gap-3 p-3 bg-card border border-slate-200 rounded-xl animate-in fade-in slide-in-from-left-2">
-                            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                        <div className="flex items-center gap-3 p-3 border border-gray-300">
+                            <div className="h-8 w-8 rounded-full bg-gray-50 flex items-center justify-center text-primary">
                                 <Check className="h-4 w-4" />
                             </div>
                             <div>
-                                <p className="text-sm font-bold">{selectedSchool.name}</p>
-                                <p className="text-[10px] text-muted-foreground">{selectedSchool.district}</p>
+                                <p className="text-sm font-display font-bold text-primary">{selectedSchool.name}</p>
+                                <p className="text-[10px] text-gray-500">{selectedSchool.district}</p>
                             </div>
                         </div>
                     )}
@@ -167,60 +167,66 @@ export function TheaterBookingForm({ slot, work }: TheaterBookingFormProps) {
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <label className="text-sm font-semibold">Alumnos Reservados</label>
+                        <label className="text-sm font-display font-medium text-primary">Alumnos Reservados</label>
                         <div className="relative">
-                            <Users className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <Users className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                             <input
                                 type="number"
                                 {...register("qtyReservedStudents", { valueAsNumber: true })}
-                                className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.qtyReservedStudents ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                                className={cn(
+                                    "w-full border px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors",
+                                    errors.qtyReservedStudents ? "border-accent" : "border-gray-300"
+                                )}
                             />
                         </div>
-                        {errors.qtyReservedStudents && <p className="text-xs text-red-500 font-medium">{errors.qtyReservedStudents.message}</p>}
+                        {errors.qtyReservedStudents && <p className="text-xs text-accent font-sans mt-1">{errors.qtyReservedStudents.message}</p>}
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-semibold">Adultos Reservados</label>
+                        <label className="text-sm font-display font-medium text-primary">Adultos Reservados</label>
                         <div className="relative">
-                            <Users className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <Users className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                             <input
                                 type="number"
                                 {...register("qtyReservedAdults", { valueAsNumber: true })}
-                                className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.qtyReservedAdults ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                                className={cn(
+                                    "w-full border px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors",
+                                    errors.qtyReservedAdults ? "border-accent" : "border-gray-300"
+                                )}
                             />
                         </div>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 border-t pt-4">
+                <div className="grid grid-cols-2 gap-4 border-t border-gray-300 pt-4">
                     <div className="space-y-2">
-                        <label className="text-sm font-semibold">Precio x Alumno</label>
+                        <label className="text-sm font-display font-medium text-primary">Precio x Alumno</label>
                         <div className="relative">
-                            <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                             <input
                                 type="number"
                                 {...register("unitPriceStudent", { valueAsNumber: true })}
-                                className="w-full rounded-lg border border-slate-200 bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
+                                className="w-full border border-gray-300 px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
                             />
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-semibold">Precio x Adulto</label>
+                        <label className="text-sm font-display font-medium text-primary">Precio x Adulto</label>
                         <div className="relative">
-                            <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                             <input
                                 type="number"
                                 {...register("unitPriceAdult", { valueAsNumber: true })}
-                                className="w-full rounded-lg border border-slate-200 bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
+                                className="w-full border border-gray-300 px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
                             />
                         </div>
                     </div>
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold italic opacity-70">Política de Facturación</label>
+                    <label className="text-sm font-display font-medium text-primary italic opacity-70">Política de Facturación</label>
                     <select
                         {...register("billingPolicy")}
-                        className="w-full rounded-lg border border-slate-200 bg-background px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
+                        className="w-full border border-gray-300 px-4 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
                     >
                         <option value={BillingPolicy.RESERVED}>Cobrar por Reservado (Default)</option>
                         <option value={BillingPolicy.ATTENDED}>Cobrar por Asistido</option>
@@ -228,33 +234,33 @@ export function TheaterBookingForm({ slot, work }: TheaterBookingFormProps) {
                     </select>
                 </div>
 
-                <div className="bg-slate-900 text-white p-4 rounded-xl flex items-center justify-between shadow-inner">
+                <div className="bg-primary text-white p-4 flex items-center justify-between">
                     <div className="space-y-0.5">
-                        <p className="text-[10px] uppercase tracking-widest font-bold text-slate-400">Total Esperado</p>
-                        <p className="text-2xl font-black text-primary">${(watch("totalExpected") || 0).toLocaleString()}</p>
+                        <p className="text-[11px] font-display font-bold uppercase tracking-widest text-gray-400">Total Esperado</p>
+                        <p className="text-2xl font-display font-black text-white">${(watch("totalExpected") || 0).toLocaleString()}</p>
                     </div>
-                    <Ticket className="h-8 w-8 text-slate-700" />
+                    <Ticket className="h-8 w-8 text-white/30" />
                 </div>
 
-                <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 dark:bg-slate-900/20">
+                <div className="p-4 border border-gray-300">
                     <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
-                            <label className="text-sm font-bold flex items-center gap-2">
+                            <label className="text-sm font-display font-bold text-primary flex items-center gap-2">
                                 <ShieldCheck className="h-4 w-4 text-primary" /> Modo HOLD
                             </label>
-                            <p className="text-[11px] text-muted-foreground">Bloquea el cupo sin confirmar pago.</p>
+                            <p className="text-[11px] font-display font-bold uppercase tracking-widest text-gray-500">Bloquea el cupo sin confirmar pago.</p>
                         </div>
                         <button
                             type="button"
                             onClick={() => setValue("isHold", !isHold)}
                             className={cn(
                                 "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none",
-                                isHold ? "bg-primary" : "bg-slate-200"
+                                isHold ? "bg-primary" : "bg-gray-300"
                             )}
                         >
                             <span
                                 className={cn(
-                                    "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+                                    "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white ring-0 transition duration-200 ease-in-out",
                                     isHold ? "translate-x-5" : "translate-x-0"
                                 )}
                             />
@@ -263,20 +269,20 @@ export function TheaterBookingForm({ slot, work }: TheaterBookingFormProps) {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold">Notas de la Reserva</label>
+                    <label className="text-sm font-display font-medium text-primary">Notas de la Reserva</label>
                     <textarea
                         {...register("notes")}
-                        className="w-full min-h-[80px] rounded-lg border border-slate-200 bg-background px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
+                        className="w-full min-h-[80px] border border-gray-300 px-4 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
                         placeholder="Ej: Pendiente de seña..."
                     />
                 </div>
             </div>
 
-            <div className="flex justify-end gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex justify-end gap-4 pt-4 border-t border-gray-300">
                 <button
                     type="submit"
                     disabled={loading || (qtyReservedStudents > availableSlots)}
-                    className="w-full py-3.5 bg-primary text-primary-foreground rounded-xl hover:opacity-90 disabled:opacity-50 text-sm font-bold shadow-lg shadow-primary/20 transition-all active:scale-95"
+                    className="w-full bg-primary px-8 py-3 text-sm font-display font-medium text-white transition-all hover:bg-black uppercase tracking-wider disabled:opacity-50"
                 >
                     {loading ? "Procesando..." : qtyReservedStudents > availableSlots ? "Capacidad Insuficiente" : isHold ? "Crear Reserva HOLD" : "Crear Reserva Pendiente"}
                 </button>

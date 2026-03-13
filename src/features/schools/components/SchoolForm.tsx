@@ -79,119 +79,119 @@ export function SchoolForm({ initialData }: SchoolFormProps) {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-2xl px-1 pb-10">
             <div className="grid gap-6 md:grid-cols-2">
                 <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-semibold">Nombre de la Escuela</label>
+                    <label className="text-sm font-display font-medium text-primary">Nombre de la Escuela</label>
                     <div className="relative">
-                        <Building2 className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Building2 className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <input
                             {...register("name")}
-                            className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.name ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                            className={`w-full border px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors ${errors.name ? 'border-accent' : 'border-gray-300'}`}
                             placeholder="Ej: Escuela N° 1"
                         />
                     </div>
-                    {errors.name && <p className="text-xs text-red-500 font-medium">{errors.name.message}</p>}
+                    {errors.name && <p className="text-xs text-accent font-sans mt-1">{errors.name.message}</p>}
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold">Tipo de Gestión</label>
+                    <label className="text-sm font-display font-medium text-primary">Tipo de Gestion</label>
                     <select
                         {...register("isPrivate", {
                             setValueAs: (v) => v === "private"
                         })}
-                        className="w-full rounded-lg border border-slate-200 bg-background px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none"
+                        className="w-full border border-gray-300 px-4 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
                     >
-                        <option value="public">Pública / Estatal</option>
+                        <option value="public">Publica / Estatal</option>
                         <option value="private">Privada</option>
                     </select>
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold">Barrio / Comuna / Distrito</label>
+                    <label className="text-sm font-display font-medium text-primary">Barrio / Comuna / Distrito</label>
                     <input
                         {...register("district")}
-                        className={`w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.district ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                        className={`w-full border px-4 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors ${errors.district ? 'border-accent' : 'border-gray-300'}`}
                         placeholder="Ej: Caballito"
                     />
-                    {errors.district && <p className="text-xs text-red-500 font-medium">{errors.district.message}</p>}
+                    {errors.district && <p className="text-xs text-accent font-sans mt-1">{errors.district.message}</p>}
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-semibold">Dirección</label>
+                    <label className="text-sm font-display font-medium text-primary">Direccion</label>
                     <div className="relative">
-                        <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <input
                             {...register("address")}
-                            className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.address ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                            className={`w-full border px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors ${errors.address ? 'border-accent' : 'border-gray-300'}`}
                             placeholder="Calle 123, Ciudad"
                         />
                     </div>
-                    {errors.address && <p className="text-xs text-red-500 font-medium">{errors.address.message}</p>}
+                    {errors.address && <p className="text-xs text-accent font-sans mt-1">{errors.address.message}</p>}
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold">Responsable / Contacto</label>
+                    <label className="text-sm font-display font-medium text-primary">Responsable / Contacto</label>
                     <div className="relative">
-                        <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <input
                             {...register("contactName")}
-                            className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.contactName ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                            className={`w-full border px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors ${errors.contactName ? 'border-accent' : 'border-gray-300'}`}
                             placeholder="Nombre del responsable"
                         />
                     </div>
-                    {errors.contactName && <p className="text-xs text-red-500 font-medium">{errors.contactName.message}</p>}
+                    {errors.contactName && <p className="text-xs text-accent font-sans mt-1">{errors.contactName.message}</p>}
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold">Teléfono</label>
+                    <label className="text-sm font-display font-medium text-primary">Telefono</label>
                     <div className="relative">
-                        <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <input
                             {...register("phone")}
-                            className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.phone ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                            className={`w-full border px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors ${errors.phone ? 'border-accent' : 'border-gray-300'}`}
                             placeholder="11 1234 5678"
                         />
                     </div>
-                    {errors.phone && <p className="text-xs text-red-500 font-medium">{errors.phone.message}</p>}
+                    {errors.phone && <p className="text-xs text-accent font-sans mt-1">{errors.phone.message}</p>}
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-semibold">E-mail</label>
+                    <label className="text-sm font-display font-medium text-primary">E-mail</label>
                     <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <input
                             type="email"
                             {...register("email")}
-                            className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.email ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                            className={`w-full border px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors ${errors.email ? 'border-accent' : 'border-gray-300'}`}
                             placeholder="ejemplo@escuela.com"
                         />
                     </div>
-                    {errors.email && <p className="text-xs text-red-500 font-medium">{errors.email.message}</p>}
+                    {errors.email && <p className="text-xs text-accent font-sans mt-1">{errors.email.message}</p>}
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-semibold">Notas</label>
+                    <label className="text-sm font-display font-medium text-primary">Notas</label>
                     <div className="relative">
-                        <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <textarea
                             {...register("notes")}
-                            className="w-full min-h-[100px] rounded-lg border border-slate-200 bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
-                            placeholder="Información adicional relevante..."
+                            className="w-full min-h-[100px] resize-none border border-gray-300 px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
+                            placeholder="Informacion adicional relevante..."
                         />
                     </div>
                 </div>
             </div>
 
-            <div className="flex justify-end gap-4 pt-6 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
                 <button
                     type="button"
                     onClick={() => router.back()}
-                    className="px-6 py-2.5 text-sm font-bold border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
+                    className="border border-gray-300 px-6 py-3 text-sm font-display font-medium text-primary transition-all hover:border-primary/30"
                 >
                     Cancelar
                 </button>
                 <button
                     type="submit"
                     disabled={loading}
-                    className="px-8 py-2.5 bg-primary text-primary-foreground rounded-xl hover:opacity-90 disabled:opacity-50 text-sm font-bold shadow-lg shadow-primary/20 transition-all"
+                    className="bg-primary px-8 py-3 text-sm font-display font-medium text-white transition-all hover:bg-black uppercase tracking-wider disabled:opacity-50"
                 >
                     {loading ? "Guardando..." : initialData ? "Actualizar Escuela" : "Crear Escuela"}
                 </button>

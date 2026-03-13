@@ -359,29 +359,14 @@ export async function addEventDay(
             const venue = await getVenueById(eventDay.locationId);
             if (venue && venue.defaultSlotTemplate && venue.defaultSlotTemplate.length > 0) {
                 const batch = adminDb.batch();
-                // Handle both string array and SlotTemplate object formats
                 venue.defaultSlotTemplate.forEach((template) => {
                     const slotRef = adminDb.collection("event_slots").doc();
-
-                    let startTime: string;
-                    let endTime: string;
-
-                    if (typeof (template as unknown) === 'string') {
-                        const timeStr = template as unknown as string;
-                        startTime = timeStr;
-                        const endHour = (parseInt(timeStr.split(':')[0]) + 2).toString().padStart(2, '0');
-                        endTime = `${endHour}:${timeStr.split(':')[1]}`;
-                    } else {
-                        const t = template as SlotTemplate;
-                        startTime = t.startTime;
-                        endTime = t.endTime;
-                    }
 
                     const slotData: Omit<EventSlot, "id"> = {
                         eventDayId,
                         workId,
-                        startTime,
-                        endTime,
+                        startTime: template.startTime,
+                        endTime: template.endTime,
                         totalCapacity: venue.defaultCapacity,
                         availableCapacity: venue.defaultCapacity,
                     };
@@ -466,7 +451,19 @@ export async function addTheaterBooking(booking: Omit<TheaterBooking, "id" | "cr
             if (!slotDoc.exists) throw new Error("El slot no existe.");
 
             const slotData = slotDoc.data() as EventSlot;
-            const currentOccupancy = await getSlotOccupancy(booking.eventSlotId);
+
+            // Calculate occupancy inside transaction to prevent race conditions
+            const bookingsSnapshot = await transaction.get(
+                adminDb.collection("theater_bookings")
+                    .where("eventSlotId", "==", booking.eventSlotId)
+            );
+            const currentOccupancy = bookingsSnapshot.docs.reduce((acc, doc) => {
+                const data = doc.data() as TheaterBooking;
+                if (data.status === BookingStatus.CONFIRMED || data.status === BookingStatus.HOLD || data.status === BookingStatus.PENDING) {
+                    return acc + (data.qtyReservedStudents ?? 0);
+                }
+                return acc;
+            }, 0);
 
             if (currentOccupancy + booking.qtyReservedStudents > slotData.totalCapacity) {
                 throw new Error(`Capacidad excedida. Disponible: ${slotData.totalCapacity - currentOccupancy}`);
@@ -1154,22 +1151,22 @@ async function generateDailySummary(eventDayId: string): Promise<{ success: bool
                 if (b.status === BookingStatus.CANCELLED) return;
                 reservedStudents += b.qtyReservedStudents || 0;
                 reservedAdults += b.qtyReservedAdults || 0;
-                attendedStudents += b.qtyAttendedStudents || (b.qtyReservedStudents || 0);
-                attendedAdults += b.qtyAttendedAdults || (b.qtyReservedAdults || 0);
+                attendedStudents += b.qtyAttendedStudents ?? (b.qtyReservedStudents ?? 0);
+                attendedAdults += b.qtyAttendedAdults ?? (b.qtyReservedAdults ?? 0);
 
-                expectedRev += b.totalExpected || 0;
-                finalRev += b.totalFinal || b.totalExpected || 0;
+                expectedRev += b.totalExpected ?? 0;
+                finalRev += b.totalFinal ?? b.totalExpected ?? 0;
 
-                ticketsStudents += (b.qtyAttendedStudents || b.qtyReservedStudents || 0) * (b.unitPriceStudent || 0);
-                ticketsAdults += (b.qtyAttendedAdults || b.qtyReservedAdults || 0) * (b.unitPriceAdult || 0);
+                ticketsStudents += (b.qtyAttendedStudents ?? b.qtyReservedStudents ?? 0) * (b.unitPriceStudent ?? 0);
+                ticketsAdults += (b.qtyAttendedAdults ?? b.qtyReservedAdults ?? 0) * (b.unitPriceAdult ?? 0);
             });
 
             travelBookings.forEach(b => {
                 if (b.status === BookingStatus.CANCELLED) return;
-                reservedStudents += b.qtyReservedStudents || 0;
-                reservedAdults += b.qtyReservedAdults || 0;
-                attendedStudents += b.qtyAttendedStudents || (b.qtyReservedStudents || 0);
-                attendedAdults += b.qtyAttendedAdults || (b.qtyReservedAdults || 0);
+                reservedStudents += b.qtyReservedStudents ?? 0;
+                reservedAdults += b.qtyReservedAdults ?? 0;
+                attendedStudents += b.qtyAttendedStudents ?? (b.qtyReservedStudents ?? 0);
+                attendedAdults += b.qtyAttendedAdults ?? (b.qtyReservedAdults ?? 0);
 
                 expectedRev += b.totalPrice || 0;
                 finalRev += b.totalPrice || 0;

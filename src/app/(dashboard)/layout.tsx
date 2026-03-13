@@ -6,7 +6,6 @@ import { useAuth } from "@/providers/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function DashboardLayout({
     children,
@@ -24,8 +23,8 @@ export default function DashboardLayout({
 
     if (loading) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-background-light dark:bg-background-dark">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <div className="flex min-h-screen items-center justify-center bg-white">
+                <Loader2 className="h-8 w-8 animate-spin text-accent" />
             </div>
         );
     }
@@ -35,14 +34,14 @@ export default function DashboardLayout({
     }
 
     return (
-        <ErrorBoundary>
-            <div className="relative flex min-h-screen">
-                <Sidebar />
-                <main className="flex-1 pb-16 md:pb-0 md:pl-64">
+        <div className="relative flex min-h-screen">
+            <Sidebar />
+            <main className="flex-1 pb-16 md:pb-0 md:pl-[260px] bg-white">
+                <div className="h-full min-h-screen px-6 py-10 md:px-14 md:py-10">
                     {children}
-                </main>
-                <BottomNav />
-            </div>
-        </ErrorBoundary>
+                </div>
+            </main>
+            <BottomNav />
+        </div>
     );
 }

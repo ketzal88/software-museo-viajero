@@ -78,87 +78,87 @@ export function VenueForm({ initialData }: VenueFormProps) {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 max-w-2xl px-1 pb-10">
             <div className="grid gap-6 md:grid-cols-2">
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold">Nombre del Teatro</label>
+                    <label className="text-sm font-display font-medium text-primary">Nombre del Teatro</label>
                     <div className="relative">
-                        <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <input
                             {...register("name")}
-                            className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.name ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                            className={`w-full border px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors ${errors.name ? 'border-accent' : 'border-gray-300'}`}
                             placeholder="Ej: Teatro Broadway"
                         />
                     </div>
-                    {errors.name && <p className="text-xs text-red-500 font-medium">{errors.name.message}</p>}
+                    {errors.name && <p className="text-xs text-accent font-sans mt-1">{errors.name.message}</p>}
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold">Capacidad Default</label>
+                    <label className="text-sm font-display font-medium text-primary">Capacidad Default</label>
                     <div className="relative">
-                        <Users className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Users className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <input
                             type="number"
                             {...register("defaultCapacity", { valueAsNumber: true })}
-                            className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.defaultCapacity ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                            className={`w-full border px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors ${errors.defaultCapacity ? 'border-accent' : 'border-gray-300'}`}
                             placeholder="0"
                         />
                     </div>
-                    {errors.defaultCapacity && <p className="text-xs text-red-500 font-medium">{errors.defaultCapacity.message}</p>}
+                    {errors.defaultCapacity && <p className="text-xs text-accent font-sans mt-1">{errors.defaultCapacity.message}</p>}
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-semibold">Dirección</label>
+                    <label className="text-sm font-display font-medium text-primary">Dirección</label>
                     <div className="relative">
-                        <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <input
                             {...register("address")}
-                            className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.address ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                            className={`w-full border px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors ${errors.address ? 'border-accent' : 'border-gray-300'}`}
                             placeholder="Calle 123, Ciudad"
                         />
                     </div>
-                    {errors.address && <p className="text-xs text-red-500 font-medium">{errors.address.message}</p>}
+                    {errors.address && <p className="text-xs text-accent font-sans mt-1">{errors.address.message}</p>}
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-semibold">Google Maps URL</label>
+                    <label className="text-sm font-display font-medium text-primary">Google Maps URL</label>
                     <input
                         type="text"
                         {...register("mapsUrl")}
-                        className={`w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.mapsUrl ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                        className={`w-full border px-4 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors ${errors.mapsUrl ? 'border-accent' : 'border-gray-300'}`}
                         placeholder="https://maps.google.com/..."
                     />
-                    {errors.mapsUrl && <p className="text-xs text-red-500 font-medium">{errors.mapsUrl.message}</p>}
+                    {errors.mapsUrl && <p className="text-xs text-accent font-sans mt-1">{errors.mapsUrl.message}</p>}
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold">Persona de Contacto</label>
+                    <label className="text-sm font-display font-medium text-primary">Persona de Contacto</label>
                     <div className="relative">
-                        <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <input
                             {...register("contactName")}
-                            className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.contactName ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                            className={`w-full border px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors ${errors.contactName ? 'border-accent' : 'border-gray-300'}`}
                             placeholder="Nombre del responsable"
                         />
                     </div>
-                    {errors.contactName && <p className="text-xs text-red-500 font-medium">{errors.contactName.message}</p>}
+                    {errors.contactName && <p className="text-xs text-accent font-sans mt-1">{errors.contactName.message}</p>}
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold">Teléfono</label>
+                    <label className="text-sm font-display font-medium text-primary">Teléfono</label>
                     <div className="relative">
-                        <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <input
                             {...register("phone")}
-                            className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.phone ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                            className={`w-full border px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors ${errors.phone ? 'border-accent' : 'border-gray-300'}`}
                             placeholder="11 1234 5678"
                         />
                     </div>
-                    {errors.phone && <p className="text-xs text-red-500 font-medium">{errors.phone.message}</p>}
+                    {errors.phone && <p className="text-xs text-accent font-sans mt-1">{errors.phone.message}</p>}
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-semibold">Notas</label>
+                    <label className="text-sm font-display font-medium text-primary">Notas</label>
                     <textarea
                         {...register("notes")}
-                        className="w-full min-h-[100px] rounded-lg border border-slate-200 bg-background px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
+                        className="w-full min-h-[100px] border border-gray-300 px-4 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
                         placeholder="Información adicional relevante..."
                     />
                 </div>
@@ -166,57 +166,57 @@ export function VenueForm({ initialData }: VenueFormProps) {
 
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-bold flex items-center gap-2">
-                        <Clock className="h-5 w-5 text-primary" />
+                    <h3 className="text-lg font-display font-medium text-primary flex items-center gap-2">
+                        <Clock className="h-5 w-5 text-gray-500" />
                         Template de Horarios (Slots)
                     </h3>
                     <button
                         type="button"
                         onClick={() => append({ startTime: "09:00", endTime: "11:00", label: "" })}
-                        className="flex items-center gap-1 text-sm font-bold text-primary hover:opacity-80 transition-opacity"
+                        className="flex items-center gap-1 text-sm font-display font-medium text-primary hover:opacity-80 transition-opacity"
                     >
                         <Plus className="h-4 w-4" /> Agregar Slot
                     </button>
                 </div>
 
                 {fields.length === 0 ? (
-                    <div className="p-8 border-2 border-dashed rounded-xl text-center text-muted-foreground">
+                    <div className="border border-dashed border-gray-300 p-12 text-center text-gray-500 font-sans text-sm">
                         No hay horarios definidos para este teatro. Use los slots para auto-generar funciones.
                     </div>
                 ) : (
                     <div className="grid gap-3">
                         {fields.map((field, index) => (
-                            <div key={field.id} className="flex gap-4 items-end bg-muted/30 p-4 rounded-xl border border-slate-100 dark:border-slate-800 animate-in fade-in slide-in-from-left-2 transition-all">
+                            <div key={field.id} className="flex gap-4 items-end border border-gray-300 p-4 transition-all">
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 flex-1">
                                     <div className="space-y-1">
-                                        <label className="text-[10px] uppercase font-bold text-muted-foreground">Inicio</label>
+                                        <label className="text-[11px] font-display font-bold uppercase tracking-widest text-gray-500">Inicio</label>
                                         <input
                                             type="time"
                                             {...register(`defaultSlotTemplate.${index}.startTime`)}
-                                            className="w-full rounded-lg border border-slate-200 bg-background px-3 py-2 text-sm"
+                                            className="w-full border border-gray-300 px-4 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[10px] uppercase font-bold text-muted-foreground">Fin</label>
+                                        <label className="text-[11px] font-display font-bold uppercase tracking-widest text-gray-500">Fin</label>
                                         <input
                                             type="time"
                                             {...register(`defaultSlotTemplate.${index}.endTime`)}
-                                            className="w-full rounded-lg border border-slate-200 bg-background px-3 py-2 text-sm"
+                                            className="w-full border border-gray-300 px-4 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
                                         />
                                     </div>
                                     <div className="space-y-1 col-span-2 sm:col-span-1">
-                                        <label className="text-[10px] uppercase font-bold text-muted-foreground">Etiqueta (Opcional)</label>
+                                        <label className="text-[11px] font-display font-bold uppercase tracking-widest text-gray-500">Etiqueta (Opcional)</label>
                                         <input
                                             {...register(`defaultSlotTemplate.${index}.label`)}
                                             placeholder="Ej: Turno Mañana"
-                                            className="w-full rounded-lg border border-slate-200 bg-background px-3 py-2 text-sm"
+                                            className="w-full border border-gray-300 px-4 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
                                         />
                                     </div>
                                 </div>
                                 <button
                                     type="button"
                                     onClick={() => remove(index)}
-                                    className="h-9 w-9 flex items-center justify-center rounded-lg text-red-500 hover:bg-red-50 transition-colors shrink-0"
+                                    className="h-9 w-9 flex items-center justify-center text-accent hover:opacity-70 transition-colors shrink-0"
                                 >
                                     <Trash2 className="h-4 w-4" />
                                 </button>
@@ -226,18 +226,18 @@ export function VenueForm({ initialData }: VenueFormProps) {
                 )}
             </div>
 
-            <div className="flex justify-end gap-4 pt-6 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex justify-end gap-4 pt-6 border-t border-gray-300">
                 <button
                     type="button"
                     onClick={() => router.back()}
-                    className="px-6 py-2.5 text-sm font-bold border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
+                    className="border border-gray-300 px-6 py-3 text-sm font-display font-medium text-primary transition-all hover:border-primary/30"
                 >
                     Cancelar
                 </button>
                 <button
                     type="submit"
                     disabled={loading}
-                    className="px-8 py-2.5 bg-primary text-primary-foreground rounded-xl hover:opacity-90 disabled:opacity-50 text-sm font-bold shadow-lg shadow-primary/20 transition-all active:scale-95"
+                    className="bg-primary px-8 py-3 text-sm font-display font-medium text-white transition-all hover:bg-black uppercase tracking-wider disabled:opacity-50"
                 >
                     {loading ? "Guardando..." : initialData ? "Actualizar Teatro" : "Crear Teatro"}
                 </button>

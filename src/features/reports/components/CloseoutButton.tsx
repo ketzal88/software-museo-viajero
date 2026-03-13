@@ -36,7 +36,7 @@ export function CloseoutButton({ eventDayId, isClosed }: CloseoutButtonProps) {
 
     if (isClosed) {
         return (
-            <div className="flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-xl text-sm font-black border border-green-200 shadow-sm animate-in fade-in zoom-in-95">
+            <div className="flex items-center gap-2 bg-green-50 text-green-700 px-4 py-2 text-sm font-display font-bold border border-green-200">
                 <CheckCircle className="h-4 w-4" /> JORNADA CERRADA
             </div>
         );
@@ -47,7 +47,7 @@ export function CloseoutButton({ eventDayId, isClosed }: CloseoutButtonProps) {
             <button
                 disabled={loading}
                 onClick={() => setShowConfirm(true)}
-                className="flex items-center gap-2 bg-slate-900 text-white px-6 py-2.5 rounded-xl text-sm font-black hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 active:scale-95 disabled:opacity-50"
+                className="flex items-center gap-2 bg-primary px-8 py-3 text-sm font-display font-medium text-white transition-all hover:bg-black uppercase tracking-wider disabled:opacity-50"
             >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
                 CERRAR JORNADA Y GENERAR REPORTE
@@ -55,31 +55,31 @@ export function CloseoutButton({ eventDayId, isClosed }: CloseoutButtonProps) {
 
             {showConfirm && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 slide-in-from-bottom-4">
+                    <div className="bg-white max-w-md w-full overflow-hidden border border-gray-300">
                         <div className="p-6">
                             <div className="flex items-start justify-between mb-4">
-                                <div className="p-3 bg-red-100 rounded-xl text-red-600">
+                                <div className="p-3 bg-accent/10 text-accent">
                                     <AlertTriangle className="h-6 w-6" />
                                 </div>
-                                <button onClick={() => setShowConfirm(false)} className="text-muted-foreground hover:text-foreground">
+                                <button onClick={() => setShowConfirm(false)} className="text-gray-400 hover:text-primary transition-colors">
                                     <X className="h-5 w-5" />
                                 </button>
                             </div>
-                            <h3 className="text-xl font-bold text-slate-900 mb-2">¿Cerrar Jornada?</h3>
-                            <p className="text-sm text-slate-500 leading-relaxed mb-6">
-                                Esta acción es <strong>irreversible</strong> e impactará en los reportes contables mensuales.
-                                Asegúrate de haber cargado toda la asistencia correctamente para todas las escuelas.
+                            <h3 className="text-xl font-display font-bold text-primary mb-2">Cerrar Jornada?</h3>
+                            <p className="text-sm font-sans text-gray-500 leading-relaxed mb-6">
+                                Esta accion es <strong className="text-primary">irreversible</strong> e impactara en los reportes contables mensuales.
+                                Asegurate de haber cargado toda la asistencia correctamente para todas las escuelas.
                             </p>
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => setShowConfirm(false)}
-                                    className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-sm font-bold hover:bg-slate-50 transition-colors"
+                                    className="flex-1 border border-gray-300 px-6 py-3 text-sm font-display font-medium text-primary transition-all hover:border-primary/30"
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     onClick={handleClose}
-                                    className="flex-1 px-4 py-3 rounded-xl bg-red-600 text-white text-sm font-bold hover:bg-red-700 transition-colors shadow-lg shadow-red-200"
+                                    className="flex-1 border border-accent/30 text-accent px-6 py-3 text-sm font-display font-medium hover:bg-accent/5 transition-all"
                                 >
                                     Confirmar Cierre
                                 </button>

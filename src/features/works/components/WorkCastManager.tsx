@@ -61,12 +61,12 @@ export function WorkCastManager({ workId, cast, allPeople }: WorkCastManagerProp
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                <h3 className="text-[11px] font-display font-bold uppercase tracking-widest text-gray-500">
                     Elenco de la Obra
                 </h3>
                 <button
                     onClick={() => setIsAssigning(!isAssigning)}
-                    className="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-sm font-bold hover:scale-105 transition-all"
+                    className="flex items-center gap-2 bg-primary px-8 py-3 text-sm font-display font-medium text-white transition-all hover:bg-black uppercase tracking-wider"
                 >
                     <UserPlus className="h-4 w-4" />
                     {isAssigning ? "Cancelar" : "Asignar Staff"}
@@ -74,14 +74,14 @@ export function WorkCastManager({ workId, cast, allPeople }: WorkCastManagerProp
             </div>
 
             {isAssigning && (
-                <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border-2 border-dashed border-primary/20 space-y-4 animate-in zoom-in-95 duration-300">
+                <div className="border border-dashed border-gray-300 p-6 space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Seleccionar Persona</label>
+                            <label className="text-[11px] font-display font-bold uppercase tracking-widest text-gray-500">Seleccionar Persona</label>
                             <select
                                 value={selectedPersonId}
                                 onChange={(e) => setSelectedPersonId(e.target.value)}
-                                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full border border-gray-300 px-4 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
                             >
                                 <option value="">Elegir de la lista...</option>
                                 {availablePeople.map(p => (
@@ -90,24 +90,24 @@ export function WorkCastManager({ workId, cast, allPeople }: WorkCastManagerProp
                             </select>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Rol en esta obra</label>
+                            <label className="text-[11px] font-display font-bold uppercase tracking-widest text-gray-500">Rol en esta obra</label>
                             <select
                                 value={selectedRole}
                                 onChange={(e) => setSelectedRole(e.target.value as RoleType)}
-                                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full border border-gray-300 px-4 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
                             >
                                 <option value={RoleType.ACTOR}>Actor / Actriz</option>
                                 <option value={RoleType.ASSISTANT}>Asistente / Staff</option>
                             </select>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Nombre del Personaje (opcional)</label>
+                            <label className="text-[11px] font-display font-bold uppercase tracking-widest text-gray-500">Nombre del Personaje (opcional)</label>
                             <input
                                 type="text"
                                 value={characterName}
                                 onChange={(e) => setCharacterName(e.target.value)}
                                 placeholder="Ej: San Martín"
-                                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full border border-gray-300 px-4 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
                             />
                         </div>
                         <div className="flex items-end pb-1 px-2">
@@ -119,9 +119,9 @@ export function WorkCastManager({ workId, cast, allPeople }: WorkCastManagerProp
                                         onChange={(e) => setIsPrimary(e.target.checked)}
                                         className="sr-only peer"
                                     />
-                                    <div className="w-10 h-5 bg-slate-300 rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
+                                    <div className="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
                                 </div>
-                                <span className="text-sm font-bold text-slate-600 group-hover:text-primary transition-colors">Titular / Elenco Principal</span>
+                                <span className="text-sm font-display font-medium text-gray-600 group-hover:text-primary transition-colors">Titular / Elenco Principal</span>
                             </label>
                         </div>
                     </div>
@@ -129,7 +129,7 @@ export function WorkCastManager({ workId, cast, allPeople }: WorkCastManagerProp
                         <button
                             onClick={handleAssign}
                             disabled={!selectedPersonId}
-                            className="px-8 py-2.5 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/20 disabled:opacity-50 hover:bg-primary/90 transition-all"
+                            className="bg-primary px-8 py-3 text-sm font-display font-medium text-white transition-all hover:bg-black uppercase tracking-wider disabled:opacity-50"
                         >
                             Confirmar Asignación
                         </button>
@@ -139,37 +139,37 @@ export function WorkCastManager({ workId, cast, allPeople }: WorkCastManagerProp
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {cast.length === 0 ? (
-                    <div className="col-span-full py-12 text-center text-slate-400 border-2 border-dashed border-slate-100 rounded-3xl">
+                    <div className="col-span-full border border-dashed border-gray-300 p-12 text-center text-gray-400 font-sans text-sm">
                         No hay elenco asignado aún.
                     </div>
                 ) : (
                     cast.map((item) => (
                         <div
                             key={item.id}
-                            className="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 group hover:border-primary/50 transition-all"
+                            className="flex items-center gap-4 border border-gray-300 p-4 group hover:border-primary/20 transition-all"
                         >
-                            <div className="h-12 w-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                            <div className="h-12 w-12 bg-gray-100 flex items-center justify-center text-gray-400 group-hover:text-primary transition-colors">
                                 <User className="h-6 w-6" />
                             </div>
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2">
-                                    <h5 className="font-bold text-slate-900 dark:text-white truncate">
+                                    <h5 className="font-display font-medium text-primary truncate">
                                         {item.person?.displayName}
                                     </h5>
                                     {item.isPrimary && (
                                         <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                                     )}
                                 </div>
-                                <div className="flex items-center gap-2 text-xs text-slate-500">
+                                <div className="flex items-center gap-2 text-xs font-sans text-gray-500">
                                     <span className={cn(
-                                        "font-black uppercase tracking-widest text-[9px]",
+                                        "text-[11px] font-display font-bold uppercase tracking-widest",
                                         item.roleType === RoleType.ACTOR ? "text-blue-500" : "text-amber-500"
                                     )}>
                                         {item.roleType === RoleType.ACTOR ? "Actor" : "Asistente"}
                                     </span>
                                     {item.characterName && (
                                         <>
-                                            <span className="text-slate-300">•</span>
+                                            <span className="text-gray-300">&#8226;</span>
                                             <span className="italic truncate">{item.characterName}</span>
                                         </>
                                     )}
@@ -177,7 +177,7 @@ export function WorkCastManager({ workId, cast, allPeople }: WorkCastManagerProp
                             </div>
                             <button
                                 onClick={() => handleRemove(item.personId)}
-                                className="p-2 text-slate-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                                className="p-2 text-gray-300 hover:text-accent transition-colors opacity-0 group-hover:opacity-100"
                             >
                                 <Trash2 className="h-4 w-4" />
                             </button>

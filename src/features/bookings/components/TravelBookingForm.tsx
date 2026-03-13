@@ -80,7 +80,7 @@ export function TravelBookingForm({ slot, work }: TravelBookingFormProps) {
     useEffect(() => {
         if (qtyReservedStudents > 0) {
             // Note: recommendTravelModality returns key like "CLASSROOM" but prices are keyed by ShiftType
-            // We need a mapping or update recommendTravelModality. 
+            // We need a mapping or update recommendTravelModality.
             // For now, let's assume the user picks the modality from the UI which maps to ShiftType
         }
     }, [qtyReservedStudents, setValue]);
@@ -117,18 +117,18 @@ export function TravelBookingForm({ slot, work }: TravelBookingFormProps) {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="bg-amber-50 rounded-xl p-4 border border-amber-100 mb-6 font-medium">
-                <div className="flex items-center gap-2 text-amber-700 mb-1">
-                    <Truck className="h-4 w-4" />
-                    <span className="text-xs font-bold uppercase tracking-tight">Función Viajera (En Escuela)</span>
+            <div className="border border-gray-300 p-4 mb-6">
+                <div className="flex items-center gap-2 text-primary mb-1">
+                    <Truck className="h-4 w-4 text-gray-400" />
+                    <span className="text-[11px] font-display font-bold uppercase tracking-widest text-gray-500">Función Viajera (En Escuela)</span>
                 </div>
-                <p className="text-sm font-bold text-amber-900">{work.title}</p>
-                <p className="text-xs text-amber-700 mt-1">El museo se traslada a la institución seleccionada.</p>
+                <p className="text-sm font-display font-bold text-primary">{work.title}</p>
+                <p className="text-xs text-gray-500 mt-1">El museo se traslada a la institución seleccionada.</p>
             </div>
 
             <div className="space-y-4">
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold text-foreground/80">Escuela Destino</label>
+                    <label className="text-sm font-display font-medium text-primary">Escuela Destino</label>
                     <SchoolAutocomplete
                         onSelect={(school) => {
                             setSelectedSchool(school);
@@ -136,17 +136,17 @@ export function TravelBookingForm({ slot, work }: TravelBookingFormProps) {
                         }}
                         placeholder="Buscar escuela..."
                     />
-                    {errors.schoolId && <p className="text-xs text-red-500 font-medium">{errors.schoolId.message}</p>}
+                    {errors.schoolId && <p className="text-xs text-accent font-sans mt-1">{errors.schoolId.message}</p>}
 
                     {selectedSchool && (
-                        <div className="flex items-center gap-3 p-3 bg-white border rounded-xl shadow-sm border-amber-200 animate-in fade-in slide-in-from-left-2 transition-all">
-                            <div className="h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                        <div className="flex items-center gap-3 p-3 border border-gray-300">
+                            <div className="h-8 w-8 rounded-full bg-gray-50 flex items-center justify-center text-primary">
                                 <Check className="h-4 w-4" />
                             </div>
                             <div>
-                                <p className="text-sm font-bold">{selectedSchool.name}</p>
-                                <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                                    <MapPin className="h-2 w-2" /> {selectedSchool.address}, {selectedSchool.district}
+                                <p className="text-sm font-display font-bold text-primary">{selectedSchool.name}</p>
+                                <p className="text-[10px] text-gray-500 flex items-center gap-1">
+                                    <MapPin className="h-2 w-2 text-gray-400" /> {selectedSchool.address}, {selectedSchool.district}
                                 </p>
                             </div>
                         </div>
@@ -155,32 +155,38 @@ export function TravelBookingForm({ slot, work }: TravelBookingFormProps) {
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <label className="text-sm font-semibold">Alumnos Reservados</label>
+                        <label className="text-sm font-display font-medium text-primary">Alumnos Reservados</label>
                         <div className="relative">
-                            <Users className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <Users className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                             <input
                                 type="number"
                                 {...register("qtyReservedStudents", { valueAsNumber: true })}
-                                className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition-all ${errors.qtyReservedStudents ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                                className={cn(
+                                    "w-full border px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors",
+                                    errors.qtyReservedStudents ? "border-accent" : "border-gray-300"
+                                )}
                             />
                         </div>
-                        {errors.qtyReservedStudents && <p className="text-xs text-red-500 font-medium">{errors.qtyReservedStudents.message}</p>}
+                        {errors.qtyReservedStudents && <p className="text-xs text-accent font-sans mt-1">{errors.qtyReservedStudents.message}</p>}
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-semibold">Adultos Reservados</label>
+                        <label className="text-sm font-display font-medium text-primary">Adultos Reservados</label>
                         <div className="relative">
-                            <Users className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <Users className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                             <input
                                 type="number"
                                 {...register("qtyReservedAdults", { valueAsNumber: true })}
-                                className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition-all ${errors.qtyReservedAdults ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                                className={cn(
+                                    "w-full border px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors",
+                                    errors.qtyReservedAdults ? "border-accent" : "border-gray-300"
+                                )}
                             />
                         </div>
                     </div>
                 </div>
 
                 <div className="space-y-3">
-                    <label className="text-sm font-semibold flex items-center gap-2">
+                    <label className="text-sm font-display font-medium text-primary flex items-center gap-2">
                         Modalidad y Precio (Según Vigencia)
                     </label>
                     <div className="grid md:grid-cols-2 gap-3">
@@ -196,22 +202,22 @@ export function TravelBookingForm({ slot, work }: TravelBookingFormProps) {
                                         setValue("totalPrice", price, { shouldValidate: true });
                                     }}
                                     className={cn(
-                                        "flex items-center justify-between p-4 rounded-xl border text-left transition-all hover:shadow-md active:scale-[0.98]",
+                                        "flex items-center justify-between p-4 border text-left transition-all",
                                         isSelected
-                                            ? "border-amber-500 bg-amber-50 ring-1 ring-amber-500 shadow-sm"
-                                            : "border-slate-200 bg-card hover:border-amber-200"
+                                            ? "border-primary bg-gray-50"
+                                            : "border-gray-300 hover:border-primary/20"
                                     )}
                                 >
                                     <div>
-                                        <p className={cn("text-sm font-bold capitalize", isSelected ? "text-amber-900" : "text-foreground")}>
+                                        <p className={cn("text-sm font-display font-bold capitalize", isSelected ? "text-primary" : "text-gray-600")}>
                                             {shift.replace(/_/g, " ").toLowerCase()}
                                         </p>
                                     </div>
                                     <div className="text-right">
-                                        <p className={cn("text-sm font-bold", isSelected ? "text-amber-700" : "text-muted-foreground")}>
+                                        <p className={cn("text-sm font-display font-bold", isSelected ? "text-primary" : "text-gray-500")}>
                                             ${price.toLocaleString('es-AR')}
                                         </p>
-                                        {isSelected && <Check className="h-4 w-4 text-amber-600 ml-auto mt-1" />}
+                                        {isSelected && <Check className="h-4 w-4 text-primary ml-auto mt-1" />}
                                     </div>
                                 </button>
                             );
@@ -220,32 +226,35 @@ export function TravelBookingForm({ slot, work }: TravelBookingFormProps) {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold">Precio Final Acordado</label>
+                    <label className="text-sm font-display font-medium text-primary">Precio Final Acordado</label>
                     <div className="relative">
-                        <Ticket className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Ticket className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <input
                             type="number"
                             {...register("totalPrice", { valueAsNumber: true })}
-                            className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm font-bold text-amber-700 focus:ring-2 focus:ring-amber-500 outline-none transition-all ${errors.totalPrice ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                            className={cn(
+                                "w-full border px-9 py-3 text-sm font-sans font-bold text-primary focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors",
+                                errors.totalPrice ? "border-accent" : "border-gray-300"
+                            )}
                         />
                     </div>
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold">Notas</label>
+                    <label className="text-sm font-display font-medium text-primary">Notas</label>
                     <textarea
                         {...register("notes")}
-                        className="w-full min-h-[80px] rounded-lg border border-slate-200 bg-background px-3 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition-all"
+                        className="w-full min-h-[80px] border border-gray-300 px-4 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
                         placeholder="Ubicación en la escuela, requerimientos técnicos..."
                     />
                 </div>
             </div>
 
-            <div className="flex justify-end gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex justify-end gap-4 pt-4 border-t border-gray-300">
                 <button
                     type="submit"
                     disabled={loading || !selectedSchool}
-                    className="w-full py-4 bg-amber-600 text-white rounded-xl hover:bg-amber-700 disabled:opacity-50 text-sm font-bold shadow-lg shadow-amber-200 transition-all active:scale-95 flex items-center justify-center gap-2"
+                    className="w-full bg-primary px-8 py-3 text-sm font-display font-medium text-white transition-all hover:bg-black uppercase tracking-wider disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                     {loading ? "Reservando..." : (
                         <>

@@ -60,56 +60,56 @@ export function WorkForm({ initialData }: WorkFormProps) {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-2xl px-1 pb-10">
             <div className="space-y-4">
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold">Título de la Obra</label>
+                    <label className="text-sm font-display font-medium text-primary">Título de la Obra</label>
                     <div className="relative">
-                        <Type className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Type className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <input
                             {...register("title")}
-                            className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.title ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                            className={`w-full border px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors ${errors.title ? 'border-accent' : 'border-gray-300'}`}
                             placeholder="Ej: El Quijote"
                         />
                     </div>
-                    {errors.title && <p className="text-xs text-red-500 font-medium">{errors.title.message}</p>}
+                    {errors.title && <p className="text-xs text-accent font-sans mt-1">{errors.title.message}</p>}
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold">Duración (minutos)</label>
+                    <label className="text-sm font-display font-medium text-primary">Duración (minutos)</label>
                     <div className="relative">
-                        <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Clock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <input
                             type="number"
                             {...register("duration", { valueAsNumber: true })}
-                            className={`w-full rounded-lg border bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all ${errors.duration ? 'border-red-500 ring-red-100' : 'border-slate-200'}`}
+                            className={`w-full border px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors ${errors.duration ? 'border-accent' : 'border-gray-300'}`}
                         />
                     </div>
-                    {errors.duration && <p className="text-xs text-red-500 font-medium">{errors.duration.message}</p>}
+                    {errors.duration && <p className="text-xs text-accent font-sans mt-1">{errors.duration.message}</p>}
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-semibold">Descripción</label>
+                    <label className="text-sm font-display font-medium text-primary">Descripción</label>
                     <div className="relative">
-                        <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <textarea
                             {...register("description")}
-                            className="w-full min-h-[120px] rounded-lg border border-slate-200 bg-background px-9 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none"
+                            className="w-full min-h-[120px] border border-gray-300 px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
                             placeholder="Breve resumen de la obra..."
                         />
                     </div>
                 </div>
             </div>
 
-            <div className="flex justify-end gap-4 pt-6 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex justify-end gap-4 pt-6 border-t border-gray-300">
                 <button
                     type="button"
                     onClick={() => router.back()}
-                    className="px-6 py-2.5 text-sm font-bold border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
+                    className="border border-gray-300 px-6 py-3 text-sm font-display font-medium text-primary transition-all hover:border-primary/30"
                 >
                     Cancelar
                 </button>
                 <button
                     type="submit"
                     disabled={loading}
-                    className="px-8 py-2.5 bg-primary text-primary-foreground rounded-xl hover:opacity-90 disabled:opacity-50 text-sm font-bold shadow-lg shadow-primary/20 transition-all"
+                    className="bg-primary px-8 py-3 text-sm font-display font-medium text-white transition-all hover:bg-black uppercase tracking-wider disabled:opacity-50"
                 >
                     {loading ? "Guardando..." : initialData ? "Actualizar Obra" : "Crear Obra"}
                 </button>

@@ -43,39 +43,39 @@ export function CalendarView({ eventDays, venues }: CalendarViewProps) {
 
     const renderHeader = () => {
         return (
-            <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 shrink-0">
+            <header className="bg-white border-b border-gray-300 p-4 shrink-0">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                     <div className="flex items-center gap-6">
-                        <h2 className="text-2xl font-bold tracking-tight capitalize text-slate-900 dark:text-white">
+                        <h2 className="text-2xl font-display font-bold tracking-tight capitalize text-primary">
                             {format(currentDate, "MMMM yyyy", { locale: es })}
                         </h2>
-                        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
-                            <button onClick={prevPeriod} className="p-1 hover:bg-white dark:hover:bg-slate-700 rounded transition-all">
-                                <ChevronLeft className="h-4 w-4" />
+                        <div className="flex items-center gap-1 bg-gray-50 border border-gray-300 p-1">
+                            <button onClick={prevPeriod} className="p-1 hover:bg-white transition-all">
+                                <ChevronLeft className="h-4 w-4 text-gray-500" />
                             </button>
-                            <button onClick={goToToday} className="px-3 py-1 text-xs font-semibold hover:bg-white dark:hover:bg-slate-700 rounded transition-all">
+                            <button onClick={goToToday} className="px-3 py-1 text-xs font-display font-medium text-primary hover:bg-white transition-all">
                                 Hoy
                             </button>
-                            <button onClick={nextPeriod} className="p-1 hover:bg-white dark:hover:bg-slate-700 rounded transition-all">
-                                <ChevronRight className="h-4 w-4" />
+                            <button onClick={nextPeriod} className="p-1 hover:bg-white transition-all">
+                                <ChevronRight className="h-4 w-4 text-gray-500" />
                             </button>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
                         <div className="relative hidden md:block">
                             <input
-                                className="pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-transparent focus:border-primary focus:ring-0 rounded-lg text-sm w-64 text-slate-900 dark:text-white placeholder:text-slate-500"
+                                className="w-full border border-gray-300 pl-10 pr-4 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors w-64 placeholder:text-gray-400"
                                 placeholder="Buscar eventos..."
                                 type="text"
                             />
-                            <Search className="absolute left-3 top-2.5 text-slate-400 h-4 w-4" />
+                            <Search className="absolute left-3 top-3 text-gray-400 h-4 w-4" />
                         </div>
-                        <button className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                        <button className="p-2 text-gray-500 hover:bg-gray-50 transition-colors">
                             <Bell className="h-5 w-5" />
                         </button>
                         <Link
                             href="/calendario/nuevo"
-                            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-primary/90 transition-all"
+                            className="flex items-center gap-2 bg-primary px-8 py-3 text-sm font-display font-medium text-white transition-all hover:bg-black uppercase tracking-wider"
                         >
                             <Plus className="h-4 w-4" /> Crear
                         </Link>
@@ -85,14 +85,14 @@ export function CalendarView({ eventDays, venues }: CalendarViewProps) {
                 {/* Filter Controls */}
                 <div className="flex flex-wrap items-center gap-3 overflow-x-auto no-scrollbar pb-2">
                     <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Filtros:</span>
+                        <span className="text-[11px] font-display font-bold uppercase tracking-widest text-gray-500">Filtros:</span>
                         <div className="relative inline-block text-left">
-                            <button className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                            <button className="flex items-center gap-2 border border-gray-300 px-3 py-1.5 text-sm font-display font-medium text-primary hover:border-primary/30 transition-colors">
                                 Temporada: 2024
                             </button>
                         </div>
                         <div className="relative inline-block text-left">
-                            <button className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                            <button className="flex items-center gap-2 border border-gray-300 px-3 py-1.5 text-sm font-display font-medium text-primary hover:border-primary/30 transition-colors">
                                 Tipo: Todos
                             </button>
                         </div>
@@ -105,9 +105,9 @@ export function CalendarView({ eventDays, venues }: CalendarViewProps) {
     const renderDaysHeader = () => {
         const days = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
         return (
-            <div className="grid grid-cols-7 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+            <div className="grid grid-cols-7 border-b border-gray-200 bg-gray-50">
                 {days.map(day => (
-                    <div key={day} className="py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-widest border-r border-slate-200 dark:border-slate-800 last:border-0">
+                    <div key={day} className="py-3 text-center text-[11px] font-display font-bold text-gray-500 uppercase tracking-widest border-r border-gray-200 last:border-0">
                         {day}
                     </div>
                 ))}
@@ -135,13 +135,13 @@ export function CalendarView({ eventDays, venues }: CalendarViewProps) {
                         <div
                             key={day.toString()}
                             className={cn(
-                                "min-h-[120px] p-2 border-r border-b border-slate-200 dark:border-slate-800 relative group transition-colors",
-                                isOtherMonth ? "bg-slate-50/30 dark:bg-slate-950/20 text-slate-400" : "bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                                "min-h-[120px] p-2 border-r border-b border-gray-200 relative group transition-colors",
+                                isOtherMonth ? "bg-gray-50/30 text-gray-400" : "bg-white hover:bg-gray-50"
                             )}
                         >
                             <span className={cn(
-                                "text-sm font-semibold mb-2 block w-max",
-                                isCurrentDay ? "text-primary bg-primary/10 px-2 rounded-full" : "text-slate-400"
+                                "text-sm font-sans font-semibold mb-2 block w-max",
+                                isCurrentDay ? "text-white bg-primary px-2 rounded-full" : "text-gray-400"
                             )}>
                                 {format(day, "d")}
                             </span>
@@ -152,10 +152,10 @@ export function CalendarView({ eventDays, venues }: CalendarViewProps) {
                                         key={event.id}
                                         href={`/calendario/${dateStr}`} // Link to day detail
                                         className={cn(
-                                            "block px-2 py-1 rounded text-[11px] font-bold border-l-2 truncate transition-all hover:brightness-95",
+                                            "block px-2 py-1 text-[11px] font-display font-bold border-l-2 truncate transition-all",
                                             event.type === EventType.THEATER
-                                                ? "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-blue-500"
-                                                : "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border-indigo-500"
+                                                ? "bg-blue-50 text-blue-700 border-blue-500"
+                                                : "bg-indigo-50 text-indigo-700 border-indigo-500"
                                         )}
                                         title={`${event.type === 'theater' ? 'Teatro' : 'Viaje'}`}
                                     >
@@ -174,7 +174,7 @@ export function CalendarView({ eventDays, venues }: CalendarViewProps) {
                             {/* Hover Add Button (Simplified) */}
                             <Link
                                 href={`/calendario/nuevo?date=${dateStr}`}
-                                className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 bg-slate-100 hover:bg-primary hover:text-white rounded-full text-slate-500"
+                                className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 bg-gray-50 hover:bg-primary hover:text-white rounded-full text-gray-500"
                             >
                                 <Plus className="h-4 w-4" />
                             </Link>
@@ -186,12 +186,12 @@ export function CalendarView({ eventDays, venues }: CalendarViewProps) {
     };
 
     return (
-        <div className="flex w-full h-[calc(100vh-64px)] overflow-hidden bg-background">
+        <div className="flex w-full h-[calc(100vh-64px)] overflow-hidden bg-white">
             <div className="flex-1 flex flex-col h-full overflow-hidden">
                 {renderHeader()}
 
-                <div className="flex-1 overflow-auto bg-slate-50 dark:bg-background-dark p-4">
-                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden min-w-[800px]">
+                <div className="flex-1 overflow-auto bg-gray-50 p-4">
+                    <div className="bg-white border border-gray-300 overflow-hidden min-w-[800px]">
                         {renderDaysHeader()}
                         {renderMonthGrid()}
                     </div>
@@ -199,53 +199,53 @@ export function CalendarView({ eventDays, venues }: CalendarViewProps) {
             </div>
 
             {/* Quick Info Panel (Right Sidebar) - Hidden on smaller screens */}
-            <div className="hidden xl:flex w-80 bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 flex-col overflow-y-auto shrink-0 z-10">
+            <div className="hidden xl:flex w-80 bg-white border-l border-gray-300 flex-col overflow-y-auto shrink-0 z-10">
                 <div className="p-6">
-                    <h3 className="font-bold text-lg mb-6 text-slate-900 dark:text-white">Resumen: {format(currentDate, "MMM yyyy", { locale: es })}</h3>
+                    <h3 className="font-display font-bold text-lg mb-6 text-primary">Resumen: {format(currentDate, "MMM yyyy", { locale: es })}</h3>
 
                     <div className="space-y-4 mb-8">
-                        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
-                            <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300 mb-1">
-                                <Theater className="h-5 w-5" />
-                                <span className="text-xs font-bold uppercase tracking-wider">Funciones Teatro</span>
+                        <div className="p-4 border border-gray-300 hover:border-primary/20 transition-all">
+                            <div className="flex items-center gap-2 text-primary mb-1">
+                                <Theater className="h-5 w-5 text-gray-500" />
+                                <span className="text-[11px] font-display font-bold uppercase tracking-widest text-gray-500">Funciones Teatro</span>
                             </div>
-                            <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{theaterCount} Funciones</p>
+                            <p className="text-2xl font-display font-bold text-primary">{theaterCount} Funciones</p>
                         </div>
 
-                        <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
-                            <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-300 mb-1">
-                                <MapPin className="h-5 w-5" />
-                                <span className="text-xs font-bold uppercase tracking-wider">Escuelas Viajeras</span>
+                        <div className="p-4 border border-gray-300 hover:border-primary/20 transition-all">
+                            <div className="flex items-center gap-2 text-primary mb-1">
+                                <MapPin className="h-5 w-5 text-gray-500" />
+                                <span className="text-[11px] font-display font-bold uppercase tracking-widest text-gray-500">Escuelas Viajeras</span>
                             </div>
-                            <p className="text-2xl font-bold text-indigo-900 dark:text-indigo-100">{travelCount} Visitas</p>
+                            <p className="text-2xl font-display font-bold text-primary">{travelCount} Visitas</p>
                         </div>
                     </div>
 
-                    <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
-                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Recordatorios (Hoy)</h4>
+                    <div className="pt-6 border-t border-gray-300">
+                        <h4 className="text-[11px] font-display font-bold text-gray-500 uppercase tracking-widest mb-4">Recordatorios (Hoy)</h4>
                         <div className="space-y-4">
                             {/* Mock Reminders */}
                             <div className="flex gap-3 items-start">
                                 <div className="h-2 w-2 rounded-full bg-yellow-400 mt-1.5 shrink-0"></div>
                                 <div>
-                                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Confirmar transporte (Día 5)</p>
-                                    <p className="text-xs text-slate-500">Escuela Normal espera confirmación</p>
+                                    <p className="text-sm font-display font-medium text-primary">Confirmar transporte (Día 5)</p>
+                                    <p className="text-xs text-gray-500">Escuela Normal espera confirmación</p>
                                 </div>
                             </div>
                             <div className="flex gap-3 items-start">
                                 <div className="h-2 w-2 rounded-full bg-green-400 mt-1.5 shrink-0"></div>
                                 <div>
-                                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Cervantes: Logística OK</p>
-                                    <p className="text-xs text-slate-500">Todo listo para la función</p>
+                                    <p className="text-sm font-display font-medium text-primary">Cervantes: Logística OK</p>
+                                    <p className="text-xs text-gray-500">Todo listo para la función</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="mt-auto p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800">
-                    <button className="w-full py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm text-slate-700 dark:text-slate-200">
-                        <Download className="h-5 w-5" />
+                <div className="mt-auto p-6 bg-gray-50 border-t border-gray-300">
+                    <button className="w-full border border-gray-300 px-6 py-3 text-sm font-display font-medium text-primary transition-all hover:border-primary/30 flex items-center justify-center gap-2">
+                        <Download className="h-5 w-5 text-gray-500" />
                         <span>Exportar PDF</span>
                     </button>
                 </div>
@@ -255,7 +255,7 @@ export function CalendarView({ eventDays, venues }: CalendarViewProps) {
             <div className="absolute bottom-8 right-8 z-50 xl:hidden">
                 <Link
                     href="/calendario/nuevo"
-                    className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-2xl hover:scale-105 active:scale-95 transition-all"
+                    className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white hover:bg-black transition-all"
                 >
                     <Plus className="h-8 w-8" />
                 </Link>

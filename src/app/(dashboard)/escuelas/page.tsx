@@ -1,39 +1,29 @@
 import { getSchools } from "@/lib/actions";
 import { SchoolList } from "@/features/schools/components/SchoolList";
 import Link from "next/link";
-import { Plus, GraduationCap } from "lucide-react";
-import { Suspense } from "react";
-import { SchoolListSkeleton } from "@/components/Skeletons";
+import { Plus } from "lucide-react";
 
-async function SchoolListWrapper() {
+export default async function EscuelasPage() {
     const schools = await getSchools();
-    return <SchoolList schools={schools} />;
-}
 
-export default function EscuelasPage() {
     return (
-        <div className="flex flex-col gap-8 p-8">
-            <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                        <GraduationCap className="h-8 w-8" />
-                    </div>
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Escuelas</h1>
-                        <p className="text-muted-foreground text-lg">Directorio de instituciones y responsables.</p>
-                    </div>
+        <div className="flex flex-col gap-10">
+            <header className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+                <div>
+                    <h1 className="text-[54px] font-display font-bold tracking-[-2px] text-primary leading-tight">
+                        Escuelas
+                    </h1>
+                    <p className="text-gray-600 font-sans text-xl mt-2">Directorio de instituciones y responsables.</p>
                 </div>
                 <Link
                     href="/escuelas/nueva"
-                    className="flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-all hover:opacity-90 active:scale-95 shadow-lg shadow-primary/20"
+                    className="flex items-center gap-2 bg-primary px-8 py-3.5 text-sm font-display font-medium text-white transition-all hover:bg-black uppercase tracking-wider"
                 >
                     <Plus className="h-5 w-5" /> Nueva Escuela
                 </Link>
             </header>
 
-            <Suspense fallback={<SchoolListSkeleton />}>
-                <SchoolListWrapper />
-            </Suspense>
+            <SchoolList schools={schools} />
         </div>
     );
 }

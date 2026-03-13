@@ -1,39 +1,29 @@
 import { getWorks } from "@/lib/actions";
 import { WorkList } from "@/features/works/components/WorkList";
 import Link from "next/link";
-import { Plus, Theater } from "lucide-react";
-import { Suspense } from "react";
-import { WorkListSkeleton } from "@/components/Skeletons";
+import { Plus } from "lucide-react";
 
-async function WorkListWrapper() {
+export default async function ObrasPage() {
     const works = await getWorks();
-    return <WorkList works={works} />;
-}
 
-export default function ObrasPage() {
     return (
-        <div className="flex flex-col gap-8 p-8">
-            <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                        <Theater className="h-8 w-8" />
-                    </div>
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Obras</h1>
-                        <p className="text-muted-foreground text-lg">Catálogo de repertorio del Museo Viajero.</p>
-                    </div>
+        <div className="flex flex-col gap-10">
+            <header className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+                <div>
+                    <h1 className="text-[54px] font-display font-bold tracking-[-2px] text-primary leading-tight">
+                        Obras
+                    </h1>
+                    <p className="text-gray-600 font-sans text-xl mt-2">Catálogo de repertorio del Museo Viajero.</p>
                 </div>
                 <Link
                     href="/obras/nueva"
-                    className="flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-all hover:opacity-90 active:scale-95 shadow-lg shadow-primary/20"
+                    className="flex items-center gap-2 bg-primary px-8 py-3.5 text-sm font-display font-medium text-white transition-all hover:bg-black uppercase tracking-wider"
                 >
                     <Plus className="h-5 w-5" /> Nueva Obra
                 </Link>
             </header>
 
-            <Suspense fallback={<WorkListSkeleton />}>
-                <WorkListWrapper />
-            </Suspense>
+            <WorkList works={works} />
         </div>
     );
 }

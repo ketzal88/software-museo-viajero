@@ -2,21 +2,23 @@ import { EventDayForm } from "@/features/calendar/components/EventDayForm";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 
-export default function NuevaJornadaPage() {
+export default function NuevoEventoPage() {
     return (
-        <div className="flex flex-col gap-8 p-8">
+        <div className="flex flex-col gap-8">
             <header className="flex flex-col gap-2">
                 <Link
                     href="/calendario"
-                    className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    className="flex items-center gap-2 text-sm text-gray-500 hover:text-primary transition-colors font-sans"
                 >
                     <ChevronLeft className="h-4 w-4" /> Volver al Calendario
                 </Link>
-                <h1 className="text-3xl font-bold tracking-tight">Programar Nueva Jornada</h1>
-                <p className="text-muted-foreground">Define la fecha, lugar y obra de la presentación.</p>
+                <h1 className="text-[54px] font-display font-bold tracking-[-2px] text-primary leading-tight">
+                    Nuevo Evento
+                </h1>
+                <p className="text-gray-600 font-sans text-xl">Programa una nueva función o viaje.</p>
             </header>
 
-            <div className="bg-card border rounded-2xl p-6 md:p-10 shadow-sm">
+            <div className="border border-gray-300 p-6 md:p-10">
                 <EventDayForm />
             </div>
         </div>

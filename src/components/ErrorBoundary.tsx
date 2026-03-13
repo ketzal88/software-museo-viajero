@@ -33,12 +33,12 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
             }
 
             return (
-                <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-background">
-                    <div className="max-w-md w-full bg-card border border-border rounded-xl p-8 shadow-lg">
+                <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-white">
+                    <div className="max-w-md w-full border border-gray-300 p-8">
                         <div className="flex flex-col items-center text-center space-y-4">
-                            <div className="h-16 w-16 rounded-full bg-destructive/10 flex items-center justify-center">
+                            <div className="h-16 w-16 bg-accent/10 flex items-center justify-center">
                                 <svg
-                                    className="h-8 w-8 text-destructive"
+                                    className="h-8 w-8 text-accent"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
@@ -52,13 +52,13 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                                 </svg>
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold mb-2">Algo salió mal</h2>
-                                <p className="text-sm text-muted-foreground mb-4">
+                                <h2 className="text-xl font-display font-bold mb-2 text-primary">Algo salió mal</h2>
+                                <p className="text-sm text-gray-600 font-sans mb-4">
                                     Ocurrió un error inesperado. Por favor, intenta recargar la página.
                                 </p>
                                 {this.state.error && process.env.NODE_ENV === "development" && (
-                                    <details className="text-left mt-4 p-3 bg-muted rounded-lg">
-                                        <summary className="cursor-pointer text-xs font-mono text-destructive">
+                                    <details className="text-left mt-4 p-3 bg-gray-50 border border-gray-200">
+                                        <summary className="cursor-pointer text-xs font-mono text-accent">
                                             Detalles del error
                                         </summary>
                                         <pre className="mt-2 text-xs overflow-auto">
@@ -69,7 +69,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                             </div>
                             <button
                                 onClick={() => window.location.reload()}
-                                className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity font-medium"
+                                className="bg-primary px-8 py-3 text-sm font-display font-medium text-white transition-all hover:bg-black uppercase tracking-wider"
                             >
                                 Recargar página
                             </button>
