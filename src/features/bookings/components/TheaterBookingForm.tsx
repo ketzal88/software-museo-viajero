@@ -63,6 +63,7 @@ export function TheaterBookingForm({ slot, work }: TheaterBookingFormProps) {
     const unitPriceStudent = watch("unitPriceStudent") || 0;
     const unitPriceAdult = watch("unitPriceAdult") || 0;
     const availableSlots = slot.availableCapacity;
+    const [pricingError, setPricingError] = useState<string | null>(null);
 
     useEffect(() => {
         const total = (qtyReservedStudents * unitPriceStudent) + (qtyReservedAdults * unitPriceAdult);
@@ -77,10 +78,11 @@ export function TheaterBookingForm({ slot, work }: TheaterBookingFormProps) {
                 const result = await resolvePricing(day.date, "THEATER_TICKET" as any, day.seasonId);
                 if (result.success && result.rule) {
                     setValue("pricingRuleId", result.rule.id);
-                    // Solo setear si el form está vacío o no se tocó manualmente (opcional)
                     setValue("unitPriceStudent", result.rule.values.student || 0);
                     setValue("unitPriceAdult", result.rule.values.adult || 0);
+                    setPricingError(null);
                 } else {
+                    setPricingError(result.error || "No hay precios definidos para esta fecha");
                     toast.error(result.error || "No hay precios definidos para esta fecha");
                 }
             }
@@ -122,6 +124,15 @@ export function TheaterBookingForm({ slot, work }: TheaterBookingFormProps) {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {pricingError && (
+                <div className="flex items-center gap-3 p-4 border-2 border-accent bg-red-50 text-accent">
+                    <AlertCircle className="h-5 w-5 shrink-0" />
+                    <div>
+                        <p className="text-sm font-display font-bold">No se puede crear la reserva</p>
+                        <p className="text-xs font-sans mt-0.5">{pricingError}</p>
+                    </div>
+                </div>
+            )}
             <div className="border border-gray-300 p-4 mb-6">
                 <div className="flex items-center gap-2 text-primary mb-1">
                     <Info className="h-4 w-4 text-gray-400" />
@@ -281,10 +292,10 @@ export function TheaterBookingForm({ slot, work }: TheaterBookingFormProps) {
             <div className="flex justify-end gap-4 pt-4 border-t border-gray-300">
                 <button
                     type="submit"
-                    disabled={loading || (qtyReservedStudents > availableSlots)}
+                    disabled={loading || (qtyReservedStudents > availableSlots) || !!pricingError}
                     className="w-full bg-primary px-8 py-3 text-sm font-display font-medium text-white transition-all hover:bg-black uppercase tracking-wider disabled:opacity-50"
                 >
-                    {loading ? "Procesando..." : qtyReservedStudents > availableSlots ? "Capacidad Insuficiente" : isHold ? "Crear Reserva HOLD" : "Crear Reserva Pendiente"}
+                    {loading ? "Procesando..." : pricingError ? "Sin Regla de Precios" : qtyReservedStudents > availableSlots ? "Capacidad Insuficiente" : isHold ? "Crear Reserva HOLD" : "Crear Reserva Pendiente"}
                 </button>
             </div>
         </form>
