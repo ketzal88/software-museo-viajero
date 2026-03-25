@@ -13,8 +13,8 @@ import * as z from "zod";
 
 interface SchoolFormData {
     name: string;
-    district: string;
-    address: string;
+    district?: string;
+    address?: string;
     email: string;
     phone: string;
     isPrivate?: boolean;

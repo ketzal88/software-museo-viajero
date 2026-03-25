@@ -20,8 +20,8 @@ export enum TravelMode {
 export interface School {
     id: string;
     name: string;
-    address: string;
-    district: string; // Barrio/Comuna
+    address?: string;
+    district?: string; // Barrio/Comuna
     email: string;
     phone: string;
     isPrivate: boolean;

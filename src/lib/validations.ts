@@ -19,10 +19,10 @@ export const venueSchema = z.object({
 
 export const schoolSchema = z.object({
     name: z.string().min(3, "El nombre debe tener al menos 3 caracteres"),
-    district: z.string().min(2, "El distrito/localidad es obligatorio"),
-    address: z.string().min(5, "La dirección es obligatoria"),
+    district: z.string().optional(),
+    address: z.string().optional(),
     email: z.string().email("Correo electrónico no válido").or(z.literal("")),
-    phone: z.string().min(7, "El teléfono no es válido"),
+    phone: z.string().min(7, "El teléfono es obligatorio"),
     isPrivate: z.boolean().default(false),
     contactName: z.string().min(3, "El nombre de contacto es obligatorio"),
     notes: z.string().optional(),

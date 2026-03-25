@@ -17,7 +17,8 @@ export function SchoolList({ schools }: SchoolListProps) {
         const term = searchTerm.toLowerCase();
         return (
             school.name.toLowerCase().includes(term) ||
-            school.district.toLowerCase().includes(term) ||
+            (school.district && school.district.toLowerCase().includes(term)) ||
+            (school.phone && school.phone.toLowerCase().includes(term)) ||
             (school.contactName && school.contactName.toLowerCase().includes(term))
         );
     });
@@ -76,15 +77,20 @@ export function SchoolList({ schools }: SchoolListProps) {
                                         </span>
                                     )}
                                 </h3>
+                                {(school.address || school.district) && (
+                                    <div className="flex items-center gap-2 text-gray-500 mb-1">
+                                        <MapPin className="h-4 w-4 shrink-0" />
+                                        <span className="text-sm font-sans">{[school.address, school.district].filter(Boolean).join(", ")}</span>
+                                    </div>
+                                )}
                                 <div className="flex items-center gap-2 text-gray-500 mb-1">
-                                    <MapPin className="h-4 w-4 shrink-0" />
-                                    <span className="text-sm font-sans">{school.address}, {school.district}</span>
+                                    <PhoneCall className="h-4 w-4 shrink-0" />
+                                    <span className="text-sm font-sans font-medium">{school.phone}</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-gray-500">
                                     <User className="h-4 w-4 shrink-0" />
                                     <span className="text-sm font-sans font-medium">
                                         Resp: {school.contactName || "No especificado"}
-                                        {school.phone && <span className="text-xs text-gray-400 ml-1">({school.phone})</span>}
                                     </span>
                                 </div>
                             </div>

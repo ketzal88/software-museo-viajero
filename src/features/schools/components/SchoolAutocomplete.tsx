@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { School } from "@/types";
 import { searchSchools } from "@/lib/actions";
-import { Search, MapPin, Building2, Plus, Loader2 } from "lucide-react";
+import { Search, MapPin, Building2, Plus, Loader2, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -86,10 +86,18 @@ export function SchoolAutocomplete({ onSelect, className, placeholder }: SchoolA
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <p className="font-display font-bold text-sm text-primary truncate">{school.name}</p>
-                                        <div className="flex items-center gap-1 text-xs text-gray-500 font-sans mt-0.5">
-                                            <MapPin className="h-3 w-3" />
-                                            <span className="truncate">{school.address} - {school.district}</span>
-                                        </div>
+                                        {(school.address || school.district) && (
+                                            <div className="flex items-center gap-1 text-xs text-gray-500 font-sans mt-0.5">
+                                                <MapPin className="h-3 w-3" />
+                                                <span className="truncate">{[school.address, school.district].filter(Boolean).join(" - ")}</span>
+                                            </div>
+                                        )}
+                                        {school.phone && (
+                                            <div className="flex items-center gap-1 text-xs text-gray-500 font-sans mt-0.5">
+                                                <Phone className="h-3 w-3" />
+                                                <span className="truncate">{school.phone}</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </button>
                             ))
