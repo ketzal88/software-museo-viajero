@@ -315,11 +315,17 @@ export async function getCalendarDaySummaries(eventDayIds: string[]): Promise<Re
                         "1er Ciclo": "1er",
                         "2do Ciclo": "2do",
                     };
+                    // Also handle cycle-level gradeLevel values
+                    const GRADE_TO_CYCLE: Record<string, string> = {
+                        "jardin": "J", "sala_3": "J", "sala_4": "J", "sala_5": "J",
+                        "primer_ciclo": "1er", "1ro": "1er", "2do": "1er", "3ro": "1er",
+                        "segundo_ciclo": "2do", "4to": "2do", "5to": "2do", "6to": "2do", "7mo": "2do",
+                    };
                     const cycleSet = new Set<string>();
                     for (const b of bookings) {
-                        if (b.gradeCycle && CYCLE_LABEL[b.gradeCycle]) {
-                            cycleSet.add(CYCLE_LABEL[b.gradeCycle]);
-                        }
+                        const label = (b.gradeCycle && CYCLE_LABEL[b.gradeCycle])
+                            || (b.gradeLevel && GRADE_TO_CYCLE[b.gradeLevel]);
+                        if (label) cycleSet.add(label);
                     }
                     // Preserve order J → 1er → 2do
                     const orderedCycles = ["J", "1er", "2do"].filter(c => cycleSet.has(c));

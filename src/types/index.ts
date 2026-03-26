@@ -356,17 +356,21 @@ export type ActionError = {
 export type ActionResult<T = void> = ActionSuccess<T> | ActionError;
 
 // Grade levels for bookings
+// isCycle=true entries are selectable cycle-level options (e.g. "todo el 1er ciclo")
 export const GRADE_LEVELS = [
-    { value: "sala_3", label: "Sala de 3", cycle: "Jardin" },
-    { value: "sala_4", label: "Sala de 4", cycle: "Jardin" },
-    { value: "sala_5", label: "Sala de 5", cycle: "Jardin" },
-    { value: "1ro", label: "1er Grado", cycle: "1er Ciclo" },
-    { value: "2do", label: "2do Grado", cycle: "1er Ciclo" },
-    { value: "3ro", label: "3er Grado", cycle: "1er Ciclo" },
-    { value: "4to", label: "4to Grado", cycle: "2do Ciclo" },
-    { value: "5to", label: "5to Grado", cycle: "2do Ciclo" },
-    { value: "6to", label: "6to Grado", cycle: "2do Ciclo" },
-    { value: "7mo", label: "7mo Grado", cycle: "2do Ciclo" },
+    { value: "jardin",       label: "Jardín",     cycle: "Jardin",    isCycle: true  },
+    { value: "sala_3",       label: "Sala de 3",  cycle: "Jardin",    isCycle: false },
+    { value: "sala_4",       label: "Sala de 4",  cycle: "Jardin",    isCycle: false },
+    { value: "sala_5",       label: "Sala de 5",  cycle: "Jardin",    isCycle: false },
+    { value: "primer_ciclo", label: "1er Ciclo",  cycle: "1er Ciclo", isCycle: true  },
+    { value: "1ro",          label: "1er Grado",  cycle: "1er Ciclo", isCycle: false },
+    { value: "2do",          label: "2do Grado",  cycle: "1er Ciclo", isCycle: false },
+    { value: "3ro",          label: "3er Grado",  cycle: "1er Ciclo", isCycle: false },
+    { value: "segundo_ciclo",label: "2do Ciclo",  cycle: "2do Ciclo", isCycle: true  },
+    { value: "4to",          label: "4to Grado",  cycle: "2do Ciclo", isCycle: false },
+    { value: "5to",          label: "5to Grado",  cycle: "2do Ciclo", isCycle: false },
+    { value: "6to",          label: "6to Grado",  cycle: "2do Ciclo", isCycle: false },
+    { value: "7mo",          label: "7mo Grado",  cycle: "2do Ciclo", isCycle: false },
 ] as const;
 
 // Firestore collection names

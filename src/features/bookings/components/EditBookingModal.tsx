@@ -133,21 +133,15 @@ export function EditBookingModal({ booking, onClose }: EditBookingModalProps) {
                                 className="w-full border border-gray-300 px-3 py-2 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                             >
                                 <option value="">— Sin especificar —</option>
-                                <optgroup label="Jardin">
-                                    {GRADE_LEVELS.filter(g => g.cycle === "Jardin").map(g => (
-                                        <option key={g.value} value={g.value}>{g.label}</option>
-                                    ))}
-                                </optgroup>
-                                <optgroup label="1er Ciclo">
-                                    {GRADE_LEVELS.filter(g => g.cycle === "1er Ciclo").map(g => (
-                                        <option key={g.value} value={g.value}>{g.label}</option>
-                                    ))}
-                                </optgroup>
-                                <optgroup label="2do Ciclo">
-                                    {GRADE_LEVELS.filter(g => g.cycle === "2do Ciclo").map(g => (
-                                        <option key={g.value} value={g.value}>{g.label}</option>
-                                    ))}
-                                </optgroup>
+                                {GRADE_LEVELS.map(g => (
+                                    <option
+                                        key={g.value}
+                                        value={g.value}
+                                        style={{ fontWeight: g.isCycle ? "bold" : "normal", paddingLeft: g.isCycle ? 0 : 12 }}
+                                    >
+                                        {g.isCycle ? g.label : `  ${g.label}`}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                         <div className="space-y-1">
