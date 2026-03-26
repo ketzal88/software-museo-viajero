@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import {
     format,
     addMonths,
@@ -14,16 +14,140 @@ import {
     eachDayOfInterval,
 } from "date-fns";
 import { es } from "date-fns/locale";
-import { ChevronLeft, ChevronRight, Theater, MapPin, Search, Plus, Download, Bell } from "lucide-react";
+import { ChevronLeft, ChevronRight, Theater, MapPin, Search, Plus, Download, Bell, Pencil, Trash2, LockOpen, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EventDay, EventType, Venue } from "@/types";
-import { CalendarSlotSummary } from "@/lib/actions";
+import { CalendarSlotSummary, deleteEventDay, updateEventDay } from "@/lib/actions";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface CalendarViewProps {
     eventDays: EventDay[];
     venues: Venue[];
     slotSummaries: Record<string, CalendarSlotSummary[]>;
+}
+
+function CalendarEventCard({
+    event,
+    dateStr,
+    slots,
+    isTheater,
+    venueName,
+}: {
+    event: EventDay;
+    dateStr: string;
+    slots: CalendarSlotSummary[];
+    isTheater: boolean;
+    venueName: string;
+}) {
+    const router = useRouter();
+    const [isPending, startTransition] = useTransition();
+    const [deleteConfirm, setDeleteConfirm] = useState(false);
+    const workTitle = slots[0]?.workTitle ?? venueName;
+
+    const handleToggleStatus = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const newStatus = event.status === "OPEN" ? "CLOSED" : "OPEN";
+        startTransition(async () => {
+            const result = await updateEventDay(event.id, { status: newStatus });
+            if (result.success) {
+                toast.success(newStatus === "CLOSED" ? "Día cerrado" : "Día abierto");
+                router.refresh();
+            } else {
+                toast.error("Error al actualizar");
+            }
+        });
+    };
+
+    const handleDelete = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!deleteConfirm) {
+            setDeleteConfirm(true);
+            setTimeout(() => setDeleteConfirm(false), 3000);
+            return;
+        }
+        startTransition(async () => {
+            const result = await deleteEventDay(event.id);
+            if (result.success) {
+                toast.success("Evento eliminado");
+                router.refresh();
+            } else {
+                toast.error(result.error || "Error al eliminar");
+            }
+        });
+    };
+
+    return (
+        <div className={cn(
+            "relative group/card text-[11px] font-display font-bold border-l-2 transition-all",
+            isTheater ? "bg-blue-50 text-blue-700 border-blue-500" : "bg-indigo-50 text-indigo-700 border-indigo-500",
+            event.status === "CLOSED" && "opacity-50"
+        )}>
+            <Link href={`/calendario/${dateStr}`} className="block px-2 py-1.5">
+                {/* Work title + icon */}
+                <div className="flex items-center gap-1 mb-1">
+                    {isTheater ? <Theater className="h-3 w-3 shrink-0" /> : <MapPin className="h-3 w-3 shrink-0" />}
+                    <span className="truncate font-bold">{workTitle}</span>
+                </div>
+
+                {/* Slots summary */}
+                {slots.length > 0 && (
+                    <div className="flex flex-col gap-0.5 mt-1">
+                        {slots.map(slot => {
+                            const pct = slot.totalCapacity > 0
+                                ? Math.round((slot.availableCapacity / slot.totalCapacity) * 100)
+                                : 100;
+                            const barColor = pct === 0 ? "bg-red-400" : pct < 20 ? "bg-orange-400" : "bg-green-400";
+
+                            return (
+                                <div key={slot.slotId} className="flex items-center gap-1">
+                                    <span className="text-[9px] font-sans opacity-70 shrink-0 tabular-nums">{slot.startTime}</span>
+                                    <div className="flex-1 h-1.5 bg-black/10 overflow-hidden">
+                                        <div className={`h-full ${barColor}`} style={{ width: `${100 - pct}%` }} />
+                                    </div>
+                                    <span className="text-[9px] font-sans opacity-70 shrink-0 tabular-nums">{slot.availableCapacity}</span>
+                                    {slot.cycles.length > 0 && (
+                                        <span className="text-[8px] font-display font-bold opacity-60 shrink-0">
+                                            {slot.cycles.join("·")}
+                                        </span>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </Link>
+
+            {/* Action buttons — appear on hover */}
+            <div className="absolute top-1 right-1 hidden group-hover/card:flex items-center gap-0.5 bg-white/90 border border-gray-200 shadow-sm px-1 py-0.5">
+                <button
+                    onClick={handleToggleStatus}
+                    disabled={isPending}
+                    className="p-0.5 text-gray-500 hover:text-primary transition-colors disabled:opacity-40"
+                    title={event.status === "OPEN" ? "Cerrar día" : "Abrir día"}
+                >
+                    {event.status === "OPEN"
+                        ? <Lock className="h-3 w-3" />
+                        : <LockOpen className="h-3 w-3" />
+                    }
+                </button>
+                <button
+                    onClick={handleDelete}
+                    disabled={isPending}
+                    className={cn(
+                        "p-0.5 transition-colors disabled:opacity-40",
+                        deleteConfirm ? "text-accent" : "text-gray-400 hover:text-gray-600"
+                    )}
+                    title={deleteConfirm ? "Confirmar eliminación" : "Eliminar evento"}
+                >
+                    <Trash2 className="h-3 w-3" />
+                </button>
+            </div>
+        </div>
+    );
 }
 
 export function CalendarView({ eventDays, venues, slotSummaries }: CalendarViewProps) {
@@ -149,62 +273,16 @@ export function CalendarView({ eventDays, venues, slotSummaries }: CalendarViewP
                             </span>
 
                             <div className="flex flex-col gap-1.5">
-                                {dayEvents.map(event => {
-                                    const slots = slotSummaries[event.id] ?? [];
-                                    const workTitle = slots[0]?.workTitle ?? (event.type === EventType.THEATER ? getVenueName(event.locationId) : "Viajera");
-                                    const isTheater = event.type === EventType.THEATER;
-
-                                    return (
-                                        <Link
-                                            key={event.id}
-                                            href={`/calendario/${dateStr}`}
-                                            className={cn(
-                                                "block px-2 py-1.5 text-[11px] font-display font-bold border-l-2 transition-all hover:brightness-95",
-                                                isTheater
-                                                    ? "bg-blue-50 text-blue-700 border-blue-500"
-                                                    : "bg-indigo-50 text-indigo-700 border-indigo-500"
-                                            )}
-                                        >
-                                            {/* Work title + icon */}
-                                            <div className="flex items-center gap-1 mb-1">
-                                                {isTheater ? <Theater className="h-3 w-3 shrink-0" /> : <MapPin className="h-3 w-3 shrink-0" />}
-                                                <span className="truncate font-bold">{workTitle}</span>
-                                            </div>
-
-                                            {/* Slots summary */}
-                                            {slots.length > 0 && (
-                                                <div className="flex flex-col gap-0.5 mt-1">
-                                                    {slots.map(slot => {
-                                                        const pct = slot.totalCapacity > 0
-                                                            ? Math.round((slot.availableCapacity / slot.totalCapacity) * 100)
-                                                            : 100;
-                                                        const barColor = pct === 0 ? "bg-red-400" : pct < 20 ? "bg-orange-400" : "bg-green-400";
-
-                                                        return (
-                                                            <div key={slot.slotId} className="flex items-center gap-1">
-                                                                <span className="text-[9px] font-sans opacity-70 shrink-0 tabular-nums">{slot.startTime}</span>
-                                                                {/* Availability bar */}
-                                                                <div className="flex-1 h-1.5 bg-black/10 overflow-hidden">
-                                                                    <div
-                                                                        className={`h-full ${barColor}`}
-                                                                        style={{ width: `${100 - pct}%` }}
-                                                                    />
-                                                                </div>
-                                                                <span className="text-[9px] font-sans opacity-70 shrink-0 tabular-nums">{slot.availableCapacity}</span>
-                                                                {/* Cycle tags */}
-                                                                {slot.cycles.length > 0 && (
-                                                                    <span className="text-[8px] font-display font-bold opacity-60 shrink-0">
-                                                                        {slot.cycles.join("·")}
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            )}
-                                        </Link>
-                                    );
-                                })}
+                                {dayEvents.map(event => (
+                                    <CalendarEventCard
+                                        key={event.id}
+                                        event={event}
+                                        dateStr={dateStr}
+                                        slots={slotSummaries[event.id] ?? []}
+                                        isTheater={event.type === EventType.THEATER}
+                                        venueName={event.type === EventType.THEATER ? getVenueName(event.locationId) : "Viajera"}
+                                    />
+                                ))}
                             </div>
 
                             {/* Hover Add Button (Simplified) */}

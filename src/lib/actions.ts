@@ -464,6 +464,20 @@ export async function addEventDay(
     }
 }
 
+export async function updateEventDay(id: string, data: { status?: "OPEN" | "CLOSED"; locationId?: string }) {
+    try {
+        await adminDb.collection("event_days").doc(id).update({
+            ...data,
+            updatedAt: new Date().toISOString(),
+        });
+        revalidatePath("/calendario");
+        return { success: true };
+    } catch (error: unknown) {
+        console.error("Error updating event day:", error);
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+    }
+}
+
 export async function deleteEventDay(id: string) {
     try {
         const batch = adminDb.batch();
