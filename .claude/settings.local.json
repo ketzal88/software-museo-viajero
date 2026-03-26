@@ -53,7 +53,11 @@
       "WebFetch(domain:www.redtrack.io)",
       "WebFetch(domain:help.redtrack.io)",
       "WebFetch(domain:www.notion.so)",
-      "Bash(npm run lint:*)"
+      "Bash(npm run lint:*)",
+      "Bash(python:*)",
+      "Bash(PYTHONIOENCODING=utf-8 python:*)",
+      "Bash(pip install:*)",
+      "Bash(npx env-cmd:*)"
     ],
     "additionalDirectories": [
       "c:\\Users\\gabri\\Documents\\Worker\\Webs\\ai-analyzer\\src\\app\\api\\export"

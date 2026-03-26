@@ -277,6 +277,73 @@ export async function deleteSeason(id: string) {
     }
 }
 
+// CALENDAR SUMMARY
+export interface CalendarSlotSummary {
+    slotId: string;
+    startTime: string;
+    endTime: string;
+    availableCapacity: number;
+    totalCapacity: number;
+    cycles: string[]; // ["J", "1er", "2do"] — deduplicated cycle tags from bookings
+    workTitle: string;
+}
+
+export async function getCalendarDaySummaries(eventDayIds: string[]): Promise<Record<string, CalendarSlotSummary[]>> {
+    if (!eventDayIds.length) return {};
+    try {
+        // Batch fetch all slots for all days
+        const slotsByDay = await Promise.all(
+            eventDayIds.map(id => getSlotsByEventDay(id))
+        );
+
+        const result: Record<string, CalendarSlotSummary[]> = {};
+
+        await Promise.all(
+            eventDayIds.map(async (dayId, i) => {
+                const slots = slotsByDay[i].sort((a, b) => a.startTime.localeCompare(b.startTime));
+                if (!slots.length) return;
+
+                result[dayId] = await Promise.all(slots.map(async (slot) => {
+                    const [work, bookings] = await Promise.all([
+                        getWorkById(slot.workId),
+                        getTheaterBookingsBySlot(slot.id),
+                    ]);
+
+                    // Collect unique grade cycles booked in this slot
+                    const CYCLE_LABEL: Record<string, string> = {
+                        "Jardin": "J",
+                        "1er Ciclo": "1er",
+                        "2do Ciclo": "2do",
+                    };
+                    const cycleSet = new Set<string>();
+                    for (const b of bookings) {
+                        if (b.gradeCycle && CYCLE_LABEL[b.gradeCycle]) {
+                            cycleSet.add(CYCLE_LABEL[b.gradeCycle]);
+                        }
+                    }
+                    // Preserve order J → 1er → 2do
+                    const orderedCycles = ["J", "1er", "2do"].filter(c => cycleSet.has(c));
+
+                    return {
+                        slotId: slot.id,
+                        startTime: slot.startTime,
+                        endTime: slot.endTime,
+                        availableCapacity: slot.availableCapacity,
+                        totalCapacity: slot.totalCapacity,
+                        cycles: orderedCycles,
+                        workTitle: work?.title ?? "",
+                    };
+                }));
+            })
+        );
+
+        return result;
+    } catch (error) {
+        console.error("Error fetching calendar summaries:", error);
+        return {};
+    }
+}
+
 // EVENTS (EventDay + EventSlot)
 export async function getEventDays(): Promise<EventDay[]> {
     try {
@@ -555,17 +622,95 @@ export async function getInboxItems() {
     }
 }
 
+export async function updateTheaterBooking(id: string, data: {
+    qtyReservedStudents?: number;
+    qtyReservedAdults?: number;
+    contactName?: string;
+    contactPhone?: string;
+    gradeLevel?: string;
+    gradeCycle?: string;
+    notes?: string;
+    status?: BookingStatus;
+}) {
+    try {
+        const bookingRef = adminDb.collection("theater_bookings").doc(id);
+        const doc = await bookingRef.get();
+        if (!doc.exists) return { success: false, error: "Reserva no encontrada" };
+
+        const current = doc.data() as TheaterBooking;
+        const updateData: Record<string, unknown> = { ...data, updatedAt: new Date().toISOString() };
+
+        // Recalculate totalExpected if quantities changed
+        if (data.qtyReservedStudents !== undefined || data.qtyReservedAdults !== undefined) {
+            const students = data.qtyReservedStudents ?? current.qtyReservedStudents;
+            const adults = data.qtyReservedAdults ?? current.qtyReservedAdults;
+            updateData.totalExpected = (students * current.unitPriceStudent) + (adults * current.unitPriceAdult);
+
+            // Update slot capacity if student count changed
+            if (data.qtyReservedStudents !== undefined && data.qtyReservedStudents !== current.qtyReservedStudents) {
+                const diff = current.qtyReservedStudents - data.qtyReservedStudents;
+                const slotRef = adminDb.collection("event_slots").doc(current.eventSlotId);
+                await adminDb.runTransaction(async (transaction) => {
+                    const slotDoc = await transaction.get(slotRef);
+                    if (slotDoc.exists) {
+                        const slot = slotDoc.data()!;
+                        transaction.update(slotRef, { availableCapacity: slot.availableCapacity + diff });
+                    }
+                    transaction.update(bookingRef, updateData);
+                });
+                revalidatePath("/calendario");
+                revalidatePath("/reservas");
+                revalidatePath("/inbox");
+                return { success: true };
+            }
+        }
+
+        await bookingRef.update(updateData);
+        revalidatePath("/calendario");
+        revalidatePath("/reservas");
+        revalidatePath("/inbox");
+        return { success: true };
+    } catch (error: unknown) {
+        console.error("Error updating theater booking:", error);
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+    }
+}
+
 export async function updateBookingStatus(id: string, type: 'theater' | 'travel', status: BookingStatus) {
     try {
         const collection = type === 'theater' ? "theater_bookings" : "travel_bookings";
-        const updateData: Record<string, unknown> = { status };
+        const bookingRef = adminDb.collection(collection).doc(id);
+        const bookingDoc = await bookingRef.get();
+        if (!bookingDoc.exists) return { success: false, error: "Reserva no encontrada" };
 
-        // If confirming, remove expiration
+        const booking = bookingDoc.data() as TheaterBooking;
+        const updateData: Record<string, unknown> = { status, updatedAt: new Date().toISOString() };
+
         if (status === BookingStatus.CONFIRMED) {
             updateData.expiresAt = null;
         }
 
-        await adminDb.collection(collection).doc(id).update(updateData);
+        const wasActive = booking.status !== BookingStatus.CANCELLED && booking.status !== BookingStatus.COMPLETED;
+        const becomesActive = status !== BookingStatus.CANCELLED && status !== BookingStatus.COMPLETED;
+        const studentQty = booking.qtyReservedStudents || 0;
+
+        // Adjust slot capacity when activation state changes (theater only)
+        if (type === 'theater' && studentQty > 0 && wasActive !== becomesActive) {
+            const slotRef = adminDb.collection("event_slots").doc(booking.eventSlotId);
+            await adminDb.runTransaction(async (transaction) => {
+                const slotDoc = await transaction.get(slotRef);
+                if (slotDoc.exists) {
+                    const slot = slotDoc.data()!;
+                    const delta = becomesActive ? -studentQty : studentQty; // cancel → restore, restore → subtract
+                    transaction.update(slotRef, { availableCapacity: (slot.availableCapacity || 0) + delta });
+                }
+                transaction.update(bookingRef, updateData);
+            });
+        } else {
+            await bookingRef.update(updateData);
+        }
+
+        revalidatePath("/calendario");
         revalidatePath("/inbox");
         revalidatePath("/reservas");
         return { success: true };

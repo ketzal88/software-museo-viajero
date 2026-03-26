@@ -17,14 +17,16 @@ import { es } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Theater, MapPin, Search, Plus, Download, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EventDay, EventType, Venue } from "@/types";
+import { CalendarSlotSummary } from "@/lib/actions";
 import Link from "next/link";
 
 interface CalendarViewProps {
     eventDays: EventDay[];
-    venues: Venue[]; // Added venues prop
+    venues: Venue[];
+    slotSummaries: Record<string, CalendarSlotSummary[]>;
 }
 
-export function CalendarView({ eventDays, venues }: CalendarViewProps) {
+export function CalendarView({ eventDays, venues, slotSummaries }: CalendarViewProps) {
     const getVenueName = (locationId: string) => {
         const venue = venues.find(v => v.id === locationId);
         return venue ? venue.name : "Teatro";
@@ -147,28 +149,62 @@ export function CalendarView({ eventDays, venues }: CalendarViewProps) {
                             </span>
 
                             <div className="flex flex-col gap-1.5">
-                                {dayEvents.map(event => (
-                                    <Link
-                                        key={event.id}
-                                        href={`/calendario/${dateStr}`} // Link to day detail
-                                        className={cn(
-                                            "block px-2 py-1 text-[11px] font-display font-bold border-l-2 truncate transition-all",
-                                            event.type === EventType.THEATER
-                                                ? "bg-blue-50 text-blue-700 border-blue-500"
-                                                : "bg-indigo-50 text-indigo-700 border-indigo-500"
-                                        )}
-                                        title={`${event.type === 'theater' ? 'Teatro' : 'Viaje'}`}
-                                    >
-                                        <div className="flex items-center gap-1">
-                                            {event.type === EventType.THEATER ? (
-                                                <Theater className="h-3 w-3 shrink-0" />
-                                            ) : (
-                                                <MapPin className="h-3 w-3 shrink-0" />
+                                {dayEvents.map(event => {
+                                    const slots = slotSummaries[event.id] ?? [];
+                                    const workTitle = slots[0]?.workTitle ?? (event.type === EventType.THEATER ? getVenueName(event.locationId) : "Viajera");
+                                    const isTheater = event.type === EventType.THEATER;
+
+                                    return (
+                                        <Link
+                                            key={event.id}
+                                            href={`/calendario/${dateStr}`}
+                                            className={cn(
+                                                "block px-2 py-1.5 text-[11px] font-display font-bold border-l-2 transition-all hover:brightness-95",
+                                                isTheater
+                                                    ? "bg-blue-50 text-blue-700 border-blue-500"
+                                                    : "bg-indigo-50 text-indigo-700 border-indigo-500"
                                             )}
-                                            <span className="truncate">{event.type === EventType.THEATER ? getVenueName(event.locationId) : "Viajera"}</span>
-                                        </div>
-                                    </Link>
-                                ))}
+                                        >
+                                            {/* Work title + icon */}
+                                            <div className="flex items-center gap-1 mb-1">
+                                                {isTheater ? <Theater className="h-3 w-3 shrink-0" /> : <MapPin className="h-3 w-3 shrink-0" />}
+                                                <span className="truncate font-bold">{workTitle}</span>
+                                            </div>
+
+                                            {/* Slots summary */}
+                                            {slots.length > 0 && (
+                                                <div className="flex flex-col gap-0.5 mt-1">
+                                                    {slots.map(slot => {
+                                                        const pct = slot.totalCapacity > 0
+                                                            ? Math.round((slot.availableCapacity / slot.totalCapacity) * 100)
+                                                            : 100;
+                                                        const barColor = pct === 0 ? "bg-red-400" : pct < 20 ? "bg-orange-400" : "bg-green-400";
+
+                                                        return (
+                                                            <div key={slot.slotId} className="flex items-center gap-1">
+                                                                <span className="text-[9px] font-sans opacity-70 shrink-0 tabular-nums">{slot.startTime}</span>
+                                                                {/* Availability bar */}
+                                                                <div className="flex-1 h-1.5 bg-black/10 overflow-hidden">
+                                                                    <div
+                                                                        className={`h-full ${barColor}`}
+                                                                        style={{ width: `${100 - pct}%` }}
+                                                                    />
+                                                                </div>
+                                                                <span className="text-[9px] font-sans opacity-70 shrink-0 tabular-nums">{slot.availableCapacity}</span>
+                                                                {/* Cycle tags */}
+                                                                {slot.cycles.length > 0 && (
+                                                                    <span className="text-[8px] font-display font-bold opacity-60 shrink-0">
+                                                                        {slot.cycles.join("·")}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+                                        </Link>
+                                    );
+                                })}
                             </div>
 
                             {/* Hover Add Button (Simplified) */}

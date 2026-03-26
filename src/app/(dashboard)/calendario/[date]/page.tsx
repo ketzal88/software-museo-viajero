@@ -2,6 +2,9 @@ import { getEventDaysByDate, getSlotsByEventDay, getTheaterBookingsBySlot, getTr
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { EventType } from "@/types";
+import { SlotBookingsTable } from "@/features/bookings/components/SlotBookingsTable";
+import { format, parseISO } from "date-fns";
+import { es } from "date-fns/locale";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +22,7 @@ export default async function CalendarioDiaPage({ params }: CalendarioDiaPagePro
             const work = slots.length > 0 ? await getWorkById(slots[0].workId) : null;
             const venue = day.type === EventType.THEATER && day.locationId ? await getVenueById(day.locationId) : null;
 
-            const slotsWithBookings = await Promise.all(
+            const slotsWithBookings = (await Promise.all(
                 slots.map(async (slot) => {
                     const [theaterBookings, travelBookings] = await Promise.all([
                         getTheaterBookingsBySlot(slot.id),
@@ -27,7 +30,7 @@ export default async function CalendarioDiaPage({ params }: CalendarioDiaPagePro
                     ]);
                     return { ...slot, theaterBookings, travelBookings };
                 })
-            );
+            )).sort((a, b) => a.startTime.localeCompare(b.startTime));
 
             return { ...day, slots: slotsWithBookings, work, venue };
         })
@@ -42,8 +45,8 @@ export default async function CalendarioDiaPage({ params }: CalendarioDiaPagePro
                 >
                     <ChevronLeft className="h-4 w-4" /> Volver al Calendario
                 </Link>
-                <h1 className="text-[54px] font-display font-bold tracking-[-2px] text-primary leading-tight">
-                    {date}
+                <h1 className="text-[54px] font-display font-bold tracking-[-2px] text-primary leading-tight capitalize">
+                    {format(parseISO(date), "d 'de' MMMM", { locale: es })}
                 </h1>
                 <p className="text-gray-600 font-sans text-xl">
                     {eventDays.length === 0
@@ -108,30 +111,10 @@ export default async function CalendarioDiaPage({ params }: CalendarioDiaPagePro
                                                 </span>
                                             </div>
 
-                                            {(slot.theaterBookings.length > 0 || slot.travelBookings.length > 0) && (
-                                                <div className="space-y-2">
-                                                    {slot.theaterBookings.map((b) => (
-                                                        <div key={b.id} className="flex items-center justify-between text-sm py-1 border-t border-gray-100">
-                                                            <span className="font-sans text-gray-700">
-                                                                {b.qtyReservedStudents} alumnos · {b.status}
-                                                            </span>
-                                                            <span className="font-display font-bold text-primary">
-                                                                ${b.totalExpected.toLocaleString()}
-                                                            </span>
-                                                        </div>
-                                                    ))}
-                                                    {slot.travelBookings.map((b) => (
-                                                        <div key={b.id} className="flex items-center justify-between text-sm py-1 border-t border-gray-100">
-                                                            <span className="font-sans text-gray-700">
-                                                                {b.qtyReservedStudents} alumnos · {b.modality} · {b.status}
-                                                            </span>
-                                                            <span className="font-display font-bold text-primary">
-                                                                ${b.totalPrice.toLocaleString()}
-                                                            </span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
+                                            <SlotBookingsTable
+                                                theaterBookings={slot.theaterBookings}
+                                                travelBookings={slot.travelBookings}
+                                            />
 
                                             {event.status === "OPEN" && (
                                                 <Link

@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { School, EventSlot, Work, TheaterBooking, BillingPolicy, AttendanceStatus } from "@/types";
+import { School, EventSlot, Work, TheaterBooking, BillingPolicy, AttendanceStatus, GRADE_LEVELS } from "@/types";
 import { addTheaterBooking, getEventDayById, resolvePricing } from "@/lib/actions";
 import { useRouter } from "next/navigation";
-import { Users, Info, Ticket, Check, ShieldCheck, Clock, DollarSign, AlertCircle } from "lucide-react";
+import { Users, Info, Ticket, Check, ShieldCheck, Clock, DollarSign, AlertCircle, UserCircle, Phone, GraduationCap } from "lucide-react";
 import { SchoolAutocomplete } from "@/features/schools/components/SchoolAutocomplete";
 import { cn } from "@/lib/utils";
 import { theaterBookingSchema } from "@/lib/validations";
@@ -21,6 +21,9 @@ interface TheaterBookingFormValues {
     unitPriceAdult: number;
     totalExpected: number;
     pricingRuleId: string;
+    contactName: string;
+    contactPhone: string;
+    gradeLevel: string;
     notes?: string;
     isHold: boolean;
 }
@@ -42,7 +45,8 @@ export function TheaterBookingForm({ slot, work }: TheaterBookingFormProps) {
         watch,
         formState: { errors },
     } = useForm<TheaterBookingFormValues>({
-        resolver: zodResolver(theaterBookingSchema),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        resolver: zodResolver(theaterBookingSchema) as any,
         defaultValues: {
             schoolId: "",
             qtyReservedStudents: 0,
@@ -52,6 +56,9 @@ export function TheaterBookingForm({ slot, work }: TheaterBookingFormProps) {
             unitPriceAdult: 0,
             totalExpected: 0,
             pricingRuleId: "",
+            contactName: "",
+            contactPhone: "",
+            gradeLevel: "",
             notes: "",
             isHold: true,
         },
@@ -104,6 +111,10 @@ export function TheaterBookingForm({ slot, work }: TheaterBookingFormProps) {
                 totalExpected: data.totalExpected,
                 attendanceStatus: AttendanceStatus.PENDING,
                 pricingRuleId: data.pricingRuleId,
+                contactName: data.contactName || undefined,
+                contactPhone: data.contactPhone || undefined,
+                gradeLevel: data.gradeLevel || undefined,
+                gradeCycle: GRADE_LEVELS.find(g => g.value === data.gradeLevel)?.cycle || undefined,
                 notes: data.notes || "",
             }, data.isHold);
 
@@ -174,6 +185,61 @@ export function TheaterBookingForm({ slot, work }: TheaterBookingFormProps) {
                             </div>
                         </div>
                     )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <label className="text-sm font-display font-medium text-primary">Contacto / Maestra</label>
+                        <div className="relative">
+                            <UserCircle className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                            <input
+                                type="text"
+                                {...register("contactName")}
+                                placeholder="Nombre de la maestra/responsable"
+                                className="w-full border border-gray-300 px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
+                            />
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-display font-medium text-primary">Telefono del Contacto</label>
+                        <div className="relative">
+                            <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                            <input
+                                type="text"
+                                {...register("contactPhone")}
+                                placeholder="Tel/Cel"
+                                className="w-full border border-gray-300 px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="space-y-2">
+                    <label className="text-sm font-display font-medium text-primary">Nivel / Grado</label>
+                    <div className="relative">
+                        <GraduationCap className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <select
+                            {...register("gradeLevel")}
+                            className="w-full border border-gray-300 px-9 py-3 text-sm font-sans focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors appearance-none"
+                        >
+                            <option value="">— Sin especificar —</option>
+                            <optgroup label="Jardin">
+                                {GRADE_LEVELS.filter(g => g.cycle === "Jardin").map(g => (
+                                    <option key={g.value} value={g.value}>{g.label}</option>
+                                ))}
+                            </optgroup>
+                            <optgroup label="1er Ciclo">
+                                {GRADE_LEVELS.filter(g => g.cycle === "1er Ciclo").map(g => (
+                                    <option key={g.value} value={g.value}>{g.label}</option>
+                                ))}
+                            </optgroup>
+                            <optgroup label="2do Ciclo">
+                                {GRADE_LEVELS.filter(g => g.cycle === "2do Ciclo").map(g => (
+                                    <option key={g.value} value={g.value}>{g.label}</option>
+                                ))}
+                            </optgroup>
+                        </select>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">

@@ -50,6 +50,9 @@ export const theaterBookingSchema = z.object({
     unitPriceAdult: z.number().min(0),
     totalExpected: z.number().min(0),
     pricingRuleId: z.string().min(1, "Regla de precio requerida"),
+    contactName: z.string().default(""),
+    contactPhone: z.string().default(""),
+    gradeLevel: z.string().default(""),
     notes: z.string().optional(),
     isHold: z.boolean(),
 });
