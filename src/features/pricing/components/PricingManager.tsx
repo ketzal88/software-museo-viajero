@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { PricingRule, PricingType, ShiftType } from "@/types";
 import { addPricingRule, updatePricingRule, deletePricingRule } from "@/lib/actions";
-import { Plus, Trash2, Calendar, DollarSign, Tag, Info, Clock, Save, Copy, ChevronRight } from "lucide-react";
+import { Plus, Trash2, Calendar, DollarSign, Tag, Info, Clock, Pencil, Copy, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -206,8 +206,9 @@ function PricingRuleCard({ rule, onEdit, onDelete, onDuplicate }: { rule: Pricin
                     <button
                         onClick={onEdit}
                         className="p-2 text-gray-400 hover:text-primary hover:bg-gray-50 transition-all"
+                        title="Editar regla"
                     >
-                        <Save className="h-4 w-4" />
+                        <Pencil className="h-4 w-4" />
                     </button>
                     <button
                         onClick={onDelete}
