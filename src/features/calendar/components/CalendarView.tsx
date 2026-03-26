@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useSearchParams, useRouter as useNextRouter } from "next/navigation";
 import {
     format,
     addMonths,
@@ -155,12 +156,29 @@ export function CalendarView({ eventDays, venues, slotSummaries }: CalendarViewP
         const venue = venues.find(v => v.id === locationId);
         return venue ? venue.name : "Teatro";
     };
-    const [currentDate, setCurrentDate] = useState(new Date());
+    const searchParams = useSearchParams();
+    const calRouter = useNextRouter();
+
+    const initDate = () => {
+        const m = searchParams.get("month"); // "YYYY-MM"
+        if (m && /^\d{4}-\d{2}$/.test(m)) {
+            const [y, mo] = m.split("-").map(Number);
+            return new Date(y, mo - 1, 1);
+        }
+        return new Date();
+    };
+    const [currentDate, setCurrentDate] = useState(initDate);
+
+    const setMonth = (d: Date) => {
+        setCurrentDate(d);
+        const param = format(d, "yyyy-MM");
+        calRouter.replace(`/calendario?month=${param}`, { scroll: false });
+    };
 
     // Navigation
-    const nextPeriod = () => setCurrentDate(addMonths(currentDate, 1));
-    const prevPeriod = () => setCurrentDate(subMonths(currentDate, 1));
-    const goToToday = () => setCurrentDate(new Date());
+    const nextPeriod = () => setMonth(addMonths(currentDate, 1));
+    const prevPeriod = () => setMonth(subMonths(currentDate, 1));
+    const goToToday = () => setMonth(new Date());
 
     // Stats calculation (simple mock based on current month's data)
     const monthEvents = eventDays.filter(e => isSameMonth(new Date(e.date), currentDate));

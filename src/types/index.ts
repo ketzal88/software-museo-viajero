@@ -119,6 +119,7 @@ export interface TheaterBooking {
     id: string;
     eventSlotId: string;
     schoolId: string;
+    schoolName?: string; // Denormalized for display — avoids N+1 lookups
     // Reserved counts
     qtyReservedStudents: number;
     qtyReservedAdults: number;
@@ -151,6 +152,7 @@ export interface TravelBooking {
     id: string;
     eventSlotId: string;
     schoolId: string;
+    schoolName?: string; // Denormalized for display — avoids N+1 lookups
     modality: TravelMode;
     // Reserved counts
     qtyReservedStudents: number;
@@ -306,7 +308,9 @@ export interface Payout {
     eventDayId: string;
     date: string;
     workId: string;
+    workTitle?: string; // Denormalized for display
     personId: string;
+    personName?: string; // Denormalized for display
     roleType: RoleType;
     shiftType: ShiftType;
     units: number;

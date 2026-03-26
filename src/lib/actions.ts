@@ -291,57 +291,73 @@ export interface CalendarSlotSummary {
 export async function getCalendarDaySummaries(eventDayIds: string[]): Promise<Record<string, CalendarSlotSummary[]>> {
     if (!eventDayIds.length) return {};
     try {
-        // Batch fetch all slots for all days
-        const slotsByDay = await Promise.all(
-            eventDayIds.map(id => getSlotsByEventDay(id))
-        );
-
+        const BATCH_SIZE = 25; // Firestore "in" limit is 30
         const result: Record<string, CalendarSlotSummary[]> = {};
 
-        await Promise.all(
-            eventDayIds.map(async (dayId, i) => {
-                const slots = slotsByDay[i].sort((a, b) => a.startTime.localeCompare(b.startTime));
-                if (!slots.length) return;
+        // 1. Fetch ALL slots in batches using "in" query — avoids N per-day queries
+        const allSlots: EventSlot[] = [];
+        for (let i = 0; i < eventDayIds.length; i += BATCH_SIZE) {
+            const batch = eventDayIds.slice(i, i + BATCH_SIZE);
+            const snap = await adminDb.collection("event_slots")
+                .where("eventDayId", "in", batch)
+                .get();
+            snap.docs.forEach(doc => {
+                allSlots.push(serializeFirestore<EventSlot>({ id: doc.id, ...doc.data() }));
+            });
+        }
 
-                result[dayId] = await Promise.all(slots.map(async (slot) => {
-                    const [work, bookings] = await Promise.all([
-                        getWorkById(slot.workId),
-                        getTheaterBookingsBySlot(slot.id),
-                    ]);
+        // 2. Fetch unique works in one pass (deduplicated)
+        const uniqueWorkIds = [...new Set(allSlots.map(s => s.workId).filter(Boolean))];
+        const workDocs = await Promise.all(uniqueWorkIds.map(id => adminDb.collection("works").doc(id).get()));
+        const workMap: Record<string, string> = {};
+        workDocs.forEach(doc => { if (doc.exists) workMap[doc.id] = (doc.data() as Work).title; });
 
-                    // Collect unique grade cycles booked in this slot
-                    const CYCLE_LABEL: Record<string, string> = {
-                        "Jardin": "J",
-                        "1er Ciclo": "1er",
-                        "2do Ciclo": "2do",
-                    };
-                    // Also handle cycle-level gradeLevel values
-                    const GRADE_TO_CYCLE: Record<string, string> = {
-                        "jardin": "J", "sala_3": "J", "sala_4": "J", "sala_5": "J",
-                        "primer_ciclo": "1er", "1ro": "1er", "2do": "1er", "3ro": "1er",
-                        "segundo_ciclo": "2do", "4to": "2do", "5to": "2do", "6to": "2do", "7mo": "2do",
-                    };
-                    const cycleSet = new Set<string>();
-                    for (const b of bookings) {
-                        const label = (b.gradeCycle && CYCLE_LABEL[b.gradeCycle])
-                            || (b.gradeLevel && GRADE_TO_CYCLE[b.gradeLevel]);
-                        if (label) cycleSet.add(label);
-                    }
-                    // Preserve order J → 1er → 2do
-                    const orderedCycles = ["J", "1er", "2do"].filter(c => cycleSet.has(c));
+        // 3. Fetch booking cycles for all slots in batches (no school expansion)
+        const slotIds = allSlots.map(s => s.id);
+        const GRADE_TO_CYCLE: Record<string, string> = {
+            "jardin": "J", "sala_3": "J", "sala_4": "J", "sala_5": "J",
+            "primer_ciclo": "1er", "1ro": "1er", "2do": "1er", "3ro": "1er",
+            "segundo_ciclo": "2do", "4to": "2do", "5to": "2do", "6to": "2do", "7mo": "2do",
+        };
+        const CYCLE_LABEL: Record<string, string> = { "Jardin": "J", "1er Ciclo": "1er", "2do Ciclo": "2do" };
+        const cyclesBySlot: Record<string, Set<string>> = {};
 
-                    return {
-                        slotId: slot.id,
-                        startTime: slot.startTime,
-                        endTime: slot.endTime,
-                        availableCapacity: slot.availableCapacity,
-                        totalCapacity: slot.totalCapacity,
-                        cycles: orderedCycles,
-                        workTitle: work?.title ?? "",
-                    };
-                }));
-            })
-        );
+        for (let i = 0; i < slotIds.length; i += BATCH_SIZE) {
+            const batch = slotIds.slice(i, i + BATCH_SIZE);
+            // Note: cannot combine "in" + "not-in" in Firestore — filter cancelled in-memory
+            const snap = await adminDb.collection("theater_bookings")
+                .where("eventSlotId", "in", batch)
+                .get();
+            snap.docs.forEach(doc => {
+                const b = doc.data() as TheaterBooking;
+                if (b.status === BookingStatus.CANCELLED) return;
+                const label = (b.gradeCycle && CYCLE_LABEL[b.gradeCycle])
+                    || (b.gradeLevel && GRADE_TO_CYCLE[b.gradeLevel]);
+                if (label) {
+                    if (!cyclesBySlot[b.eventSlotId]) cyclesBySlot[b.eventSlotId] = new Set();
+                    cyclesBySlot[b.eventSlotId].add(label);
+                }
+            });
+        }
+
+        // 4. Build result grouped by eventDayId
+        for (const dayId of eventDayIds) {
+            const daySlots = allSlots
+                .filter(s => s.eventDayId === dayId)
+                .sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+            if (!daySlots.length) continue;
+
+            result[dayId] = daySlots.map(slot => ({
+                slotId: slot.id,
+                startTime: slot.startTime,
+                endTime: slot.endTime,
+                availableCapacity: slot.availableCapacity,
+                totalCapacity: slot.totalCapacity,
+                cycles: ["J", "1er", "2do"].filter(c => cyclesBySlot[slot.id]?.has(c)),
+                workTitle: workMap[slot.workId] ?? "",
+            }));
+        }
 
         return result;
     } catch (error) {
@@ -531,6 +547,10 @@ export async function getSlotOccupancy(eventSlotId: string): Promise<number> {
 
 export async function addTheaterBooking(booking: Omit<TheaterBooking, "id" | "createdAt" | "status" | "updatedAt">, isHold: boolean = true) {
     try {
+        // Fetch school name for denormalization (outside transaction — non-critical read)
+        const schoolDoc = await adminDb.collection("schools").doc(booking.schoolId).get();
+        const schoolName = schoolDoc.exists ? (schoolDoc.data() as School).name : undefined;
+
         const slotRef = adminDb.collection("event_slots").doc(booking.eventSlotId);
 
         const result = await adminDb.runTransaction(async (transaction) => {
@@ -562,6 +582,7 @@ export async function addTheaterBooking(booking: Omit<TheaterBooking, "id" | "cr
 
             const newBooking: Omit<TheaterBooking, "id"> = {
                 ...booking,
+                schoolName,
                 createdAt: now,
                 updatedAt: now,
                 status: isHold ? BookingStatus.HOLD : BookingStatus.PENDING,
@@ -589,9 +610,13 @@ export async function addTheaterBooking(booking: Omit<TheaterBooking, "id" | "cr
 
 export async function addTravelBooking(booking: Omit<TravelBooking, "id" | "createdAt" | "status" | "updatedAt">) {
     try {
+        const schoolDoc = await adminDb.collection("schools").doc(booking.schoolId).get();
+        const schoolName = schoolDoc.exists ? (schoolDoc.data() as School).name : undefined;
+
         const now = new Date().toISOString();
         const bookingRef = await adminDb.collection("travel_bookings").add({
             ...booking,
+            schoolName,
             createdAt: now,
             updatedAt: now,
             status: BookingStatus.PENDING,
@@ -619,18 +644,81 @@ export async function getInboxItems() {
                 .get()
         ]);
 
-        const theaterItems = await Promise.all(theaterSnap.docs.map(async (doc) => {
-            const data = serializeFirestore<TheaterBooking>({ id: doc.id, ...doc.data() });
-            const school = await getSchoolById(data.schoolId);
-            const slotDetails = await getSlotDetails(data.eventSlotId);
-            return { ...data, school, slotDetails, type: 'theater' as const };
+        const theaterBookings = theaterSnap.docs.map(doc =>
+            serializeFirestore<TheaterBooking>({ id: doc.id, ...doc.data() })
+        );
+        const travelBookings = travelSnap.docs.map(doc =>
+            serializeFirestore<TravelBooking>({ id: doc.id, ...doc.data() })
+        );
+
+        // Collect unique IDs for batch fetches
+        const allBookings = [...theaterBookings, ...travelBookings];
+        const missingSchoolIds = [...new Set(allBookings.filter(b => !b.schoolName).map(b => b.schoolId))];
+        const uniqueSlotIds = [...new Set(allBookings.map(b => b.eventSlotId))];
+
+        // Batch fetch schools (only missing), slots, then eventDays + works
+        const [schoolMap, slotsSnap] = await Promise.all([
+            batchFetchSchools(missingSchoolIds),
+            uniqueSlotIds.length > 0
+                ? adminDb.collection("event_slots")
+                    .where(admin.firestore.FieldPath.documentId(), "in", uniqueSlotIds.slice(0, 30))
+                    .get()
+                : Promise.resolve({ docs: [] as admin.firestore.QueryDocumentSnapshot[] })
+        ]);
+
+        const slotMap: Record<string, EventSlot & { id: string }> = {};
+        slotsSnap.docs.forEach(doc => {
+            slotMap[doc.id] = { id: doc.id, ...doc.data() } as EventSlot & { id: string };
+        });
+
+        const uniqueEventDayIds = [...new Set(Object.values(slotMap).map(s => s.eventDayId))];
+        const uniqueWorkIds = [...new Set(Object.values(slotMap).map(s => s.workId))];
+
+        const [eventDaysSnap, worksSnap] = await Promise.all([
+            uniqueEventDayIds.length > 0
+                ? adminDb.collection("event_days")
+                    .where(admin.firestore.FieldPath.documentId(), "in", uniqueEventDayIds.slice(0, 30))
+                    .get()
+                : Promise.resolve({ docs: [] as admin.firestore.QueryDocumentSnapshot[] }),
+            uniqueWorkIds.length > 0
+                ? adminDb.collection("works")
+                    .where(admin.firestore.FieldPath.documentId(), "in", uniqueWorkIds.slice(0, 30))
+                    .get()
+                : Promise.resolve({ docs: [] as admin.firestore.QueryDocumentSnapshot[] })
+        ]);
+
+        const eventDayMap: Record<string, EventDay> = {};
+        eventDaysSnap.docs.forEach(doc => {
+            eventDayMap[doc.id] = { id: doc.id, ...doc.data() } as EventDay;
+        });
+        const workMap: Record<string, Work> = {};
+        worksSnap.docs.forEach(doc => {
+            workMap[doc.id] = { id: doc.id, ...doc.data() } as Work;
+        });
+
+        const buildSlotDetails = (slotId: string) => {
+            const slotRaw = slotMap[slotId];
+            if (!slotRaw) return null;
+            const slot = serializeFirestore<EventSlot>(slotRaw);
+            return {
+                slot,
+                eventDay: eventDayMap[slotRaw.eventDayId] ?? null,
+                work: workMap[slotRaw.workId] ?? null,
+            };
+        };
+
+        const theaterItems = theaterBookings.map(data => ({
+            ...data,
+            school: schoolMap[data.schoolId] ?? null,
+            slotDetails: buildSlotDetails(data.eventSlotId),
+            type: 'theater' as const
         }));
 
-        const travelItems = await Promise.all(travelSnap.docs.map(async (doc) => {
-            const data = serializeFirestore<TravelBooking>({ id: doc.id, ...doc.data() });
-            const school = await getSchoolById(data.schoolId);
-            const slotDetails = await getSlotDetails(data.eventSlotId);
-            return { ...data, school, slotDetails, type: 'travel' as const };
+        const travelItems = travelBookings.map(data => ({
+            ...data,
+            school: schoolMap[data.schoolId] ?? null,
+            slotDetails: buildSlotDetails(data.eventSlotId),
+            type: 'travel' as const
         }));
 
         return [...theaterItems, ...travelItems].sort((a, b) =>
@@ -776,24 +864,43 @@ export async function deleteBooking(id: string, type: 'theater' | 'travel') {
 }
 
 // REPORTING HELPERS
+
+/** Batch-fetches schools by ID. Skips IDs already covered by denormalized schoolName. */
+async function batchFetchSchools(schoolIds: string[]): Promise<Record<string, School>> {
+    if (schoolIds.length === 0) return {};
+    const map: Record<string, School> = {};
+    // Firestore "in" supports max 30 items
+    for (let i = 0; i < schoolIds.length; i += 30) {
+        const chunk = schoolIds.slice(i, i + 30);
+        const snap = await adminDb.collection("schools")
+            .where(admin.firestore.FieldPath.documentId(), "in", chunk)
+            .get();
+        snap.docs.forEach(doc => {
+            map[doc.id] = serializeFirestore<School>({ id: doc.id, ...doc.data() });
+        });
+    }
+    return map;
+}
+
 export async function getTheaterBookingsBySlot(eventSlotId: string) {
     if (!eventSlotId) return [];
     try {
         const snapshot = await adminDb.collection("theater_bookings")
             .where("eventSlotId", "==", eventSlotId)
-            // .where("status", "in", [BookingStatus.CONFIRMED, BookingStatus.HOLD]) // Maybe we want pending too for the report? User said "list of schools". I'll include all non-cancelled.
             .get();
 
         const bookings = snapshot.docs
             .map(doc => serializeFirestore<TheaterBooking>({ id: doc.id, ...doc.data() }))
             .filter(b => b.status !== BookingStatus.CANCELLED);
 
-        const bookingsWithSchools = await Promise.all(bookings.map(async (booking) => {
-            const school = await getSchoolById(booking.schoolId);
-            return { ...booking, school };
-        }));
+        // Only fetch schools for old docs that lack the denormalized schoolName
+        const missingIds = [...new Set(bookings.filter(b => !b.schoolName).map(b => b.schoolId))];
+        const schoolMap = await batchFetchSchools(missingIds);
 
-        return bookingsWithSchools;
+        return bookings.map(booking => ({
+            ...booking,
+            school: schoolMap[booking.schoolId] ?? null
+        }));
     } catch (error) {
         console.error("Error fetching theater bookings:", error);
         return [];
@@ -811,12 +918,13 @@ export async function getTravelBookingsBySlot(eventSlotId: string) {
             .map(doc => serializeFirestore<TravelBooking>({ id: doc.id, ...doc.data() }))
             .filter(b => b.status !== BookingStatus.CANCELLED);
 
-        const bookingsWithSchools = await Promise.all(bookings.map(async (booking) => {
-            const school = await getSchoolById(booking.schoolId);
-            return { ...booking, school };
-        }));
+        const missingIds = [...new Set(bookings.filter(b => !b.schoolName).map(b => b.schoolId))];
+        const schoolMap = await batchFetchSchools(missingIds);
 
-        return bookingsWithSchools;
+        return bookings.map(booking => ({
+            ...booking,
+            school: schoolMap[booking.schoolId] ?? null
+        }));
     } catch (error) {
         console.error("Error fetching travel bookings:", error);
         return [];
@@ -1078,17 +1186,47 @@ export async function getPayouts(filters?: { personId?: string, status?: PayoutS
         if (filters?.endDate) query = query.where("date", "<=", filters.endDate);
 
         const snapshot = await query.orderBy("date", "desc").get();
+        const rawPayouts = snapshot.docs.map(doc =>
+            serializeFirestore<Payout>({ id: doc.id, ...doc.data() })
+        );
 
-        const payouts = await Promise.all(snapshot.docs.map(async (doc: admin.firestore.QueryDocumentSnapshot) => {
-            const data = serializeFirestore<Payout>({ id: doc.id, ...doc.data() });
-            const [person, work] = await Promise.all([
-                getPersonById(data.personId),
-                getWorkById(data.workId)
-            ]);
-            return { ...data, person, work };
+        // Only batch-fetch for old docs missing denormalized fields
+        const missingPersonIds = [...new Set(rawPayouts.filter(p => !p.personName).map(p => p.personId))];
+        const missingWorkIds = [...new Set(rawPayouts.filter(p => !p.workTitle).map(p => p.workId))];
+
+        const personMap: Record<string, Person> = {};
+        const workMap: Record<string, Work> = {};
+
+        await Promise.all([
+            (async () => {
+                for (let i = 0; i < missingPersonIds.length; i += 30) {
+                    const chunk = missingPersonIds.slice(i, i + 30);
+                    const snap = await adminDb.collection("people")
+                        .where(admin.firestore.FieldPath.documentId(), "in", chunk)
+                        .get();
+                    snap.docs.forEach(doc => {
+                        personMap[doc.id] = serializeFirestore<Person>({ id: doc.id, ...doc.data() });
+                    });
+                }
+            })(),
+            (async () => {
+                for (let i = 0; i < missingWorkIds.length; i += 30) {
+                    const chunk = missingWorkIds.slice(i, i + 30);
+                    const snap = await adminDb.collection("works")
+                        .where(admin.firestore.FieldPath.documentId(), "in", chunk)
+                        .get();
+                    snap.docs.forEach(doc => {
+                        workMap[doc.id] = serializeFirestore<Work>({ id: doc.id, ...doc.data() });
+                    });
+                }
+            })()
+        ]);
+
+        return rawPayouts.map(p => ({
+            ...p,
+            person: personMap[p.personId] ?? null,
+            work: workMap[p.workId] ?? null,
         }));
-
-        return payouts;
     } catch (error) {
         console.error("Error fetching payouts:", error);
         return [];
@@ -1112,6 +1250,18 @@ export async function generatePayoutsForDay(eventDayId: string) {
         const cast = await getCastByWork(workId);
 
         if (cast.length === 0) return { success: true, message: "Obra sin elenco asignado" };
+
+        // Batch fetch work title + person names for denormalization
+        const [workDoc, ...personDocs] = await Promise.all([
+            adminDb.collection("works").doc(workId).get(),
+            ...cast.map(c => adminDb.collection("people").doc(c.personId).get())
+        ]);
+        const workTitle = workDoc.exists ? (workDoc.data() as Work).title : undefined;
+        const personNameMap: Record<string, string> = {};
+        cast.forEach((c, i) => {
+            const doc = personDocs[i];
+            if (doc.exists) personNameMap[c.personId] = (doc.data() as Person).displayName;
+        });
 
         const batch = adminDb.batch();
         const now = new Date().toISOString();
@@ -1137,7 +1287,9 @@ export async function generatePayoutsForDay(eventDayId: string) {
                 eventDayId,
                 date: eventDay.date,
                 workId,
+                workTitle,
                 personId,
+                personName: personNameMap[personId],
                 roleType,
                 shiftType,
                 units: 1,

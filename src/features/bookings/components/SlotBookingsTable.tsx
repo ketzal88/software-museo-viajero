@@ -168,14 +168,14 @@ export function SlotBookingsTable({ theaterBookings, travelBookings }: SlotBooki
                             <th className="text-left text-[10px] font-display font-bold uppercase tracking-widest text-gray-500 py-2 pr-3">Nivel</th>
                             <th className="text-right text-[10px] font-display font-bold uppercase tracking-widest text-gray-500 py-2 pr-3">$</th>
                             <th className="text-center text-[10px] font-display font-bold uppercase tracking-widest text-gray-500 py-2 pr-2">Estado</th>
-                            <th className="w-16"></th>
+                            <th className="print:hidden w-16"></th>
                         </tr>
                     </thead>
                     <tbody>
                         {theaterBookings.map((b) => (
                             <tr key={b.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                                <td className="py-2 pr-3 font-sans text-gray-800 max-w-[180px] truncate" title={b.school?.name}>
-                                    {b.school?.name || "—"}
+                                <td className="py-2 pr-3 font-sans text-gray-800 max-w-[180px] truncate" title={b.schoolName || b.school?.name}>
+                                    {b.schoolName || b.school?.name || "—"}
                                 </td>
                                 <td className="py-2 pr-3 font-sans text-gray-600 max-w-[120px] truncate" title={b.contactName || b.school?.contactName}>
                                     {b.contactName || b.school?.contactName || "—"}
@@ -196,9 +196,10 @@ export function SlotBookingsTable({ theaterBookings, travelBookings }: SlotBooki
                                     ${b.totalExpected.toLocaleString()}
                                 </td>
                                 <td className="py-2 pr-2 text-center">
-                                    <InlineStatusSelect bookingId={b.id} type="theater" currentStatus={b.status} />
+                                    <span className="hidden print:inline text-[10px] font-display font-bold uppercase tracking-wider px-2 py-0.5 border border-gray-300 text-gray-600">{b.status}</span>
+                                    <span className="print:hidden"><InlineStatusSelect bookingId={b.id} type="theater" currentStatus={b.status} /></span>
                                 </td>
-                                <td className="py-2 text-center">
+                                <td className="print:hidden py-2 text-center">
                                     <div className="flex items-center justify-center gap-0.5">
                                         <button
                                             onClick={() => setEditingBooking(b)}
@@ -214,8 +215,8 @@ export function SlotBookingsTable({ theaterBookings, travelBookings }: SlotBooki
                         ))}
                         {travelBookings.map((b) => (
                             <tr key={b.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                                <td className="py-2 pr-3 font-sans text-gray-800 max-w-[180px] truncate" title={b.school?.name}>
-                                    {b.school?.name || "—"}
+                                <td className="py-2 pr-3 font-sans text-gray-800 max-w-[180px] truncate" title={b.schoolName || b.school?.name}>
+                                    {b.schoolName || b.school?.name || "—"}
                                 </td>
                                 <td className="py-2 pr-3 font-sans text-gray-600 max-w-[120px] truncate">
                                     {b.contactName || b.school?.contactName || "—"}
@@ -236,9 +237,10 @@ export function SlotBookingsTable({ theaterBookings, travelBookings }: SlotBooki
                                     ${b.totalPrice.toLocaleString()}
                                 </td>
                                 <td className="py-2 pr-2 text-center">
-                                    <InlineStatusSelect bookingId={b.id} type="travel" currentStatus={b.status} />
+                                    <span className="hidden print:inline text-[10px] font-display font-bold uppercase tracking-wider px-2 py-0.5 border border-gray-300 text-gray-600">{b.status}</span>
+                                    <span className="print:hidden"><InlineStatusSelect bookingId={b.id} type="travel" currentStatus={b.status} /></span>
                                 </td>
-                                <td className="py-2 text-center">
+                                <td className="print:hidden py-2 text-center">
                                     <div className="flex items-center justify-center gap-0.5">
                                         <span className="text-[10px] text-gray-400 mr-1">viaje</span>
                                         <DeleteBookingButton bookingId={b.id} type="travel" />

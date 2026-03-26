@@ -3,6 +3,7 @@ import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { EventType } from "@/types";
 import { SlotBookingsTable } from "@/features/bookings/components/SlotBookingsTable";
+import { PrintButton } from "@/components/ui/PrintButton";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -39,12 +40,15 @@ export default async function CalendarioDiaPage({ params }: CalendarioDiaPagePro
     return (
         <div className="flex flex-col gap-10">
             <header className="flex flex-col gap-2">
-                <Link
-                    href="/calendario"
-                    className="flex items-center gap-2 text-sm text-gray-500 hover:text-primary transition-colors font-sans"
-                >
-                    <ChevronLeft className="h-4 w-4" /> Volver al Calendario
-                </Link>
+                <div className="flex items-center justify-between">
+                    <Link
+                        href={`/calendario?month=${date.substring(0, 7)}`}
+                        className="print:hidden flex items-center gap-2 text-sm text-gray-500 hover:text-primary transition-colors font-sans"
+                    >
+                        <ChevronLeft className="h-4 w-4" /> Volver al Calendario
+                    </Link>
+                    <PrintButton />
+                </div>
                 <h1 className="text-[54px] font-display font-bold tracking-[-2px] text-primary leading-tight capitalize">
                     {format(parseISO(date), "d 'de' MMMM", { locale: es })}
                 </h1>
@@ -119,7 +123,7 @@ export default async function CalendarioDiaPage({ params }: CalendarioDiaPagePro
                                             {event.status === "OPEN" && (
                                                 <Link
                                                     href={`/reservas/nueva/${slot.id}`}
-                                                    className="inline-block mt-3 text-sm text-accent font-display font-medium hover:underline"
+                                                    className="print:hidden inline-block mt-3 text-sm text-accent font-display font-medium hover:underline"
                                                 >
                                                     + Agregar Reserva
                                                 </Link>
