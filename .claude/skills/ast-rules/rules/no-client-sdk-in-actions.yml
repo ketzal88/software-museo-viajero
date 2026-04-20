@@ -1,0 +1,13 @@
+id: no-client-sdk-in-actions
+language: TypeScript
+severity: warning
+message: "Dentro de un archivo server (actions.ts / 'use server'), no importes el SDK cliente de firebase. Usá firebaseAdmin."
+files:
+  - "src/lib/actions.ts"
+  - "src/app/**/*.ts"
+  - "src/app/**/*.tsx"
+rule:
+  any:
+    - pattern: import $$$ from "firebase/firestore"
+    - pattern: import $$$ from "firebase/auth"
+    - pattern: import $$$ from "@/lib/firebase"

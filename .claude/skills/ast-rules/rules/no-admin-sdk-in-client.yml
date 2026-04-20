@@ -1,0 +1,15 @@
+id: no-admin-sdk-in-client
+language: TypeScript
+severity: error
+message: "firebase-admin no puede importarse en archivos 'use client'. Rompe el build y expone credenciales."
+rule:
+  any:
+    - pattern: import $$$ from 'firebase-admin'
+    - pattern: import $$$ from 'firebase-admin/$$$'
+    - pattern: import $$$ from "@/lib/firebaseAdmin"
+  inside:
+    stopBy: end
+    kind: program
+    has:
+      stopBy: end
+      pattern: "'use client'"
