@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useSearchParams, useRouter as useNextRouter } from "next/navigation";
 import {
     format,
@@ -180,10 +180,28 @@ export function CalendarView({ eventDays, venues, slotSummaries }: CalendarViewP
     const prevPeriod = () => setMonth(subMonths(currentDate, 1));
     const goToToday = () => setMonth(new Date());
 
-    // Stats calculation (simple mock based on current month's data)
-    const monthEvents = eventDays.filter(e => isSameMonth(new Date(e.date), currentDate));
-    const theaterCount = monthEvents.filter(e => e.type === EventType.THEATER).length;
-    const travelCount = monthEvents.filter(e => e.type === EventType.TRAVEL).length;
+    // Precompute date -> events map once per eventDays change (O(1) lookup per cell)
+    const eventsByDate = useMemo(() => {
+        const map = new Map<string, EventDay[]>();
+        for (const e of eventDays) {
+            const list = map.get(e.date);
+            if (list) list.push(e);
+            else map.set(e.date, [e]);
+        }
+        return map;
+    }, [eventDays]);
+
+    // Stats for the visible month
+    const { theaterCount, travelCount } = useMemo(() => {
+        let theater = 0;
+        let travel = 0;
+        for (const e of eventDays) {
+            if (!isSameMonth(new Date(e.date), currentDate)) continue;
+            if (e.type === EventType.THEATER) theater++;
+            else if (e.type === EventType.TRAVEL) travel++;
+        }
+        return { theaterCount: theater, travelCount: travel };
+    }, [eventDays, currentDate]);
 
     const renderHeader = () => {
         return (
@@ -271,7 +289,7 @@ export function CalendarView({ eventDays, venues, slotSummaries }: CalendarViewP
             <div className="grid grid-cols-7 auto-rows-fr">
                 {days.map(day => {
                     const dateStr = format(day, "yyyy-MM-dd");
-                    const dayEvents = eventDays.filter(e => e.date === dateStr);
+                    const dayEvents = eventsByDate.get(dateStr) ?? [];
                     const isOtherMonth = !isSameMonth(day, monthStart);
                     const isCurrentDay = isToday(day);
 

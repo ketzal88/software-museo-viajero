@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useRef, useEffect } from "react";
+import { useState, useTransition, useRef } from "react";
 import { TheaterBooking, TravelBooking, School, GRADE_LEVELS, BookingStatus } from "@/types";
 import { Pencil, Trash2 } from "lucide-react";
 import { EditBookingModal } from "./EditBookingModal";

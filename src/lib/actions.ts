@@ -367,9 +367,12 @@ export async function getCalendarDaySummaries(eventDayIds: string[]): Promise<Re
 }
 
 // EVENTS (EventDay + EventSlot)
-export async function getEventDays(): Promise<EventDay[]> {
+export async function getEventDays(options?: { fromDate?: string; toDate?: string }): Promise<EventDay[]> {
     try {
-        const snapshot = await adminDb.collection("event_days").orderBy("date", "asc").get();
+        let q: FirebaseFirestore.Query = adminDb.collection("event_days");
+        if (options?.fromDate) q = q.where("date", ">=", options.fromDate);
+        if (options?.toDate) q = q.where("date", "<=", options.toDate);
+        const snapshot = await q.orderBy("date", "asc").get();
         return snapshot.docs.map(doc => serializeFirestore<EventDay>({ id: doc.id, ...doc.data() }));
     } catch (error) {
         console.error("Error fetching event days:", error);
