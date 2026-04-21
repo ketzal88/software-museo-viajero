@@ -2,6 +2,8 @@ import { getInboxItems } from "@/lib/actions";
 import { InboxList } from "@/features/inbox/components/InboxList";
 import { Inbox as InboxIcon, Activity, Clock, Truck } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function InboxPage() {
     const items = await getInboxItems();
     const pendingCount = items.length;

@@ -50,6 +50,9 @@ export interface Venue {
     notes?: string;
     defaultSlotTemplate?: SlotTemplate[]; // Rich slot info
     isActive?: boolean;
+    // Sitio público (Fase 1)
+    isPublicVisible?: boolean;
+    seo?: SeoMeta;
 }
 
 export interface Work {
@@ -61,6 +64,33 @@ export interface Work {
     tags?: string[];
     audienceTags?: string[];
     isActive?: boolean;
+
+    // Sitio público (Fase 1)
+    subTitle?: string;
+    body?: string;                 // HTML sanitizado
+    tipoDeObra?: string;
+    pie?: string;
+    temaSlug?: string;
+    imgPortada?: string;
+    images?: { url: string; alt: string; order: number }[];
+    premios?: { texto: string; anio?: number | null }[];
+    keywords?: string[];
+    estreno?: boolean;
+    estrenoText?: string;
+    anioEstreno?: number | null;
+    mesEstreno?: number | null;
+    diaEstreno?: number | null;
+    ciclos?: {
+        inicial: boolean;
+        primerCiclo: boolean;
+        segundoCiclo: boolean;
+        tercerCiclo: boolean;
+        secundario: boolean;
+    };
+    videos?: { url: string; youtubeId: string }[];
+    seo?: SeoMeta;
+    isPublicVisible?: boolean;
+    dateModified?: string;
 }
 
 export interface Season {
@@ -347,6 +377,111 @@ export interface PricingRule {
     updatedAt: string;
 }
 
+// ────────────────────────────────────────────────────────────────
+// Sitio público — tipos nuevos (Fase 1)
+// ────────────────────────────────────────────────────────────────
+
+export interface SeoMeta {
+    title?: string;
+    description?: string;
+    ogImage?: string;
+}
+
+export interface FuncionCartelera {
+    id: string;
+    workSlug: string;
+    venueSlug: string;
+    fechaInicio: string;   // ISO Date YYYY-MM-DD
+    fechaFin: string;
+    fechaFuncion: string;
+    siempreVisible: boolean;
+    agotada: boolean;
+    horarios: string[];    // ["09:00", "10:30", "14:00"]
+    precio: number;        // ARS
+    promo?: {
+        nombre: string;
+        descripcion: string;
+    };
+    isActive: boolean;
+    dateModified: string;
+}
+
+export interface TemaObra {
+    id: string;
+    slug: string;
+    title: string;
+    urlDestino?: string;
+    order: number;
+    seo?: SeoMeta;
+    isActive: boolean;
+}
+
+export interface VideoObra {
+    id: string;
+    workSlug: string;
+    url: string;
+    youtubeId: string;
+    order: number;
+}
+
+export interface HeroSlide {
+    id: string;
+    order: number;
+    visible: boolean;
+    small?: string;
+    titulo: string;
+    subTitulo?: string;
+    img: string;
+    imgMobile?: string;
+    cta?: string;
+    ctaPage?: string;
+    urlOutside?: string;
+    ctaDisplay?: string;
+    imgPosition: "center" | "top" | "bottom";
+    estreno: boolean;
+    estrenoText?: string;
+    isActive: boolean;
+    dateModified: string;
+}
+
+export interface SiteConfigContact {
+    email: string;
+    phone: string;
+    celPhone?: string;
+    whatsApp: string;
+}
+
+export interface SiteConfigNosotros {
+    title: string;
+    body: string;     // HTML sanitizado
+    seo?: SeoMeta;
+    dateModified?: string;
+}
+
+export interface SiteConfigSocial {
+    links: { icon: string; url: string; label: string }[];
+}
+
+export interface SiteConfigStats {
+    items: { label: string; value: number; suffix?: string }[];
+}
+
+export interface CronologiaItem {
+    id: string;
+    year: number;
+    events: string[];
+    order: number;
+}
+
+export interface Sponsor {
+    id: string;
+    name: string;
+    logoUrl: string;
+    url?: string;
+    order: number;
+    isActive: boolean;
+}
+
 // Server Action result types
 export type ActionSuccess<T = void> = T extends void
     ? { success: true }
@@ -396,4 +531,12 @@ export const COLLECTIONS = {
     MONTHLY_SUMMARIES: 'monthlySummaries',
     SEASON_SUMMARIES: 'seasonSummaries',
     CONFIG: 'config',
+    // Sitio público (Fase 1)
+    FUNCIONES_CARTELERA: 'funciones_cartelera',
+    TEMAS_OBRAS: 'temas_obras',
+    VIDEOS_OBRAS: 'videos_obras',
+    HERO_SLIDES: 'hero_slides',
+    SITE_CONFIG: 'site_config',
+    CRONOLOGIA: 'cronologia',
+    SPONSORS: 'sponsors',
 } as const;

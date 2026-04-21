@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "npx tsx scripts/seed-firestore.ts"
+    "seed": "npx tsx scripts/seed-firestore.ts",
+    "migrate-sheet": "npx tsx scripts/migrate-sheet-to-firestore.ts",
+    "migrate-sheet:dry": "npx tsx scripts/migrate-sheet-to-firestore.ts --dry"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -15,8 +17,10 @@
     "date-fns": "^4.1.0",
     "firebase": "^12.9.0",
     "firebase-admin": "^13.6.1",
+    "isomorphic-dompurify": "^2.19.0",
     "lucide-react": "^0.563.0",
     "next": "^14.2.16",
+    "papaparse": "^5.4.1",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.71.1",
@@ -26,8 +30,10 @@
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/papaparse": "^5.3.15",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "dotenv": "^16.4.5",
     "eslint": "^8",
     "eslint-config-next": "14.2.16",
     "postcss": "^8",

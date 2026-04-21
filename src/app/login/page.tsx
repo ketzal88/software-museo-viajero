@@ -23,7 +23,7 @@ export default function LoginPage() {
     // Redirect if already logged in
     useEffect(() => {
         if (!authLoading && user) {
-            router.push("/");
+            router.push("/panel");
         }
     }, [user, authLoading, router]);
 
@@ -36,7 +36,7 @@ export default function LoginPage() {
             // Set cookie for middleware
             document.cookie = "session=true; path=/; max-age=86400; SameSite=Lax";
             document.cookie = `login_at=${Date.now()}; path=/; max-age=86400; SameSite=Lax`;
-            router.push("/");
+            router.push("/panel");
         } catch (err: unknown) {
             console.error("Login error:", err);
             setError("Credenciales inválidas. Por favor intenta de nuevo.");
@@ -54,7 +54,7 @@ export default function LoginPage() {
             // Set cookie for middleware
             document.cookie = "session=true; path=/; max-age=86400; SameSite=Lax";
             document.cookie = `login_at=${Date.now()}; path=/; max-age=86400; SameSite=Lax`;
-            router.push("/");
+            router.push("/panel");
         } catch (err: unknown) {
             console.error("Google login error:", err);
             setError("Error al iniciar sesión con Google.");

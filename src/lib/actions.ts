@@ -2,9 +2,10 @@
 
 import * as admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
-import { Venue, School, Work, Season, EventDay, EventSlot, EventType, TheaterBooking, TravelBooking, BookingStatus, SlotTemplate, Person, WorkCast, PersonRate, Payout, RoleType, ShiftType, PayoutStatus, AttendanceStatus, BillingPolicy, DailySummary, MonthlySummary, SeasonSummary, PricingRule, PricingType } from "@/types";
+import { Venue, School, Work, Season, EventDay, EventSlot, EventType, TheaterBooking, TravelBooking, BookingStatus, SlotTemplate, Person, WorkCast, PersonRate, Payout, RoleType, ShiftType, PayoutStatus, AttendanceStatus, BillingPolicy, DailySummary, MonthlySummary, SeasonSummary, PricingRule, PricingType, FuncionCartelera, TemaObra, VideoObra, HeroSlide, SiteConfigContact, SiteConfigNosotros, SiteConfigSocial, SiteConfigStats, CronologiaItem, Sponsor, COLLECTIONS } from "@/types";
 import { revalidatePath } from "next/cache";
 import { buildSearchTokens, serializeFirestore } from "./utils";
+import { slugify, ensureUniqueSlug } from "./slugify";
 import { addHours } from "date-fns";
 
 export async function getTestCollection() {
@@ -1685,5 +1686,481 @@ export async function resolvePricing(date: string, type: PricingType, seasonId?:
     } catch (error) {
         console.error("Error resolving pricing:", error);
         return { success: false, error: "Error al resolver precios." };
+    }
+}
+
+// ────────────────────────────────────────────────────────────────
+// SITIO PÚBLICO — Server Actions (Fase 1)
+// ────────────────────────────────────────────────────────────────
+
+function revalidatePublic(...paths: string[]) {
+    for (const p of paths) revalidatePath(p);
+}
+
+async function slugExists(collection: string, slug: string): Promise<boolean> {
+    const snap = await adminDb.collection(collection).where("slug", "==", slug).limit(1).get();
+    return !snap.empty;
+}
+
+// ---- WORKS (público) ----
+
+export async function getWorksPublic(): Promise<Work[]> {
+    try {
+        const snap = await adminDb.collection(COLLECTIONS.WORKS)
+            .where("isPublicVisible", "==", true)
+            .get();
+        const works = snap.docs.map(doc => serializeFirestore<Work>({ id: doc.id, ...doc.data() }));
+        return works.sort((a, b) => a.title.localeCompare(b.title, "es"));
+    } catch (error) {
+        console.error("Error fetching public works:", error);
+        return [];
+    }
+}
+
+export async function getWorkBySlug(slug: string): Promise<Work | null> {
+    if (!slug) return null;
+    try {
+        const snap = await adminDb.collection(COLLECTIONS.WORKS)
+            .where("slug", "==", slug).limit(1).get();
+        if (snap.empty) return null;
+        const doc = snap.docs[0];
+        return serializeFirestore<Work>({ id: doc.id, ...doc.data() });
+    } catch (error) {
+        console.error("Error fetching work by slug:", error);
+        return null;
+    }
+}
+
+export async function getWorksByTema(temaSlug: string): Promise<Work[]> {
+    if (!temaSlug) return [];
+    try {
+        const snap = await adminDb.collection(COLLECTIONS.WORKS)
+            .where("temaSlug", "==", temaSlug)
+            .where("isPublicVisible", "==", true)
+            .get();
+        const works = snap.docs.map(doc => serializeFirestore<Work>({ id: doc.id, ...doc.data() }));
+        return works.sort((a, b) => a.title.localeCompare(b.title, "es"));
+    } catch (error) {
+        console.error("Error fetching works by tema:", error);
+        return [];
+    }
+}
+
+export async function updateWorkPublic(id: string, data: Partial<Work>) {
+    try {
+        const updatePayload: Partial<Work> = { ...data, dateModified: new Date().toISOString() };
+        if (data.title && !data.slug) {
+            const current = await adminDb.collection(COLLECTIONS.WORKS).doc(id).get();
+            const currentSlug = current.data()?.slug;
+            if (!currentSlug) {
+                updatePayload.slug = await ensureUniqueSlug(data.title, s => slugExists(COLLECTIONS.WORKS, s));
+            }
+        }
+        await adminDb.collection(COLLECTIONS.WORKS).doc(id).update(updatePayload);
+        revalidatePublic("/", "/repertorio", `/repertorio/${updatePayload.slug || data.slug || ""}`);
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating work (public):", error);
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+// ---- FUNCIONES DE CARTELERA ----
+
+export async function getFuncionesActivas(): Promise<FuncionCartelera[]> {
+    try {
+        const today = new Date().toISOString().slice(0, 10);
+        const snap = await adminDb.collection(COLLECTIONS.FUNCIONES_CARTELERA)
+            .where("isActive", "==", true)
+            .get();
+        const all = snap.docs.map(doc => serializeFirestore<FuncionCartelera>({ id: doc.id, ...doc.data() }));
+        return all
+            .filter(f => f.siempreVisible || (f.fechaFin && f.fechaFin >= today))
+            .sort((a, b) => (a.fechaFuncion || "").localeCompare(b.fechaFuncion || ""));
+    } catch (error) {
+        console.error("Error fetching funciones activas:", error);
+        return [];
+    }
+}
+
+export async function getFuncionesByWorkSlug(workSlug: string): Promise<FuncionCartelera[]> {
+    if (!workSlug) return [];
+    try {
+        const snap = await adminDb.collection(COLLECTIONS.FUNCIONES_CARTELERA)
+            .where("workSlug", "==", workSlug)
+            .where("isActive", "==", true)
+            .get();
+        return snap.docs
+            .map(doc => serializeFirestore<FuncionCartelera>({ id: doc.id, ...doc.data() }))
+            .sort((a, b) => (a.fechaFuncion || "").localeCompare(b.fechaFuncion || ""));
+    } catch (error) {
+        console.error("Error fetching funciones by work:", error);
+        return [];
+    }
+}
+
+export async function addFuncion(data: Omit<FuncionCartelera, "id" | "dateModified">) {
+    try {
+        const ref = await adminDb.collection(COLLECTIONS.FUNCIONES_CARTELERA).add({
+            ...data,
+            dateModified: new Date().toISOString(),
+        });
+        revalidatePublic("/", "/cartelera", `/repertorio/${data.workSlug}`);
+        return { success: true, id: ref.id };
+    } catch (error) {
+        console.error("Error adding funcion:", error);
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+export async function updateFuncion(id: string, data: Partial<FuncionCartelera>) {
+    try {
+        await adminDb.collection(COLLECTIONS.FUNCIONES_CARTELERA).doc(id).update({
+            ...data,
+            dateModified: new Date().toISOString(),
+        });
+        revalidatePublic("/", "/cartelera", data.workSlug ? `/repertorio/${data.workSlug}` : "/repertorio");
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating funcion:", error);
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+export async function deleteFuncion(id: string) {
+    try {
+        await adminDb.collection(COLLECTIONS.FUNCIONES_CARTELERA).doc(id).delete();
+        revalidatePublic("/", "/cartelera");
+        return { success: true };
+    } catch (error) {
+        console.error("Error deleting funcion:", error);
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+// ---- TEMAS DE OBRAS ----
+
+export async function getTemasObras(): Promise<TemaObra[]> {
+    try {
+        const snap = await adminDb.collection(COLLECTIONS.TEMAS_OBRAS)
+            .where("isActive", "==", true).get();
+        return snap.docs
+            .map(doc => serializeFirestore<TemaObra>({ id: doc.id, ...doc.data() }))
+            .sort((a, b) => a.order - b.order);
+    } catch (error) {
+        console.error("Error fetching temas:", error);
+        return [];
+    }
+}
+
+export async function addTema(data: Omit<TemaObra, "id" | "slug"> & { slug?: string }) {
+    try {
+        const slug = data.slug ? slugify(data.slug)
+            : await ensureUniqueSlug(data.title, s => slugExists(COLLECTIONS.TEMAS_OBRAS, s));
+        const ref = await adminDb.collection(COLLECTIONS.TEMAS_OBRAS).add({ ...data, slug });
+        revalidatePublic("/repertorio");
+        return { success: true, id: ref.id };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+export async function updateTema(id: string, data: Partial<TemaObra>) {
+    try {
+        await adminDb.collection(COLLECTIONS.TEMAS_OBRAS).doc(id).update(data);
+        revalidatePublic("/repertorio");
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+export async function deleteTema(id: string) {
+    try {
+        await adminDb.collection(COLLECTIONS.TEMAS_OBRAS).doc(id).delete();
+        revalidatePublic("/repertorio");
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+// ---- VIDEOS DE OBRAS ----
+
+export async function getVideosByWork(workSlug: string): Promise<VideoObra[]> {
+    if (!workSlug) return [];
+    try {
+        const snap = await adminDb.collection(COLLECTIONS.VIDEOS_OBRAS)
+            .where("workSlug", "==", workSlug).get();
+        return snap.docs
+            .map(doc => serializeFirestore<VideoObra>({ id: doc.id, ...doc.data() }))
+            .sort((a, b) => a.order - b.order);
+    } catch (error) {
+        console.error("Error fetching videos:", error);
+        return [];
+    }
+}
+
+export async function addVideo(data: Omit<VideoObra, "id">) {
+    try {
+        const ref = await adminDb.collection(COLLECTIONS.VIDEOS_OBRAS).add(data);
+        revalidatePublic(`/repertorio/${data.workSlug}`);
+        return { success: true, id: ref.id };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+export async function updateVideo(id: string, data: Partial<VideoObra>) {
+    try {
+        await adminDb.collection(COLLECTIONS.VIDEOS_OBRAS).doc(id).update(data);
+        revalidatePublic(data.workSlug ? `/repertorio/${data.workSlug}` : "/repertorio");
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+export async function deleteVideo(id: string) {
+    try {
+        await adminDb.collection(COLLECTIONS.VIDEOS_OBRAS).doc(id).delete();
+        revalidatePublic("/repertorio");
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+// ---- HERO SLIDES ----
+
+export async function getHeroSlides(): Promise<HeroSlide[]> {
+    try {
+        const snap = await adminDb.collection(COLLECTIONS.HERO_SLIDES)
+            .where("isActive", "==", true)
+            .where("visible", "==", true)
+            .get();
+        return snap.docs
+            .map(doc => serializeFirestore<HeroSlide>({ id: doc.id, ...doc.data() }))
+            .sort((a, b) => a.order - b.order);
+    } catch (error) {
+        console.error("Error fetching hero slides:", error);
+        return [];
+    }
+}
+
+export async function addHeroSlide(data: Omit<HeroSlide, "id" | "dateModified">) {
+    try {
+        const ref = await adminDb.collection(COLLECTIONS.HERO_SLIDES).add({
+            ...data,
+            dateModified: new Date().toISOString(),
+        });
+        revalidatePublic("/");
+        return { success: true, id: ref.id };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+export async function updateHeroSlide(id: string, data: Partial<HeroSlide>) {
+    try {
+        await adminDb.collection(COLLECTIONS.HERO_SLIDES).doc(id).update({
+            ...data,
+            dateModified: new Date().toISOString(),
+        });
+        revalidatePublic("/");
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+export async function deleteHeroSlide(id: string) {
+    try {
+        await adminDb.collection(COLLECTIONS.HERO_SLIDES).doc(id).delete();
+        revalidatePublic("/");
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+// ---- SITE CONFIG ----
+
+type SiteConfigKey = "contact" | "nosotros" | "social" | "stats" | "footer";
+type SiteConfigValue = SiteConfigContact | SiteConfigNosotros | SiteConfigSocial | SiteConfigStats | Record<string, unknown>;
+
+export async function getSiteConfig<T = SiteConfigValue>(key: SiteConfigKey): Promise<T | null> {
+    try {
+        const doc = await adminDb.collection(COLLECTIONS.SITE_CONFIG).doc(key).get();
+        if (!doc.exists) return null;
+        return serializeFirestore<T>({ id: doc.id, ...doc.data() });
+    } catch (error) {
+        console.error("Error fetching site config:", error);
+        return null;
+    }
+}
+
+export async function updateSiteConfig(key: SiteConfigKey, data: Record<string, unknown>) {
+    try {
+        await adminDb.collection(COLLECTIONS.SITE_CONFIG).doc(key).set({
+            ...data,
+            dateModified: new Date().toISOString(),
+        }, { merge: true });
+        const pathByKey: Record<SiteConfigKey, string[]> = {
+            contact: ["/contacto", "/"],
+            nosotros: ["/nosotros"],
+            social: ["/", "/contacto"],
+            stats: ["/"],
+            footer: ["/"],
+        };
+        revalidatePublic(...(pathByKey[key] ?? ["/"]));
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+// ---- CRONOLOGIA ----
+
+export async function getCronologia(): Promise<CronologiaItem[]> {
+    try {
+        const snap = await adminDb.collection(COLLECTIONS.CRONOLOGIA).get();
+        return snap.docs
+            .map(doc => serializeFirestore<CronologiaItem>({ id: doc.id, ...doc.data() }))
+            .sort((a, b) => b.year - a.year);
+    } catch (error) {
+        console.error("Error fetching cronologia:", error);
+        return [];
+    }
+}
+
+export async function addCronologiaItem(data: Omit<CronologiaItem, "id">) {
+    try {
+        const ref = await adminDb.collection(COLLECTIONS.CRONOLOGIA).add(data);
+        revalidatePublic("/nosotros");
+        return { success: true, id: ref.id };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+export async function updateCronologiaItem(id: string, data: Partial<CronologiaItem>) {
+    try {
+        await adminDb.collection(COLLECTIONS.CRONOLOGIA).doc(id).update(data);
+        revalidatePublic("/nosotros");
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+export async function deleteCronologiaItem(id: string) {
+    try {
+        await adminDb.collection(COLLECTIONS.CRONOLOGIA).doc(id).delete();
+        revalidatePublic("/nosotros");
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+// ---- SPONSORS ----
+
+export async function getSponsors(): Promise<Sponsor[]> {
+    try {
+        const snap = await adminDb.collection(COLLECTIONS.SPONSORS)
+            .where("isActive", "==", true).get();
+        return snap.docs
+            .map(doc => serializeFirestore<Sponsor>({ id: doc.id, ...doc.data() }))
+            .sort((a, b) => a.order - b.order);
+    } catch (error) {
+        console.error("Error fetching sponsors:", error);
+        return [];
+    }
+}
+
+export async function addSponsor(data: Omit<Sponsor, "id">) {
+    try {
+        const ref = await adminDb.collection(COLLECTIONS.SPONSORS).add(data);
+        revalidatePublic("/");
+        return { success: true, id: ref.id };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+export async function updateSponsor(id: string, data: Partial<Sponsor>) {
+    try {
+        await adminDb.collection(COLLECTIONS.SPONSORS).doc(id).update(data);
+        revalidatePublic("/");
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+export async function deleteSponsor(id: string) {
+    try {
+        await adminDb.collection(COLLECTIONS.SPONSORS).doc(id).delete();
+        revalidatePublic("/");
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+// ---- VENUES (público) ----
+
+export async function getVenuesPublic(): Promise<Venue[]> {
+    try {
+        const snap = await adminDb.collection(COLLECTIONS.VENUES)
+            .where("isPublicVisible", "==", true).get();
+        return snap.docs
+            .map(doc => serializeFirestore<Venue>({ id: doc.id, ...doc.data() }))
+            .sort((a, b) => a.name.localeCompare(b.name, "es"));
+    } catch (error) {
+        console.error("Error fetching public venues:", error);
+        return [];
+    }
+}
+
+export async function getVenueBySlug(slug: string): Promise<Venue | null> {
+    if (!slug) return null;
+    try {
+        const snap = await adminDb.collection(COLLECTIONS.VENUES)
+            .where("slug", "==", slug).limit(1).get();
+        if (snap.empty) return null;
+        const doc = snap.docs[0];
+        return serializeFirestore<Venue>({ id: doc.id, ...doc.data() });
+    } catch (error) {
+        console.error("Error fetching venue by slug:", error);
+        return null;
+    }
+}
+
+// ---- CONTACT LEADS (formulario público de /contacto) ----
+
+export async function submitContactLead(data: {
+    name: string;
+    email: string;
+    phone?: string;
+    organization?: string;
+    subject: string;
+    message: string;
+}) {
+    try {
+        if (!data.name || !data.email || !data.subject || !data.message) {
+            return { success: false, error: "Campos obligatorios faltantes." };
+        }
+        // Honeypot / rate-limit básicos podrían sumarse después.
+        await adminDb.collection("contact_leads").add({
+            ...data,
+            createdAt: new Date().toISOString(),
+            status: "new",
+        });
+        return { success: true };
+    } catch (error) {
+        console.error("Error submitting contact lead:", error);
+        return { success: false, error: "No pudimos guardar tu mensaje. Probá por WhatsApp." };
     }
 }
