@@ -692,11 +692,11 @@ export async function getInboxItems() {
 
         const eventDayMap: Record<string, EventDay> = {};
         eventDaysSnap.docs.forEach(doc => {
-            eventDayMap[doc.id] = { id: doc.id, ...doc.data() } as EventDay;
+            eventDayMap[doc.id] = serializeFirestore<EventDay>({ id: doc.id, ...doc.data() });
         });
         const workMap: Record<string, Work> = {};
         worksSnap.docs.forEach(doc => {
-            workMap[doc.id] = { id: doc.id, ...doc.data() } as Work;
+            workMap[doc.id] = serializeFirestore<Work>({ id: doc.id, ...doc.data() });
         });
 
         const buildSlotDetails = (slotId: string) => {
