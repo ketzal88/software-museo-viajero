@@ -422,13 +422,69 @@ async function main() {
     await run("funciones", migrateFunciones);
     await run("videos", migrateVideos);
     await run("hero", migrateHeroSlides);
+    await run("prensa", migratePrensa);
+    await run("materiales", migrateMateriales);
 
-    // TODO Fase 2: prensa, recursos, categoriasRecursos, calculator, publicaciones
-    // TODO Fase 2 / posterior: site_config (contact, nosotros, social, stats, footer) desde dataSource dump
-    // TODO Fase 2 / posterior: cronologia desde dataSource dump
-    // TODO Fase 2 / posterior: sponsors desde dataSource dump
+    // TODO: sponsors, cronologia, publicaciones desde dataSource dump (no vienen del Sheet)
+    // TODO: site_config (contact, nosotros, social, stats, footer) desde dump + CMS
 
     console.log("\nDone.");
+}
+
+async function migratePrensa() {
+    console.log("▸ prensa");
+    const rows = await fetchSheetCsv(GIDS.prensa);
+    for (const row of rows) {
+        const title = (row.title || "").trim();
+        if (!title) continue;
+        const slug = slugify(`${title}-${row.medio || ""}`).slice(0, 100);
+        const data: Record<string, unknown> = {
+            slug,
+            title,
+            medio: row.medio || "",
+            fecha: parseSheetDate(row.date) || "",
+            autor: row.autor || undefined,
+            url: row.url || "",
+            destacadoSlider: parseSheetBool(row.slider),
+            isActive: true,
+            dateModified: new Date().toISOString(),
+        };
+        await upsertBySlug("prensa", slug, data);
+    }
+    console.log(`  ${rows.length} notas`);
+}
+
+async function migrateMateriales() {
+    console.log("▸ materiales");
+    const rows = await fetchSheetCsv(GIDS.recursos);
+    for (const row of rows) {
+        const title = (row.title || "").trim();
+        if (!title) continue;
+        const slug = slugify(`${row.obraID || ""}-${title}`).slice(0, 100);
+        const workSlug = row.obraID ? slugify(row.obraID) : undefined;
+        const data: Record<string, unknown> = {
+            slug,
+            workSlug,
+            title,
+            description: row.description || undefined,
+            descargas: parseInt(row.descargas || "0", 10) || 0,
+            tipo: row.tipo || "Actividad",
+            ciclos: {
+                inicial: parseSheetBool(row.inicial),
+                primerCiclo: parseSheetBool(row.primerCiclo),
+                segundoCiclo: parseSheetBool(row.segundoCiclo),
+                tercerCiclo: parseSheetBool(row.tercerCiclo),
+                secundario: parseSheetBool(row.secundario),
+            },
+            url: row.link || undefined,
+            googleId: row.googleId || undefined,
+            nivelAcceso: 1, // Default: Bronce — editable desde CMS
+            isActive: true,
+            dateModified: new Date().toISOString(),
+        };
+        await upsertBySlug("materiales", slug, data);
+    }
+    console.log(`  ${rows.length} materiales`);
 }
 
 main().catch(err => {

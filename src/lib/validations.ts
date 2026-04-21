@@ -247,3 +247,71 @@ export const sponsorSchema = z.object({
     order: z.number().int().min(0),
     isActive: z.boolean().default(true),
 });
+
+// ────────────────────────────────────────────────────────────────
+// Auth pública (signup / login / perfil)
+// ────────────────────────────────────────────────────────────────
+
+export const publicSignupSchema = z.object({
+    email: z.string().email("Correo no válido"),
+    password: z.string().min(6, "Mínimo 6 caracteres"),
+    displayName: z.string().min(2, "Nombre obligatorio"),
+    organization: z.string().optional(),
+});
+
+export const publicLoginSchema = z.object({
+    email: z.string().email("Correo no válido"),
+    password: z.string().min(1, "Contraseña obligatoria"),
+});
+
+export const publicProfileUpdateSchema = z.object({
+    displayName: z.string().min(2, "Nombre obligatorio"),
+    organization: z.string().optional(),
+    photoURL: z.string().url().optional().or(z.literal("")),
+});
+
+export const notaPrensaSchema = z.object({
+    slug: z.string().min(2).regex(/^[a-z0-9-]+$/),
+    title: z.string().min(3),
+    medio: z.string().min(2),
+    fecha: z.string().min(10),
+    autor: z.string().optional(),
+    url: z.string().url(),
+    destacadoSlider: z.boolean().default(false),
+    isActive: z.boolean().default(true),
+});
+
+export const materialEducativoSchema = z.object({
+    slug: z.string().min(2).regex(/^[a-z0-9-]+$/),
+    workSlug: z.string().optional(),
+    title: z.string().min(3),
+    description: z.string().optional(),
+    descargas: z.number().int().min(0).default(0),
+    tipo: z.string().min(2),
+    ciclos: z.object({
+        inicial: z.boolean().default(false),
+        primerCiclo: z.boolean().default(false),
+        segundoCiclo: z.boolean().default(false),
+        tercerCiclo: z.boolean().default(false),
+        secundario: z.boolean().default(false),
+    }).optional(),
+    url: z.string().url().optional().or(z.literal("")),
+    googleId: z.string().optional(),
+    storagePath: z.string().optional(),
+    nivelAcceso: z.number().int().min(0).max(9).default(0),
+    isActive: z.boolean().default(true),
+});
+
+export const publicacionSchema = z.object({
+    slug: z.string().min(2).regex(/^[a-z0-9-]+$/),
+    title: z.string().min(3),
+    subtitle: z.string().optional(),
+    year: z.number().int().min(1900).max(2100).optional(),
+    editorial: z.string().min(2),
+    obrasIncluidas: z.array(z.string()).default([]),
+    description: z.string().optional(),
+    coverUrl: z.string().min(1),
+    buyUrl: z.string().url().optional().or(z.literal("")),
+    isActive: z.boolean().default(true),
+    order: z.number().int().min(0).default(0),
+});

@@ -482,6 +482,96 @@ export interface Sponsor {
     isActive: boolean;
 }
 
+// ────────────────────────────────────────────────────────────────
+// Usuarios públicos del sitio (con niveles de suscripción)
+// ────────────────────────────────────────────────────────────────
+
+export enum UserRole {
+    FREE = "free",
+    BRONCE = "bronce",
+    PLATA = "plata",
+    ORO = "oro",
+    ADMIN = "admin",
+    STAFF = "staff",
+}
+
+export const NIVEL_SUSCRIPCION = {
+    FREE: 0,
+    BRONCE: 1,
+    PLATA: 2,
+    ORO: 3,
+    ADMIN: 9,
+} as const;
+
+export type NivelSuscripcion = typeof NIVEL_SUSCRIPCION[keyof typeof NIVEL_SUSCRIPCION];
+
+export interface NotaPrensa {
+    id: string;
+    slug: string;
+    title: string;
+    medio: string;
+    fecha: string;
+    autor?: string;
+    url: string;
+    destacadoSlider?: boolean;
+    isActive: boolean;
+    dateModified?: string;
+}
+
+export interface MaterialEducativo {
+    id: string;
+    slug: string;
+    workSlug?: string;
+    title: string;
+    description?: string;
+    descargas?: number;
+    tipo: string;
+    ciclos?: {
+        inicial: boolean;
+        primerCiclo: boolean;
+        segundoCiclo: boolean;
+        tercerCiclo: boolean;
+        secundario: boolean;
+    };
+    url?: string;
+    googleId?: string;
+    storagePath?: string;
+    nivelAcceso: number;
+    isActive: boolean;
+    dateModified?: string;
+}
+
+export interface Publicacion {
+    id: string;
+    slug: string;
+    title: string;
+    subtitle?: string;
+    year?: number;
+    editorial: string;
+    obrasIncluidas: string[];
+    description?: string;
+    coverUrl: string;
+    buyUrl?: string;
+    isActive: boolean;
+    order: number;
+    dateModified?: string;
+}
+
+export interface PublicUser {
+    uid: string;
+    email: string;
+    displayName?: string;
+    photoURL?: string;
+    avatarURL?: string;
+    roles: UserRole[];
+    nivelSuscripcion: NivelSuscripcion;
+    isActive: boolean;
+    createdAt: string;
+    lastLogin?: string;
+    organization?: string;
+    extraData?: Record<string, unknown>;
+}
+
 // Server Action result types
 export type ActionSuccess<T = void> = T extends void
     ? { success: true }
@@ -539,4 +629,10 @@ export const COLLECTIONS = {
     SITE_CONFIG: 'site_config',
     CRONOLOGIA: 'cronologia',
     SPONSORS: 'sponsors',
+    // Sitio público (Fase 2)
+    PRENSA: 'prensa',
+    MATERIALES: 'materiales',
+    PUBLICACIONES: 'publicaciones',
+    USERS: 'users',
+    CONTACT_LEADS: 'contact_leads',
 } as const;

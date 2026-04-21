@@ -24,6 +24,9 @@ export function Footer({
                     <ul className="mt-4 space-y-2 text-sm font-sans">
                         <li><Link href="/cartelera" className="hover:text-accent transition-colors">Cartelera</Link></li>
                         <li><Link href="/repertorio" className="hover:text-accent transition-colors">Repertorio</Link></li>
+                        <li><Link href="/materiales" className="hover:text-accent transition-colors">Materiales</Link></li>
+                        <li><Link href="/publicaciones" className="hover:text-accent transition-colors">Libros</Link></li>
+                        <li><Link href="/prensa" className="hover:text-accent transition-colors">Prensa</Link></li>
                         <li><Link href="/nosotros" className="hover:text-accent transition-colors">Nosotros</Link></li>
                         <li><Link href="/contacto" className="hover:text-accent transition-colors">Contacto</Link></li>
                     </ul>

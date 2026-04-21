@@ -4,6 +4,9 @@ const NAV_LINKS_PUBLIC = [
     { href: "/", label: "Inicio" },
     { href: "/cartelera", label: "Cartelera" },
     { href: "/repertorio", label: "Repertorio" },
+    { href: "/materiales", label: "Materiales" },
+    { href: "/publicaciones", label: "Libros" },
+    { href: "/prensa", label: "Prensa" },
     { href: "/nosotros", label: "Nosotros" },
     { href: "/contacto", label: "Contacto" },
 ];

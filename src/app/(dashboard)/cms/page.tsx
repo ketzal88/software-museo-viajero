@@ -1,22 +1,29 @@
 import Link from "next/link";
-import { Theater, Calendar, Image as ImageIcon, Users, FileText } from "lucide-react";
-import { getWorksPublic, getFuncionesActivas, getHeroSlides } from "@/lib/actions";
+import { Theater, Calendar, Image as ImageIcon, Users, FileText, Newspaper, BookOpen, Download } from "lucide-react";
+import { getWorksPublic, getFuncionesActivas, getHeroSlides, getNotasPrensa, getPublicaciones, getMateriales, listPublicUsers } from "@/lib/actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function CmsIndexPage() {
-    const [obras, funciones, slides] = await Promise.all([
+    const [obras, funciones, slides, prensa, publicaciones, materiales, users] = await Promise.all([
         getWorksPublic(),
         getFuncionesActivas(),
         getHeroSlides(),
+        getNotasPrensa(),
+        getPublicaciones(),
+        getMateriales(999),
+        listPublicUsers(),
     ]);
 
     const sections = [
         { href: "/cms/obras", label: "Obras", icon: Theater, count: obras.length, desc: "Catálogo público: fichas, fotos, descripciones." },
         { href: "/cms/cartelera", label: "Cartelera", icon: Calendar, count: funciones.length, desc: "Funciones programadas en teatros públicos." },
-        { href: "/cms/hero", label: "Hero Home", icon: ImageIcon, count: slides.length, desc: "Slides del encabezado de la home." },
+        { href: "/cms/materiales", label: "Materiales", icon: Download, count: materiales.length, desc: "Guías, actividades, crucigramas por ciclo." },
+        { href: "/cms/publicaciones", label: "Publicaciones", icon: BookOpen, count: publicaciones.length, desc: "Libros editados (EUDEBA)." },
+        { href: "/cms/prensa", label: "Prensa", icon: Newspaper, count: prensa.length, desc: "Notas y menciones en medios." },
+        { href: "/cms/usuarios", label: "Usuarios", icon: Users, count: users.length, desc: "Cuentas del sitio público, niveles." },
         { href: "/cms/site", label: "Contenido del sitio", icon: FileText, desc: "Nosotros, contacto, stats, sociales, footer." },
-        { href: "/cms/staff-publico", label: "Staff público (próximo)", icon: Users, desc: "Personas visibles en el sitio." },
+        { href: "/cms/hero", label: "Hero Home", icon: ImageIcon, count: slides.length, desc: "Slides del encabezado de la home." },
     ];
 
     return (

@@ -2,7 +2,7 @@
 
 import * as admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
-import { Venue, School, Work, Season, EventDay, EventSlot, EventType, TheaterBooking, TravelBooking, BookingStatus, SlotTemplate, Person, WorkCast, PersonRate, Payout, RoleType, ShiftType, PayoutStatus, AttendanceStatus, BillingPolicy, DailySummary, MonthlySummary, SeasonSummary, PricingRule, PricingType, FuncionCartelera, TemaObra, VideoObra, HeroSlide, SiteConfigContact, SiteConfigNosotros, SiteConfigSocial, SiteConfigStats, CronologiaItem, Sponsor, COLLECTIONS } from "@/types";
+import { Venue, School, Work, Season, EventDay, EventSlot, EventType, TheaterBooking, TravelBooking, BookingStatus, SlotTemplate, Person, WorkCast, PersonRate, Payout, RoleType, ShiftType, PayoutStatus, AttendanceStatus, BillingPolicy, DailySummary, MonthlySummary, SeasonSummary, PricingRule, PricingType, FuncionCartelera, TemaObra, VideoObra, HeroSlide, SiteConfigContact, SiteConfigNosotros, SiteConfigSocial, SiteConfigStats, CronologiaItem, Sponsor, NotaPrensa, MaterialEducativo, Publicacion, PublicUser, COLLECTIONS } from "@/types";
 import { revalidatePath } from "next/cache";
 import { buildSearchTokens, serializeFirestore } from "./utils";
 import { slugify, ensureUniqueSlug } from "./slugify";
@@ -2135,6 +2135,311 @@ export async function getVenueBySlug(slug: string): Promise<Venue | null> {
     } catch (error) {
         console.error("Error fetching venue by slug:", error);
         return null;
+    }
+}
+
+// ---- USUARIOS PÚBLICOS (auth + perfil) ----
+
+export async function createPublicSession(idToken: string) {
+    try {
+        const { adminAuth } = await import("./firebaseAdmin");
+        const decoded = await adminAuth.verifyIdToken(idToken);
+        const { cookies } = await import("next/headers");
+        const cookieStore = cookies();
+        cookieStore.set("public_session_token", idToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 7 * 24 * 60 * 60, // 7 días
+            path: "/",
+        });
+        // Upsert doc en users si no existe (primer login)
+        const userDocRef = adminDb.collection("users").doc(decoded.uid);
+        const existing = await userDocRef.get();
+        if (!existing.exists) {
+            await userDocRef.set({
+                uid: decoded.uid,
+                email: decoded.email || "",
+                displayName: decoded.name || "",
+                photoURL: decoded.picture || "",
+                roles: ["free"],
+                nivelSuscripcion: 0,
+                isActive: true,
+                createdAt: new Date().toISOString(),
+                lastLogin: new Date().toISOString(),
+            });
+        } else {
+            await userDocRef.update({ lastLogin: new Date().toISOString() });
+        }
+        return { success: true, uid: decoded.uid };
+    } catch (error) {
+        console.error("Error creating public session:", error);
+        return { success: false, error: "Token inválido" };
+    }
+}
+
+export async function getCurrentPublicUser() {
+    try {
+        const { cookies } = await import("next/headers");
+        const token = cookies().get("public_session_token")?.value;
+        if (!token) return null;
+        const { adminAuth } = await import("./firebaseAdmin");
+        const decoded = await adminAuth.verifyIdToken(token, true).catch(() => null);
+        if (!decoded) return null;
+        const doc = await adminDb.collection("users").doc(decoded.uid).get();
+        if (!doc.exists) return null;
+        return serializeFirestore<import("@/types").PublicUser>({ uid: doc.id, ...doc.data() });
+    } catch (error) {
+        console.error("Error fetching public user:", error);
+        return null;
+    }
+}
+
+export async function destroyPublicSession() {
+    const { cookies } = await import("next/headers");
+    cookies().delete("public_session_token");
+    return { success: true };
+}
+
+export async function updatePublicProfile(uid: string, data: {
+    displayName?: string;
+    organization?: string;
+    photoURL?: string;
+}) {
+    try {
+        const { cookies } = await import("next/headers");
+        const token = cookies().get("public_session_token")?.value;
+        if (!token) return { success: false, error: "No autenticado" };
+        const { adminAuth } = await import("./firebaseAdmin");
+        const decoded = await adminAuth.verifyIdToken(token, true).catch(() => null);
+        if (!decoded || decoded.uid !== uid) return { success: false, error: "No autorizado" };
+        await adminDb.collection("users").doc(uid).update(data);
+        revalidatePath("/perfil");
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+// ---- PRENSA ----
+
+export async function getNotasPrensa(): Promise<NotaPrensa[]> {
+    try {
+        const snap = await adminDb.collection(COLLECTIONS.PRENSA)
+            .where("isActive", "==", true).get();
+        return snap.docs
+            .map(doc => serializeFirestore<NotaPrensa>({ id: doc.id, ...doc.data() }))
+            .sort((a, b) => (b.fecha ?? "").localeCompare(a.fecha ?? ""));
+    } catch (error) {
+        console.error("Error fetching prensa:", error);
+        return [];
+    }
+}
+
+export async function addNotaPrensa(data: Omit<NotaPrensa, "id">) {
+    try {
+        const ref = await adminDb.collection(COLLECTIONS.PRENSA).add({
+            ...data,
+            dateModified: new Date().toISOString(),
+        });
+        revalidatePublic("/prensa");
+        return { success: true, id: ref.id };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+export async function updateNotaPrensa(id: string, data: Partial<NotaPrensa>) {
+    try {
+        await adminDb.collection(COLLECTIONS.PRENSA).doc(id).update({
+            ...data, dateModified: new Date().toISOString(),
+        });
+        revalidatePublic("/prensa");
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+export async function deleteNotaPrensa(id: string) {
+    try {
+        await adminDb.collection(COLLECTIONS.PRENSA).doc(id).delete();
+        revalidatePublic("/prensa");
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+// ---- MATERIALES EDUCATIVOS (con paywall por nivel) ----
+
+export async function getMateriales(userNivel: number = 0): Promise<MaterialEducativo[]> {
+    try {
+        const snap = await adminDb.collection(COLLECTIONS.MATERIALES)
+            .where("isActive", "==", true).get();
+        return snap.docs
+            .map(doc => serializeFirestore<MaterialEducativo>({ id: doc.id, ...doc.data() }))
+            .filter(m => (m.nivelAcceso ?? 0) <= userNivel || userNivel >= 9)
+            .sort((a, b) => a.title.localeCompare(b.title, "es"));
+    } catch (error) {
+        console.error("Error fetching materiales:", error);
+        return [];
+    }
+}
+
+export async function getMaterialesByWork(workSlug: string, userNivel: number = 0): Promise<MaterialEducativo[]> {
+    try {
+        const snap = await adminDb.collection(COLLECTIONS.MATERIALES)
+            .where("workSlug", "==", workSlug)
+            .where("isActive", "==", true)
+            .get();
+        return snap.docs
+            .map(doc => serializeFirestore<MaterialEducativo>({ id: doc.id, ...doc.data() }))
+            .filter(m => (m.nivelAcceso ?? 0) <= userNivel || userNivel >= 9);
+    } catch (error) {
+        console.error("Error fetching materiales by work:", error);
+        return [];
+    }
+}
+
+export async function addMaterial(data: Omit<MaterialEducativo, "id">) {
+    try {
+        const ref = await adminDb.collection(COLLECTIONS.MATERIALES).add({
+            ...data, dateModified: new Date().toISOString(),
+        });
+        revalidatePublic("/materiales");
+        return { success: true, id: ref.id };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+export async function updateMaterial(id: string, data: Partial<MaterialEducativo>) {
+    try {
+        await adminDb.collection(COLLECTIONS.MATERIALES).doc(id).update({
+            ...data, dateModified: new Date().toISOString(),
+        });
+        revalidatePublic("/materiales");
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+export async function deleteMaterial(id: string) {
+    try {
+        await adminDb.collection(COLLECTIONS.MATERIALES).doc(id).delete();
+        revalidatePublic("/materiales");
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+// ---- PUBLICACIONES ----
+
+export async function getPublicaciones(): Promise<Publicacion[]> {
+    try {
+        const snap = await adminDb.collection(COLLECTIONS.PUBLICACIONES)
+            .where("isActive", "==", true).get();
+        return snap.docs
+            .map(doc => serializeFirestore<Publicacion>({ id: doc.id, ...doc.data() }))
+            .sort((a, b) => a.order - b.order);
+    } catch (error) {
+        console.error("Error fetching publicaciones:", error);
+        return [];
+    }
+}
+
+export async function addPublicacion(data: Omit<Publicacion, "id">) {
+    try {
+        const ref = await adminDb.collection(COLLECTIONS.PUBLICACIONES).add({
+            ...data, dateModified: new Date().toISOString(),
+        });
+        revalidatePublic("/publicaciones");
+        return { success: true, id: ref.id };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+export async function updatePublicacion(id: string, data: Partial<Publicacion>) {
+    try {
+        await adminDb.collection(COLLECTIONS.PUBLICACIONES).doc(id).update({
+            ...data, dateModified: new Date().toISOString(),
+        });
+        revalidatePublic("/publicaciones");
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+export async function deletePublicacion(id: string) {
+    try {
+        await adminDb.collection(COLLECTIONS.PUBLICACIONES).doc(id).delete();
+        revalidatePublic("/publicaciones");
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+// ---- ADMIN USUARIOS PÚBLICOS (Firebase Auth + Firestore) ----
+
+export async function listPublicUsers(): Promise<PublicUser[]> {
+    try {
+        const { adminAuth } = await import("./firebaseAdmin");
+        const authUsers = await adminAuth.listUsers(1000);
+        const firestoreSnap = await adminDb.collection(COLLECTIONS.USERS).get();
+        const fsUsers = new Map<string, Record<string, unknown>>();
+        firestoreSnap.forEach(d => fsUsers.set(d.id, d.data()));
+        return authUsers.users.map(u => {
+            const fs = fsUsers.get(u.uid) ?? {};
+            return serializeFirestore<PublicUser>({
+                uid: u.uid,
+                email: u.email || "",
+                displayName: u.displayName || (fs.displayName as string) || "",
+                photoURL: u.photoURL || (fs.photoURL as string) || "",
+                roles: (fs.roles as string[]) ?? ["free"],
+                nivelSuscripcion: (fs.nivelSuscripcion as number) ?? 0,
+                isActive: !u.disabled,
+                createdAt: u.metadata.creationTime || new Date().toISOString(),
+                lastLogin: u.metadata.lastSignInTime,
+                organization: fs.organization,
+                extraData: fs.extraData,
+            });
+        });
+    } catch (error) {
+        console.error("Error listing users:", error);
+        return [];
+    }
+}
+
+export async function updatePublicUserLevel(uid: string, nivelSuscripcion: number, roles?: string[]) {
+    try {
+        if (nivelSuscripcion < 0 || nivelSuscripcion > 9) {
+            return { success: false, error: "Nivel inválido" };
+        }
+        const update: Record<string, unknown> = { nivelSuscripcion };
+        if (roles) update.roles = roles;
+        await adminDb.collection(COLLECTIONS.USERS).doc(uid).set(update, { merge: true });
+        revalidatePublic("/cms/usuarios");
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
+    }
+}
+
+export async function deletePublicUser(uid: string) {
+    try {
+        const { adminAuth } = await import("./firebaseAdmin");
+        await adminAuth.deleteUser(uid);
+        await adminDb.collection(COLLECTIONS.USERS).doc(uid).delete();
+        revalidatePublic("/cms/usuarios");
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : "Error" };
     }
 }
 
