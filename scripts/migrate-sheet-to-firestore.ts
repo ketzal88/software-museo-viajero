@@ -67,6 +67,7 @@ if (!admin.apps.length) {
 }
 
 const db = admin.firestore();
+db.settings({ ignoreUndefinedProperties: true });
 
 // ─────────────────────────────────────────────────────────────
 // Sheet fetch
@@ -105,6 +106,35 @@ async function upsertBySlug(col: string, slug: string, data: Record<string, unkn
         await db.collection(col).add({ ...data, slug });
     } else {
         await existing.docs[0].ref.set({ ...data, slug }, { merge: true });
+    }
+}
+
+/**
+ * Upsert seguro para colecciones con campos operativos del staff (ej. works):
+ * al actualizar un doc existente, excluye los campos listados en `protectedFields`.
+ * El insert inicial usa `data` completo.
+ */
+async function upsertBySlugSafe(
+    col: string,
+    slug: string,
+    data: Record<string, unknown>,
+    protectedFields: string[],
+) {
+    if (DRY) {
+        console.log(`  [dry] upsertSafe ${col}/${slug}`);
+        return;
+    }
+    const existing = await db.collection(col).where("slug", "==", slug).limit(1).get();
+    if (existing.empty) {
+        await db.collection(col).add({ ...data, slug });
+    } else {
+        const safe: Record<string, unknown> = { slug };
+        for (const [k, v] of Object.entries(data)) {
+            if (protectedFields.includes(k)) continue;
+            if (v === undefined) continue;
+            safe[k] = v;
+        }
+        await existing.docs[0].ref.set(safe, { merge: true });
     }
 }
 
@@ -166,26 +196,38 @@ async function migrateSalas() {
         const name = (row.nombreSala || "").trim();
         if (!name) continue;
         const slug = slugify(name);
-        const data: Record<string, unknown> = {
-            name,
-            slug,
-            addressLine: row.direccion || "",
-            address: row.direccion || "",
-            mapsUrl: row.link || undefined,
-            defaultCapacity: parseInt(row.capacidad || "0", 10) || 0,
-            isPublicVisible: true,
-            isActive: true,
-        };
-        // Match by name if existing (extend dashboard venue), else create
+        const capacidad = parseInt(row.capacidad || "0", 10) || 0;
+
         const existing = await db.collection("venues").where("name", "==", name).limit(1).get();
         if (DRY) {
-            console.log(`  [dry] ${existing.empty ? "create" : "update"} venue ${name}`);
+            console.log(`  [dry] ${existing.empty ? "create" : "update (safe)"} venue "${name}"`);
             continue;
         }
+
         if (existing.empty) {
-            await db.collection("venues").add(data);
+            // Insert completo — venue nuevo (el sitio lo crea)
+            await db.collection("venues").add({
+                name,
+                slug,
+                addressLine: row.direccion || "",
+                address: row.direccion || "",
+                mapsUrl: row.link || undefined,
+                defaultCapacity: capacidad,
+                isPublicVisible: true,
+                isActive: true,
+            });
         } else {
-            await existing.docs[0].ref.set(data, { merge: true });
+            // Update SAFE: solo agrega campos públicos sin pisar operativa del staff
+            const safePatch: Record<string, unknown> = {
+                slug,
+                isPublicVisible: true,
+            };
+            if (row.direccion) {
+                safePatch.addressLine = row.direccion;
+                safePatch.address = row.direccion;
+            }
+            if (row.link) safePatch.mapsUrl = row.link;
+            await existing.docs[0].ref.set(safePatch, { merge: true });
         }
     }
     console.log(`  ${rows.length} salas`);
@@ -283,7 +325,8 @@ async function migrateObras(dump: DataSourceObra[] | null) {
             ogImage: data.imgPortada,
         };
 
-        await upsertBySlug("works", slug, data);
+        // Protegemos campos operativos del staff al actualizar obras existentes.
+        await upsertBySlugSafe("works", slug, data, ["title", "isActive", "description", "duration", "tags", "audienceTags"]);
     }
     console.log(`  ${allIds.size} obras`);
 }
